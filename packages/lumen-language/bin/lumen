@@ -1,5 +1,12 @@
 #!/bin/sh
 
+if [ -x "lumen-${1}" ]
+then
+  bin="lumen-${1}"
+  shift
+  exec "${bin}" "$@"
+fi
+
 dir="$(pwd)"
 bin="$0"
 while [ -L "${bin}" ]
