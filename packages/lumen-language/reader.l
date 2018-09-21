@@ -81,6 +81,12 @@
 (define real? (x)
   (and (number? x) (not (nan? x)) (not (inf? x))))
 
+(define as-atom (str)
+  (if (= str "true") true
+      (= str "false") false
+    (let n (maybe-number str)
+      (if (real? n) n str))))
+
 (define-reader ("" s) ; atom
   (let (str "")
     (while true
@@ -89,10 +95,7 @@
                         (not (get delimiters c))))
             (cat! str (read-char s))
           (break))))
-  (if (= str "true") true
-      (= str "false") false
-    (let n (maybe-number str)
-      (if (real? n) n str)))))
+    (as-atom str)))
 
 (define-reader ("(" s)
   (read-char s)

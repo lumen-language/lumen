@@ -13,8 +13,12 @@ var directory_exists63 = function (path) {
   return fs.existsSync(path, "utf8") && fs.statSync(path).isDirectory();
 };
 var path_separator = require("path").sep;
-var path_join = function () {
-  var __parts = unstash(Array.prototype.slice.call(arguments, 0));
+var path_join = function (..._42args) {
+  var ____r4 = unstash(_42args);
+  var ___4242kwargs = destash(_42args);
+  var ____id = ___4242kwargs;
+  var ____id1 = ____r4;
+  var __parts = cut(____id1, 0);
   return reduce(function (x, y) {
     return x + path_separator + y;
   }, __parts) || "";

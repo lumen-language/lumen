@@ -119,6 +119,22 @@ var maybe_number = function (str) {
 var real63 = function (x) {
   return number63(x) && ! nan63(x) && ! inf63(x);
 };
+var as_atom = function (str) {
+  if (str === "true") {
+    return true;
+  } else {
+    if (str === "false") {
+      return false;
+    } else {
+      var __n1 = maybe_number(str);
+      if (real63(__n1)) {
+        return __n1;
+      } else {
+        return str;
+      }
+    }
+  }
+};
 read_table[""] = function (s) {
   var __str = "";
   while (true) {
@@ -129,34 +145,21 @@ read_table[""] = function (s) {
       break;
     }
   }
-  if (__str === "true") {
-    return true;
-  } else {
-    if (__str === "false") {
-      return false;
-    } else {
-      var __n1 = maybe_number(__str);
-      if (real63(__n1)) {
-        return __n1;
-      } else {
-        return __str;
-      }
-    }
-  }
+  return as_atom(__str);
 };
 read_table["("] = function (s) {
   read_char(s);
-  var __r16 = undefined;
+  var __r17 = undefined;
   var __l1 = [];
-  while (nil63(__r16)) {
+  while (nil63(__r17)) {
     skip_non_code(s);
     var __c4 = peek_char(s);
     if (__c4 === ")") {
       read_char(s);
-      __r16 = __l1;
+      __r17 = __l1;
     } else {
       if (nil63(__c4)) {
-        __r16 = expected(s, ")");
+        __r17 = expected(s, ")");
       } else {
         var __x2 = read(s);
         if (key63(__x2)) {
@@ -173,22 +176,22 @@ read_table["("] = function (s) {
       }
     }
   }
-  return __r16;
+  return __r17;
 };
 read_table[")"] = function (s) {
   return error("Unexpected ) at " + s.pos);
 };
 read_table["\""] = function (s) {
   read_char(s);
-  var __r19 = undefined;
+  var __r20 = undefined;
   var __str1 = "\"";
-  while (nil63(__r19)) {
+  while (nil63(__r20)) {
     var __c5 = peek_char(s);
     if (__c5 === "\"") {
-      __r19 = __str1 + read_char(s);
+      __r20 = __str1 + read_char(s);
     } else {
       if (nil63(__c5)) {
-        __r19 = expected(s, "\"");
+        __r20 = expected(s, "\"");
       } else {
         if (__c5 === "\\") {
           __str1 = __str1 + read_char(s);
@@ -197,25 +200,25 @@ read_table["\""] = function (s) {
       }
     }
   }
-  return __r19;
+  return __r20;
 };
 read_table["|"] = function (s) {
   read_char(s);
-  var __r21 = undefined;
+  var __r22 = undefined;
   var __str2 = "|";
-  while (nil63(__r21)) {
+  while (nil63(__r22)) {
     var __c6 = peek_char(s);
     if (__c6 === "|") {
-      __r21 = __str2 + read_char(s);
+      __r22 = __str2 + read_char(s);
     } else {
       if (nil63(__c6)) {
-        __r21 = expected(s, "|");
+        __r22 = expected(s, "|");
       } else {
         __str2 = __str2 + read_char(s);
       }
     }
   }
-  return __r21;
+  return __r22;
 };
 read_table["'"] = function (s) {
   read_char(s);

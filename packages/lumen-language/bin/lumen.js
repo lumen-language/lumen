@@ -189,15 +189,19 @@ reduce = function (f, x) {
     }
   }
 };
-join = function () {
-  var __ls = unstash(Array.prototype.slice.call(arguments, 0));
-  var __r38 = [];
+join = function (..._42args) {
+  var ____r38 = unstash(_42args);
+  var ___4242kwargs = destash(_42args);
+  var ____id = ___4242kwargs;
+  var ____id1 = ____r38;
+  var __ls = cut(____id1, 0);
+  var __r39 = [];
   var ____x1 = __ls;
   var ____i4 = 0;
   while (____i4 < _35(____x1)) {
     var __l11 = ____x1[____i4];
     if (__l11) {
-      var __n3 = _35(__r38);
+      var __n3 = _35(__r39);
       var ____o2 = __l11;
       var __k4 = undefined;
       for (__k4 in ____o2) {
@@ -212,12 +216,12 @@ join = function () {
         if (number63(__k5)) {
           __k5 = __k5 + __n3;
         }
-        __r38[__k5] = __v2;
+        __r39[__k5] = __v2;
       }
     }
     ____i4 = ____i4 + 1;
   }
-  return __r38;
+  return __r39;
 };
 find = function (f, t) {
   var ____o3 = t;
@@ -373,14 +377,42 @@ stash = function (args) {
   }
   return args;
 };
+stash63 = function (x) {
+  return obj63(x) && x._stash;
+};
+destash = function (args) {
+  if (stash63(args)) {
+    return args;
+  } else {
+    var __l2 = last(args);
+    if (! stash63(__l2)) {
+      __l2 = {};
+      __l2._stash = true;
+    }
+    return __l2;
+  }
+};
+astash = function (..._42args) {
+  var __xs = _42args;
+  var __n10 = _35(__xs);
+  var __ks = drop(__xs);
+  if (! stash63(__ks)) {
+    if (!( __n10 === 0)) {
+      add(__xs, __ks);
+    }
+    __ks = {};
+    __ks._stash = true;
+  }
+  return [__xs, __ks];
+};
 unstash = function (args) {
   if (none63(args)) {
     return [];
   } else {
-    var __l2 = last(args);
-    if (obj63(__l2) && __l2._stash) {
+    var __l3 = last(args);
+    if (obj63(__l3) && __l3._stash) {
       var __args1 = almost(args);
-      var ____o8 = __l2;
+      var ____o8 = __l3;
       var __k12 = undefined;
       for (__k12 in ____o8) {
         var __v7 = ____o8[__k12];
@@ -432,56 +464,80 @@ split = function (s, sep) {
   if (s === "" || sep === "") {
     return [];
   } else {
-    var __l3 = [];
-    var __n12 = _35(sep);
+    var __l4 = [];
+    var __n13 = _35(sep);
     while (true) {
       var __i17 = search(s, sep);
       if (nil63(__i17)) {
         break;
       } else {
-        add(__l3, clip(s, 0, __i17));
-        s = clip(s, __i17 + __n12);
+        add(__l4, clip(s, 0, __i17));
+        s = clip(s, __i17 + __n13);
       }
     }
-    add(__l3, s);
-    return __l3;
+    add(__l4, s);
+    return __l4;
   }
 };
-cat = function () {
-  var __xs = unstash(Array.prototype.slice.call(arguments, 0));
+cat = function (..._42args) {
+  var ____r59 = unstash(_42args);
+  var ___4242kwargs1 = destash(_42args);
+  var ____id2 = ___4242kwargs1;
+  var ____id3 = ____r59;
+  var __xs1 = cut(____id3, 0);
   return either(reduce(function (a, b) {
     return a + b;
-  }, __xs), "");
+  }, __xs1), "");
 };
-_43 = function () {
-  var __xs1 = unstash(Array.prototype.slice.call(arguments, 0));
+_43 = function (..._42args) {
+  var ____r61 = unstash(_42args);
+  var ___4242kwargs2 = destash(_42args);
+  var ____id4 = ___4242kwargs2;
+  var ____id5 = ____r61;
+  var __xs2 = cut(____id5, 0);
   return either(reduce(function (a, b) {
     return a + b;
-  }, __xs1), 0);
+  }, __xs2), 0);
 };
-_45 = function () {
-  var __xs2 = unstash(Array.prototype.slice.call(arguments, 0));
+_45 = function (..._42args) {
+  var ____r63 = unstash(_42args);
+  var ___4242kwargs3 = destash(_42args);
+  var ____id6 = ___4242kwargs3;
+  var ____id7 = ____r63;
+  var __xs3 = cut(____id7, 0);
   return either(reduce(function (b, a) {
     return a - b;
-  }, reverse(__xs2)), 0);
+  }, reverse(__xs3)), 0);
 };
-_42 = function () {
-  var __xs3 = unstash(Array.prototype.slice.call(arguments, 0));
+_42 = function (..._42args) {
+  var ____r65 = unstash(_42args);
+  var ___4242kwargs4 = destash(_42args);
+  var ____id8 = ___4242kwargs4;
+  var ____id9 = ____r65;
+  var __xs4 = cut(____id9, 0);
   return either(reduce(function (a, b) {
     return a * b;
-  }, __xs3), 1);
+  }, __xs4), 1);
 };
-_47 = function () {
-  var __xs4 = unstash(Array.prototype.slice.call(arguments, 0));
+_47 = function (..._42args) {
+  var ____r67 = unstash(_42args);
+  var ___4242kwargs5 = destash(_42args);
+  var ____id10 = ___4242kwargs5;
+  var ____id11 = ____r67;
+  var __xs5 = cut(____id11, 0);
   return either(reduce(function (b, a) {
     return a / b;
-  }, reverse(__xs4)), 1);
+  }, reverse(__xs5)), 1);
 };
-_37 = function () {
-  var __xs5 = unstash(Array.prototype.slice.call(arguments, 0));
+_37 = function (..._42args) {
+  var ____r69 = unstash(_42args);
+  var ___4242kwargs6 = destash(_42args);
+  var ____id12 = ___4242kwargs6;
+  var ____id13 = ____r69;
+  var __xs6 = cut(____id13, 0);
   return either(reduce(function (b, a) {
     return a % b;
-  }, reverse(__xs5)), 0);
+  }, reverse(__xs6)), 0);
 };
 var pairwise = function (f, xs) {
   var __i18 = 0;
@@ -495,49 +551,69 @@ var pairwise = function (f, xs) {
   }
   return true;
 };
-_60 = function () {
-  var __xs6 = unstash(Array.prototype.slice.call(arguments, 0));
+_60 = function (..._42args) {
+  var ____r72 = unstash(_42args);
+  var ___4242kwargs7 = destash(_42args);
+  var ____id14 = ___4242kwargs7;
+  var ____id15 = ____r72;
+  var __xs7 = cut(____id15, 0);
   return pairwise(function (a, b) {
     return a < b;
-  }, __xs6);
-};
-_62 = function () {
-  var __xs7 = unstash(Array.prototype.slice.call(arguments, 0));
-  return pairwise(function (a, b) {
-    return a > b;
   }, __xs7);
 };
-_61 = function () {
-  var __xs8 = unstash(Array.prototype.slice.call(arguments, 0));
+_62 = function (..._42args) {
+  var ____r74 = unstash(_42args);
+  var ___4242kwargs8 = destash(_42args);
+  var ____id16 = ___4242kwargs8;
+  var ____id17 = ____r74;
+  var __xs8 = cut(____id17, 0);
   return pairwise(function (a, b) {
-    return a === b;
+    return a > b;
   }, __xs8);
 };
-_6061 = function () {
-  var __xs9 = unstash(Array.prototype.slice.call(arguments, 0));
+_61 = function (..._42args) {
+  var ____r76 = unstash(_42args);
+  var ___4242kwargs9 = destash(_42args);
+  var ____id18 = ___4242kwargs9;
+  var ____id19 = ____r76;
+  var __xs9 = cut(____id19, 0);
   return pairwise(function (a, b) {
-    return a <= b;
+    return a === b;
   }, __xs9);
 };
-_6261 = function () {
-  var __xs10 = unstash(Array.prototype.slice.call(arguments, 0));
+_6061 = function (..._42args) {
+  var ____r78 = unstash(_42args);
+  var ___4242kwargs10 = destash(_42args);
+  var ____id20 = ___4242kwargs10;
+  var ____id21 = ____r78;
+  var __xs10 = cut(____id21, 0);
   return pairwise(function (a, b) {
-    return a >= b;
+    return a <= b;
   }, __xs10);
 };
+_6261 = function (..._42args) {
+  var ____r80 = unstash(_42args);
+  var ___4242kwargs11 = destash(_42args);
+  var ____id22 = ___4242kwargs11;
+  var ____id23 = ____r80;
+  var __xs11 = cut(____id23, 0);
+  return pairwise(function (a, b) {
+    return a >= b;
+  }, __xs11);
+};
 number = function (s) {
-  var __n13 = parseFloat(s);
-  if (! isNaN(__n13)) {
-    return __n13;
+  var __n14 = parseFloat(s);
+  if (! isNaN(__n14)) {
+    return __n14;
   }
 };
 number_code63 = function (n) {
   return n > 47 && n < 58;
 };
 numeric63 = function (s) {
-  var __n14 = _35(s);
+  var __n15 = _35(s);
   var __i19 = 0;
-  while (__i19 < __n14) {
+  while (__i19 < __n15) {
     if (! number_code63(code(s, __i19))) {
       return false;
     }
@@ -620,10 +696,10 @@ str = function (x, stack) {
                     } else {
                       var __s = "(";
                       var __sp = "";
-                      var __xs11 = [];
-                      var __ks = [];
-                      var __l4 = stack || [];
-                      add(__l4, x);
+                      var __xs12 = [];
+                      var __ks1 = [];
+                      var __l5 = stack || [];
+                      add(__l5, x);
                       var ____o10 = x;
                       var __k16 = undefined;
                       for (__k16 in ____o10) {
@@ -636,14 +712,14 @@ str = function (x, stack) {
                         }
                         var __k17 = __e17;
                         if (number63(__k17)) {
-                          __xs11[__k17] = str(__v9, __l4);
+                          __xs12[__k17] = str(__v9, __l5);
                         } else {
-                          add(__ks, __k17 + ":");
-                          add(__ks, str(__v9, __l4));
+                          add(__ks1, __k17 + ":");
+                          add(__ks1, str(__v9, __l5));
                         }
                       }
-                      drop(__l4);
-                      var ____o11 = join(__xs11, __ks);
+                      drop(__l5);
+                      var ____o11 = join(__xs12, __ks1);
                       var ____i22 = undefined;
                       for (____i22 in ____o11) {
                         var __v10 = ____o11[____i22];
@@ -673,18 +749,22 @@ apply = function (f, args) {
   var __args = stash(args);
   return f.apply(f, __args);
 };
-call = function (f) {
-  var ____r75 = unstash(Array.prototype.slice.call(arguments, 1));
-  var __f = destash33(f, ____r75);
-  var ____id = ____r75;
-  var __args11 = cut(____id, 0);
+call = function (f, ..._42args) {
+  var ____r89 = unstash(_42args);
+  var ___4242kwargs12 = destash(_42args);
+  var ____id24 = ___4242kwargs12;
+  var __f = destash33(f, ____r89);
+  var ____id25 = ____r89;
+  var __args11 = cut(____id25, 0);
   return apply(__f, __args11);
 };
-setenv = function (k) {
-  var ____r76 = unstash(Array.prototype.slice.call(arguments, 1));
-  var __k18 = destash33(k, ____r76);
-  var ____id1 = ____r76;
-  var __keys = cut(____id1, 0);
+setenv = function (k, ..._42args) {
+  var ____r90 = unstash(_42args);
+  var ___4242kwargs13 = destash(_42args);
+  var ____id26 = ___4242kwargs13;
+  var __k18 = destash33(k, ____r90);
+  var ____id27 = ____r90;
+  var __keys = cut(____id27, 0);
   if (string63(__k18)) {
     var __e19 = undefined;
     if (__keys.toplevel) {
@@ -744,12 +824,16 @@ setenv("quote", {_stash: true, macro: function (form) {
 setenv("quasiquote", {_stash: true, macro: function (form) {
   return quasiexpand(form, 1);
 }});
-setenv("set", {_stash: true, macro: function () {
-  var __args1 = unstash(Array.prototype.slice.call(arguments, 0));
+setenv("set", {_stash: true, macro: function (..._42args) {
+  var ____r6 = unstash(_42args);
+  var ___4242kwargs1 = destash(_42args);
+  var ____id3 = ___4242kwargs1;
+  var ____id4 = ____r6;
+  var __args1 = cut(____id4, 0);
   return join(["do"], map(function (__x4) {
-    var ____id1 = __x4;
-    var __lh1 = ____id1[0];
-    var __rh1 = ____id1[1];
+    var ____id5 = __x4;
+    var __lh1 = ____id5[0];
+    var __rh1 = ____id5[1];
     return ["%set", __lh1, __rh1];
   }, pair(__args1)));
 }});
@@ -770,8 +854,12 @@ setenv("wipe", {_stash: true, macro: function (place) {
     return ["%delete", place];
   }
 }});
-setenv("list", {_stash: true, macro: function () {
-  var __body1 = unstash(Array.prototype.slice.call(arguments, 0));
+setenv("list", {_stash: true, macro: function (..._42args) {
+  var ____r13 = unstash(_42args);
+  var ___4242kwargs3 = destash(_42args);
+  var ____id8 = ___4242kwargs3;
+  var ____id9 = ____r13;
+  var __body1 = cut(____id9, 0);
   var __x22 = unique("x");
   var __l1 = [];
   var __forms1 = [];
@@ -798,23 +886,29 @@ setenv("list", {_stash: true, macro: function () {
     return join(["%array"], __l1);
   }
 }});
-setenv("if", {_stash: true, macro: function () {
-  var __branches1 = unstash(Array.prototype.slice.call(arguments, 0));
+setenv("if", {_stash: true, macro: function (..._42args) {
+  var ____r15 = unstash(_42args);
+  var ___4242kwargs5 = destash(_42args);
+  var ____id12 = ___4242kwargs5;
+  var ____id13 = ____r15;
+  var __branches1 = cut(____id13, 0);
   return hd(expand_if(__branches1));
 }});
-setenv("case", {_stash: true, macro: function (expr) {
-  var ____r13 = unstash(Array.prototype.slice.call(arguments, 1));
-  var __expr1 = destash33(expr, ____r13);
-  var ____id4 = ____r13;
-  var __clauses1 = cut(____id4, 0);
+setenv("case", {_stash: true, macro: function (expr, ..._42args) {
+  var ____r19 = unstash(_42args);
+  var ___4242kwargs7 = destash(_42args);
+  var ____id17 = ___4242kwargs7;
+  var __expr1 = destash33(expr, ____r19);
+  var ____id18 = ____r19;
+  var __clauses1 = cut(____id18, 0);
   var __x41 = unique("x");
   var __eq1 = function (_) {
     return ["=", ["quote", _], __x41];
   };
   var __cl1 = function (__x44) {
-    var ____id5 = __x44;
-    var __a1 = ____id5[0];
-    var __b1 = ____id5[1];
+    var ____id19 = __x44;
+    var __a1 = ____id19[0];
+    var __b1 = ____id19[1];
     if (nil63(__b1)) {
       return [__a1];
     } else {
@@ -833,90 +927,108 @@ setenv("case", {_stash: true, macro: function (expr) {
   };
   return ["let", __x41, __expr1, join(["if"], apply(join, map(__cl1, pair(__clauses1))))];
 }});
-setenv("when", {_stash: true, macro: function (cond) {
-  var ____r17 = unstash(Array.prototype.slice.call(arguments, 1));
-  var __cond1 = destash33(cond, ____r17);
-  var ____id7 = ____r17;
-  var __body3 = cut(____id7, 0);
+setenv("when", {_stash: true, macro: function (cond, ..._42args) {
+  var ____r23 = unstash(_42args);
+  var ___4242kwargs9 = destash(_42args);
+  var ____id22 = ___4242kwargs9;
+  var __cond1 = destash33(cond, ____r23);
+  var ____id23 = ____r23;
+  var __body3 = cut(____id23, 0);
   return ["if", __cond1, join(["do"], __body3)];
 }});
-setenv("unless", {_stash: true, macro: function (cond) {
-  var ____r19 = unstash(Array.prototype.slice.call(arguments, 1));
-  var __cond3 = destash33(cond, ____r19);
-  var ____id9 = ____r19;
-  var __body5 = cut(____id9, 0);
+setenv("unless", {_stash: true, macro: function (cond, ..._42args) {
+  var ____r25 = unstash(_42args);
+  var ___4242kwargs11 = destash(_42args);
+  var ____id26 = ___4242kwargs11;
+  var __cond3 = destash33(cond, ____r25);
+  var ____id27 = ____r25;
+  var __body5 = cut(____id27, 0);
   return ["if", ["not", __cond3], join(["do"], __body5)];
 }});
-setenv("obj", {_stash: true, macro: function () {
-  var __body7 = unstash(Array.prototype.slice.call(arguments, 0));
+setenv("obj", {_stash: true, macro: function (..._42args) {
+  var ____r28 = unstash(_42args);
+  var ___4242kwargs13 = destash(_42args);
+  var ____id30 = ___4242kwargs13;
+  var ____id31 = ____r28;
+  var __body7 = cut(____id31, 0);
   return join(["%object"], mapo(function (x) {
     return x;
   }, __body7));
 }});
-setenv("let", {_stash: true, macro: function (bs) {
-  var ____r23 = unstash(Array.prototype.slice.call(arguments, 1));
-  var __bs11 = destash33(bs, ____r23);
-  var ____id14 = ____r23;
-  var __body9 = cut(____id14, 0);
+setenv("let", {_stash: true, macro: function (bs, ..._42args) {
+  var ____r31 = unstash(_42args);
+  var ___4242kwargs15 = destash(_42args);
+  var ____id37 = ___4242kwargs15;
+  var __bs11 = destash33(bs, ____r31);
+  var ____id38 = ____r31;
+  var __body9 = cut(____id38, 0);
   if (atom63(__bs11)) {
     return join(["let", [__bs11, hd(__body9)]], tl(__body9));
   } else {
     if (none63(__bs11)) {
       return join(["do"], __body9);
     } else {
-      var ____id15 = __bs11;
-      var __lh3 = ____id15[0];
-      var __rh3 = ____id15[1];
-      var __bs21 = cut(____id15, 2);
-      var ____id16 = bind(__lh3, __rh3);
-      var __id17 = ____id16[0];
-      var __val1 = ____id16[1];
-      var __bs12 = cut(____id16, 2);
+      var ____id39 = __bs11;
+      var __lh3 = ____id39[0];
+      var __rh3 = ____id39[1];
+      var __bs21 = cut(____id39, 2);
+      var ____id40 = bind(__lh3, __rh3);
+      var __id41 = ____id40[0];
+      var __val1 = ____id40[1];
+      var __bs12 = cut(____id40, 2);
       var __renames1 = [];
-      if (! id_literal63(__id17)) {
-        var __id121 = unique(__id17);
-        __renames1 = [__id17, __id121];
-        __id17 = __id121;
+      if (! id_literal63(__id41)) {
+        var __id121 = unique(__id41);
+        __renames1 = [__id41, __id121];
+        __id41 = __id121;
       }
-      return ["do", ["%local", __id17, __val1], ["let-symbol", __renames1, join(["let", join(__bs12, __bs21)], __body9)]];
+      return ["do", ["%local", __id41, __val1], ["let-symbol", __renames1, join(["let", join(__bs12, __bs21)], __body9)]];
     }
   }
 }});
-setenv("with", {_stash: true, macro: function (x, v) {
-  var ____r25 = unstash(Array.prototype.slice.call(arguments, 2));
-  var __x84 = destash33(x, ____r25);
-  var __v3 = destash33(v, ____r25);
-  var ____id19 = ____r25;
-  var __body11 = cut(____id19, 0);
+setenv("with", {_stash: true, macro: function (x, v, ..._42args) {
+  var ____r33 = unstash(_42args);
+  var ___4242kwargs17 = destash(_42args);
+  var ____id44 = ___4242kwargs17;
+  var __x84 = destash33(x, ____r33);
+  var __v3 = destash33(v, ____r33);
+  var ____id45 = ____r33;
+  var __body11 = cut(____id45, 0);
   return join(["let", [__x84, __v3]], __body11, [__x84]);
 }});
-setenv("let-when", {_stash: true, macro: function (x, v) {
-  var ____r27 = unstash(Array.prototype.slice.call(arguments, 2));
-  var __x94 = destash33(x, ____r27);
-  var __v5 = destash33(v, ____r27);
-  var ____id21 = ____r27;
-  var __body13 = cut(____id21, 0);
+setenv("let-when", {_stash: true, macro: function (x, v, ..._42args) {
+  var ____r35 = unstash(_42args);
+  var ___4242kwargs19 = destash(_42args);
+  var ____id48 = ___4242kwargs19;
+  var __x94 = destash33(x, ____r35);
+  var __v5 = destash33(v, ____r35);
+  var ____id49 = ____r35;
+  var __body13 = cut(____id49, 0);
   var __y1 = unique("y");
   return ["let", __y1, __v5, ["when", ["yes", __y1], join(["let", [__x94, __y1]], __body13)]];
 }});
-setenv("define-macro", {_stash: true, macro: function (name, args) {
-  var ____r29 = unstash(Array.prototype.slice.call(arguments, 2));
-  var __name1 = destash33(name, ____r29);
-  var __args3 = destash33(args, ____r29);
-  var ____id23 = ____r29;
-  var __body15 = cut(____id23, 0);
+setenv("define-macro", {_stash: true, macro: function (name, args, ..._42args) {
+  var ____r37 = unstash(_42args);
+  var ___4242kwargs21 = destash(_42args);
+  var ____id52 = ___4242kwargs21;
+  var __name1 = destash33(name, ____r37);
+  var __args3 = destash33(args, ____r37);
+  var ____id53 = ____r37;
+  var __body15 = cut(____id53, 0);
   var ____x103 = ["setenv", ["quote", __name1]];
   ____x103.macro = join(["fn", __args3], __body15);
   var __form1 = ____x103;
   _eval(__form1);
   return __form1;
 }});
-setenv("define-special", {_stash: true, macro: function (name, args) {
-  var ____r31 = unstash(Array.prototype.slice.call(arguments, 2));
-  var __name3 = destash33(name, ____r31);
-  var __args5 = destash33(args, ____r31);
-  var ____id25 = ____r31;
-  var __body17 = cut(____id25, 0);
+setenv("define-special", {_stash: true, macro: function (name, args, ..._42args) {
+  var ____r39 = unstash(_42args);
+  var ___4242kwargs23 = destash(_42args);
+  var ____id56 = ___4242kwargs23;
+  var __name3 = destash33(name, ____r39);
+  var __args5 = destash33(args, ____r39);
+  var ____id57 = ____r39;
+  var __body17 = cut(____id57, 0);
   var ____x109 = ["setenv", ["quote", __name3]];
   ____x109.special = join(["fn", __args5], __body17);
   var __form3 = join(____x109, keys(__body17));
@@ -929,22 +1041,26 @@ setenv("define-symbol", {_stash: true, macro: function (name, expansion) {
   ____x115.symbol = ["quote", expansion];
   return ____x115;
 }});
-setenv("define-reader", {_stash: true, macro: function (__x123) {
-  var ____id28 = __x123;
-  var __char1 = ____id28[0];
-  var __s1 = ____id28[1];
-  var ____r35 = unstash(Array.prototype.slice.call(arguments, 1));
-  var ____x123 = destash33(__x123, ____r35);
-  var ____id29 = ____r35;
-  var __body19 = cut(____id29, 0);
+setenv("define-reader", {_stash: true, macro: function (__x123, ..._42args) {
+  var ____id61 = __x123;
+  var __char1 = ____id61[0];
+  var __s1 = ____id61[1];
+  var ____r43 = unstash(_42args);
+  var ___4242kwargs25 = destash(_42args);
+  var ____id62 = ___4242kwargs25;
+  var ____x123 = destash33(__x123, ____r43);
+  var ____id63 = ____r43;
+  var __body19 = cut(____id63, 0);
   return ["set", ["get", "read-table", __char1], join(["fn", [__s1]], __body19)];
 }});
-setenv("define", {_stash: true, macro: function (name, x) {
-  var ____r37 = unstash(Array.prototype.slice.call(arguments, 2));
-  var __name5 = destash33(name, ____r37);
-  var __x131 = destash33(x, ____r37);
-  var ____id31 = ____r37;
-  var __body21 = cut(____id31, 0);
+setenv("define", {_stash: true, macro: function (name, x, ..._42args) {
+  var ____r45 = unstash(_42args);
+  var ___4242kwargs27 = destash(_42args);
+  var ____id66 = ___4242kwargs27;
+  var __name5 = destash33(name, ____r45);
+  var __x131 = destash33(x, ____r45);
+  var ____id67 = ____r45;
+  var __body21 = cut(____id67, 0);
   setenv(__name5, {_stash: true, variable: true});
   if (some63(__body21)) {
     return join(["%local-function", __name5], bind42(__x131, __body21));
@@ -952,12 +1068,14 @@ setenv("define", {_stash: true, macro: function (name, x) {
     return ["%local", __name5, __x131];
   }
 }});
-setenv("define-global", {_stash: true, macro: function (name, x) {
-  var ____r39 = unstash(Array.prototype.slice.call(arguments, 2));
-  var __name7 = destash33(name, ____r39);
-  var __x137 = destash33(x, ____r39);
-  var ____id33 = ____r39;
-  var __body23 = cut(____id33, 0);
+setenv("define-global", {_stash: true, macro: function (name, x, ..._42args) {
+  var ____r47 = unstash(_42args);
+  var ___4242kwargs29 = destash(_42args);
+  var ____id70 = ___4242kwargs29;
+  var __name7 = destash33(name, ____r47);
+  var __x137 = destash33(x, ____r47);
+  var ____id71 = ____r47;
+  var __body23 = cut(____id71, 0);
   setenv(__name7, {_stash: true, toplevel: true, variable: true});
   if (some63(__body23)) {
     return join(["%global-function", __name7], bind42(__x137, __body23));
@@ -965,28 +1083,36 @@ setenv("define-global", {_stash: true, macro: function (name, x) {
     return ["set", __name7, __x137];
   }
 }});
-setenv("with-frame", {_stash: true, macro: function () {
-  var __body25 = unstash(Array.prototype.slice.call(arguments, 0));
+setenv("with-frame", {_stash: true, macro: function (..._42args) {
+  var ____r49 = unstash(_42args);
+  var ___4242kwargs31 = destash(_42args);
+  var ____id74 = ___4242kwargs31;
+  var ____id75 = ____r49;
+  var __body25 = cut(____id75, 0);
   var __x147 = unique("x");
   return ["do", ["add", "environment", ["obj"]], ["with", __x147, join(["do"], __body25), ["drop", "environment"]]];
 }});
-setenv("with-bindings", {_stash: true, macro: function (__x159) {
-  var ____id36 = __x159;
-  var __names1 = ____id36[0];
-  var ____r41 = unstash(Array.prototype.slice.call(arguments, 1));
-  var ____x159 = destash33(__x159, ____r41);
-  var ____id37 = ____r41;
-  var __body27 = cut(____id37, 0);
+setenv("with-bindings", {_stash: true, macro: function (__x159, ..._42args) {
+  var ____id79 = __x159;
+  var __names1 = ____id79[0];
+  var ____r51 = unstash(_42args);
+  var ___4242kwargs33 = destash(_42args);
+  var ____id80 = ___4242kwargs33;
+  var ____x159 = destash33(__x159, ____r51);
+  var ____id81 = ____r51;
+  var __body27 = cut(____id81, 0);
   var __x160 = unique("x");
   var ____x163 = ["setenv", __x160];
   ____x163.variable = true;
   return join(["with-frame", ["each", __x160, __names1, ____x163]], __body27);
 }});
-setenv("let-macro", {_stash: true, macro: function (definitions) {
-  var ____r44 = unstash(Array.prototype.slice.call(arguments, 1));
-  var __definitions1 = destash33(definitions, ____r44);
-  var ____id39 = ____r44;
-  var __body29 = cut(____id39, 0);
+setenv("let-macro", {_stash: true, macro: function (definitions, ..._42args) {
+  var ____r54 = unstash(_42args);
+  var ___4242kwargs35 = destash(_42args);
+  var ____id84 = ___4242kwargs35;
+  var __definitions1 = destash33(definitions, ____r54);
+  var ____id85 = ____r54;
+  var __body29 = cut(____id85, 0);
   add(environment, {});
   map(function (m) {
     return macroexpand(join(["define-macro"], m));
@@ -995,44 +1121,52 @@ setenv("let-macro", {_stash: true, macro: function (definitions) {
   drop(environment);
   return ____x167;
 }});
-setenv("let-symbol", {_stash: true, macro: function (expansions) {
-  var ____r48 = unstash(Array.prototype.slice.call(arguments, 1));
-  var __expansions1 = destash33(expansions, ____r48);
-  var ____id42 = ____r48;
-  var __body31 = cut(____id42, 0);
+setenv("let-symbol", {_stash: true, macro: function (expansions, ..._42args) {
+  var ____r58 = unstash(_42args);
+  var ___4242kwargs37 = destash(_42args);
+  var ____id89 = ___4242kwargs37;
+  var __expansions1 = destash33(expansions, ____r58);
+  var ____id90 = ____r58;
+  var __body31 = cut(____id90, 0);
   add(environment, {});
   map(function (__x175) {
-    var ____id43 = __x175;
-    var __name9 = ____id43[0];
-    var __exp1 = ____id43[1];
+    var ____id91 = __x175;
+    var __name9 = ____id91[0];
+    var __exp1 = ____id91[1];
     return macroexpand(["define-symbol", __name9, __exp1]);
   }, pair(__expansions1));
   var ____x174 = join(["do"], macroexpand(__body31));
   drop(environment);
   return ____x174;
 }});
-setenv("let-unique", {_stash: true, macro: function (names) {
-  var ____r52 = unstash(Array.prototype.slice.call(arguments, 1));
-  var __names3 = destash33(names, ____r52);
-  var ____id45 = ____r52;
-  var __body33 = cut(____id45, 0);
+setenv("let-unique", {_stash: true, macro: function (names, ..._42args) {
+  var ____r62 = unstash(_42args);
+  var ___4242kwargs39 = destash(_42args);
+  var ____id94 = ___4242kwargs39;
+  var __names3 = destash33(names, ____r62);
+  var ____id95 = ____r62;
+  var __body33 = cut(____id95, 0);
   var __bs3 = map(function (n) {
     return [n, ["unique", ["quote", n]]];
   }, __names3);
   return join(["let", apply(join, __bs3)], __body33);
 }});
-setenv("fn", {_stash: true, macro: function (args) {
-  var ____r55 = unstash(Array.prototype.slice.call(arguments, 1));
-  var __args7 = destash33(args, ____r55);
-  var ____id47 = ____r55;
-  var __body35 = cut(____id47, 0);
+setenv("fn", {_stash: true, macro: function (args, ..._42args) {
+  var ____r65 = unstash(_42args);
+  var ___4242kwargs41 = destash(_42args);
+  var ____id98 = ___4242kwargs41;
+  var __args7 = destash33(args, ____r65);
+  var ____id99 = ____r65;
+  var __body35 = cut(____id99, 0);
   return join(["%function"], bind42(__args7, __body35));
 }});
-setenv("apply", {_stash: true, macro: function (f) {
-  var ____r57 = unstash(Array.prototype.slice.call(arguments, 1));
-  var __f1 = destash33(f, ____r57);
-  var ____id49 = ____r57;
-  var __args9 = cut(____id49, 0);
+setenv("apply", {_stash: true, macro: function (f, ..._42args) {
+  var ____r67 = unstash(_42args);
+  var ___4242kwargs43 = destash(_42args);
+  var ____id102 = ___4242kwargs43;
+  var __f1 = destash33(f, ____r67);
+  var ____id103 = ____r67;
+  var __args9 = cut(____id103, 0);
   if (_35(__args9) > 1) {
     return ["%call", "apply", __f1, ["join", join(["list"], almost(__args9)), last(__args9)]];
   } else {
@@ -1049,12 +1183,14 @@ setenv("guard", {_stash: true, macro: function (expr) {
     return ["list", ["xpcall", ["fn", join(), expr], ["fn", ["m"], ["if", ["obj?", "m"], "m", ____x230]]]];
   }
 }});
-setenv("each", {_stash: true, macro: function (x, t) {
-  var ____r61 = unstash(Array.prototype.slice.call(arguments, 2));
-  var __x256 = destash33(x, ____r61);
-  var __t1 = destash33(t, ____r61);
-  var ____id52 = ____r61;
-  var __body37 = cut(____id52, 0);
+setenv("each", {_stash: true, macro: function (x, t, ..._42args) {
+  var ____r71 = unstash(_42args);
+  var ___4242kwargs45 = destash(_42args);
+  var ____id107 = ___4242kwargs45;
+  var __x256 = destash33(x, ____r71);
+  var __t1 = destash33(t, ____r71);
+  var ____id108 = ____r71;
+  var __body37 = cut(____id108, 0);
   var __o3 = unique("o");
   var __n3 = unique("n");
   var __i3 = unique("i");
@@ -1070,9 +1206,9 @@ setenv("each", {_stash: true, macro: function (x, t) {
     }
     __e9 = __e10;
   }
-  var ____id53 = __e9;
-  var __k5 = ____id53[0];
-  var __v7 = ____id53[1];
+  var ____id109 = __e9;
+  var __k5 = ____id109[0];
+  var __v7 = ____id109[1];
   var __e11 = undefined;
   if (target === "lua") {
     __e11 = __body37;
@@ -1081,26 +1217,34 @@ setenv("each", {_stash: true, macro: function (x, t) {
   }
   return ["let", [__o3, __t1, __k5, "nil"], ["%for", __o3, __k5, join(["let", [__v7, ["get", __o3, __k5]]], __e11)]];
 }});
-setenv("for", {_stash: true, macro: function (i, to) {
-  var ____r63 = unstash(Array.prototype.slice.call(arguments, 2));
-  var __i5 = destash33(i, ____r63);
-  var __to1 = destash33(to, ____r63);
-  var ____id55 = ____r63;
-  var __body39 = cut(____id55, 0);
+setenv("for", {_stash: true, macro: function (i, to, ..._42args) {
+  var ____r73 = unstash(_42args);
+  var ___4242kwargs47 = destash(_42args);
+  var ____id112 = ___4242kwargs47;
+  var __i5 = destash33(i, ____r73);
+  var __to1 = destash33(to, ____r73);
+  var ____id113 = ____r73;
+  var __body39 = cut(____id113, 0);
   return ["let", __i5, 0, join(["while", ["<", __i5, __to1]], __body39, [["inc", __i5]])];
 }});
-setenv("step", {_stash: true, macro: function (v, t) {
-  var ____r65 = unstash(Array.prototype.slice.call(arguments, 2));
-  var __v9 = destash33(v, ____r65);
-  var __t3 = destash33(t, ____r65);
-  var ____id57 = ____r65;
-  var __body41 = cut(____id57, 0);
+setenv("step", {_stash: true, macro: function (v, t, ..._42args) {
+  var ____r75 = unstash(_42args);
+  var ___4242kwargs49 = destash(_42args);
+  var ____id116 = ___4242kwargs49;
+  var __v9 = destash33(v, ____r75);
+  var __t3 = destash33(t, ____r75);
+  var ____id117 = ____r75;
+  var __body41 = cut(____id117, 0);
   var __x288 = unique("x");
   var __i7 = unique("i");
   return ["let", [__x288, __t3], ["for", __i7, ["#", __x288], join(["let", [__v9, ["at", __x288, __i7]]], __body41)]];
 }});
-setenv("set-of", {_stash: true, macro: function () {
-  var __xs1 = unstash(Array.prototype.slice.call(arguments, 0));
+setenv("set-of", {_stash: true, macro: function (..._42args) {
+  var ____r77 = unstash(_42args);
+  var ___4242kwargs51 = destash(_42args);
+  var ____id120 = ___4242kwargs51;
+  var ____id1211 = ____r77;
+  var __xs1 = cut(____id1211, 0);
   var __l3 = [];
   var ____o5 = __xs1;
   var ____i9 = undefined;
@@ -1120,22 +1264,30 @@ setenv("set-of", {_stash: true, macro: function () {
 setenv("language", {_stash: true, macro: function () {
   return ["quote", target];
 }});
-setenv("target", {_stash: true, macro: function () {
-  var __clauses3 = unstash(Array.prototype.slice.call(arguments, 0));
+setenv("target", {_stash: true, macro: function (..._42args) {
+  var ____r81 = unstash(_42args);
+  var ___4242kwargs53 = destash(_42args);
+  var ____id124 = ___4242kwargs53;
+  var ____id125 = ____r81;
+  var __clauses3 = cut(____id125, 0);
   return __clauses3[target];
 }});
-setenv("join!", {_stash: true, macro: function (a) {
-  var ____r69 = unstash(Array.prototype.slice.call(arguments, 1));
-  var __a3 = destash33(a, ____r69);
-  var ____id59 = ____r69;
-  var __bs5 = cut(____id59, 0);
+setenv("join!", {_stash: true, macro: function (a, ..._42args) {
+  var ____r83 = unstash(_42args);
+  var ___4242kwargs55 = destash(_42args);
+  var ____id128 = ___4242kwargs55;
+  var __a3 = destash33(a, ____r83);
+  var ____id129 = ____r83;
+  var __bs5 = cut(____id129, 0);
   return ["set", __a3, join(["join", __a3], __bs5)];
 }});
-setenv("cat!", {_stash: true, macro: function (a) {
-  var ____r71 = unstash(Array.prototype.slice.call(arguments, 1));
-  var __a5 = destash33(a, ____r71);
-  var ____id61 = ____r71;
-  var __bs7 = cut(____id61, 0);
+setenv("cat!", {_stash: true, macro: function (a, ..._42args) {
+  var ____r85 = unstash(_42args);
+  var ___4242kwargs57 = destash(_42args);
+  var ____id132 = ___4242kwargs57;
+  var __a5 = destash33(a, ____r85);
+  var ____id133 = ____r85;
+  var __bs7 = cut(____id133, 0);
   return ["set", __a5, join(["cat", __a5], __bs7)];
 }});
 setenv("inc", {_stash: true, macro: function (n, by) {
@@ -1160,8 +1312,12 @@ setenv("with-indent", {_stash: true, macro: function (form) {
   var __x323 = unique("x");
   return ["do", ["inc", "indent-level"], ["with", __x323, form, ["dec", "indent-level"]]];
 }});
-setenv("export", {_stash: true, macro: function () {
-  var __names5 = unstash(Array.prototype.slice.call(arguments, 0));
+setenv("export", {_stash: true, macro: function (..._42args) {
+  var ____r95 = unstash(_42args);
+  var ___4242kwargs59 = destash(_42args);
+  var ____id136 = ___4242kwargs59;
+  var ____id137 = ____r95;
+  var __names5 = cut(____id137, 0);
   if (target === "js") {
     return join(["do"], map(function (k) {
       return ["set", ["get", "exports", ["quote", k]], k];
@@ -1186,12 +1342,20 @@ setenv("export", {_stash: true, macro: function () {
     }, __x339))];
   }
 }});
-setenv("when-compiling", {_stash: true, macro: function () {
-  var __body43 = unstash(Array.prototype.slice.call(arguments, 0));
+setenv("when-compiling", {_stash: true, macro: function (..._42args) {
+  var ____r99 = unstash(_42args);
+  var ___4242kwargs61 = destash(_42args);
+  var ____id140 = ___4242kwargs61;
+  var ____id141 = ____r99;
+  var __body43 = cut(____id141, 0);
   return _eval(join(["do"], __body43));
 }});
-setenv("during-compilation", {_stash: true, macro: function () {
-  var __body45 = unstash(Array.prototype.slice.call(arguments, 0));
+setenv("during-compilation", {_stash: true, macro: function (..._42args) {
+  var ____r101 = unstash(_42args);
+  var ___4242kwargs63 = destash(_42args);
+  var ____id144 = ___4242kwargs63;
+  var ____id145 = ____r101;
+  var __body45 = cut(____id145, 0);
   var __form5 = join(["do"], __body45);
   _eval(__form5);
   return __form5;

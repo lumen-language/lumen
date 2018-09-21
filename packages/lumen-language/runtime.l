@@ -194,6 +194,27 @@
       (add args p)))
   args)
 
+(define-global stash? (x)
+  (and (obj? x) (get x '_stash)))
+
+(define-global destash (args)
+  (if (stash? args) args
+    (with l (last args)
+      (unless (stash? l)
+        (set l (obj))
+        (set (get l '_stash) true)))))
+
+(%global-function astash (rest: true)
+  (let (xs (arguments%)
+        n (# xs)
+        ks (drop xs))
+    (unless (stash? ks)
+      (unless (= n 0)
+        (add xs ks))
+      (set ks (obj))
+      (set (get ks '_stash) true))
+    (list xs ks)))
+
 (define-global unstash (args)
   (if (none? args) ()
     (let l (last args)
