@@ -221,17 +221,21 @@ table.insert(package.loaders, 1, function (path)
     return
   end
 
-  local level, caller = 3
+  local level, what, caller = 3
   -- Loop past any C functions to get to the real caller
   -- This avoids pcall(require, "path") getting "=C" as the source
   repeat
-    caller = debug.getinfo(level, "S").source
+    local x = debug.getinfo(level, "S")
+    what = x.what
+    caller = x.source
     level = level + 1
   until caller ~= "=[C]"
   if string.sub(caller, 1, 1) == "@" then
     return loader(pathJoin(cwd, caller:sub(2), ".."), path)
   elseif string.sub(caller, 1, 7) == "bundle:" then
     return loader(pathJoin(caller:sub(8), ".."), path, true)
+  elseif what == "main" then
+    return loader(cwd, path)
   end
 end)
 return require('./bin/lumen.lua')
