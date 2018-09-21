@@ -179,8 +179,7 @@ local function loader(dir, path, bundleOnly)
     end
   else
     while true do
-      if try(pathJoin(dir, "deps", path)) or
-         try(pathJoin(dir, "libs", path)) then
+      if try(pathJoin(dir, "node_modules", path)) then
         break
       end
       if dir == pathJoin(dir, "..") then
