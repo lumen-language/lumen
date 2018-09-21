@@ -18,28 +18,12 @@ limitations under the License.
 
 ]]
 
-local hasLuvi, luvi = pcall(require, 'luvi')
-local uv, bundle
-
-if hasLuvi then
-  uv = require('uv')
-  bundle = luvi.bundle
-else
-  uv = require('luv')
-end
-
-local getenv = require('os').getenv
-
 local isWindows
 if _G.jit then
   isWindows = _G.jit.os == "Windows"
 else
   isWindows = not not package.path:match("\\")
 end
-
-local tmpBase = isWindows and (getenv("TMP") or uv.cwd()) or
-                              (getenv("TMPDIR") or '/tmp')
-local binExt = isWindows and ".dll" or ".so"
 
 local getPrefix, splitPath, joinParts
 if isWindows then
@@ -141,100 +125,24 @@ local function pathJoin(...)
   return path
 end
 
-local function loader(dir, path, bundleOnly)
-  local errors = {}
-  local fullPath
-  local useBundle = bundleOnly
-  local function try(tryPath)
-    local prefix = useBundle and "bundle:" or ""
-    local fileStat = useBundle and bundle.stat or uv.fs_stat
-
-    local newPath = tryPath
-    local stat = fileStat(newPath)
-    if stat and stat.type == "file" then
-      fullPath = newPath
-      return true
-    end
-    errors[#errors + 1] = "\n\tno file '" .. prefix .. newPath .. "'"
-
-    newPath = tryPath .. ".lua"
-    stat = fileStat(newPath)
-    if stat and stat.type == "file" then
-      fullPath = newPath
-      return true
-    end
-    errors[#errors + 1] = "\n\tno file '" .. prefix .. newPath .. "'"
-
-    newPath = pathJoin(tryPath, "init.lua")
-    stat = fileStat(newPath)
-    if stat and stat.type == "file" then
-      fullPath = newPath
-      return true
-    end
-    errors[#errors + 1] = "\n\tno file '" .. prefix .. newPath .. "'"
-
-  end
-  if string.sub(path, 1, 1) == "." then
-    -- Relative require
-    if not try(pathJoin(dir, path)) then
-      return table.concat(errors)
-    end
-  else
-    while true do
-      if try(pathJoin(dir, "deps", path)) or
-         try(pathJoin(dir, "libs", path)) then
-        break
-      end
-      if dir == pathJoin(dir, "..") then
-        return table.concat(errors)
-      end
-      dir = pathJoin(dir, "..")
-    end
-    -- Module require
-  end
-  if useBundle then
-    local key = "bundle:" .. fullPath
-    return function ()
-      if package.loaded[key] then
-        return package.loaded[key]
-      end
-      local code = bundle.readfile(fullPath)
-      local module = loadstring(code, key)(key)
-      package.loaded[key] = module
-      return module
-    end, key
-  end
-  fullPath = uv.fs_realpath(fullPath)
-  return function ()
-    if package.loaded[fullPath] then
-      return package.loaded[fullPath]
-    end
-    local module = assert(loadfile(fullPath))(fullPath)
-    package.loaded[fullPath] = module
-    return module
-  end
-end
-
--- Register as a normal lua package loader.
-local cwd = uv.cwd()
-table.insert(package.loaders, 1, function (path)
-
-  -- Ignore built-in libraries with this loader.
-  if path:match("^[a-z]+$") and package.preload[path] then
-    return
-  end
-
-  local level, caller = 3
+local function toplevel(n)
+  local level = n or 1
+  local caller
+  local path
   -- Loop past any C functions to get to the real caller
   -- This avoids pcall(require, "path") getting "=C" as the source
   repeat
     caller = debug.getinfo(level, "S").source
+    if caller ~= "=[C]" then
+      path = caller
+    end
     level = level + 1
-  until caller ~= "=[C]"
-  if string.sub(caller, 1, 1) == "@" then
-    return loader(pathJoin(cwd, caller:sub(2), ".."), path)
-  elseif string.sub(caller, 1, 7) == "bundle:" then
-    return loader(pathJoin(caller:sub(8), ".."), path, true)
+  until caller == "=[C]"
+  if string.sub(path, 1, 1) == "@" then
+    return pathJoin(path:sub(2), "..")
+  elseif string.sub(path, 1, 7) == "bundle:" then
+    return pathJoin(path:sub(8), "..")
   end
-end)
-return require('./bin/lumen.lua').main()
+end
+local top = pathJoin(toplevel(), "init.lua")
+return loadfile(top)().main()
