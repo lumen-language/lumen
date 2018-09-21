@@ -815,10 +815,10 @@ c"
 
 (define-test let-unique
   (let-unique (ham chap)
-    (test= '__ham2 ham)
-    (test= '__chap1 chap)
+    (test= (target lua: '__ham js: '__ham2) ham)
+    (test= (target lua: '__chap js: '__chap1) chap)
     (let-unique (ham)
-      (test= '__ham3 ham))))
+      (test= (target lua: '__ham1 js: '__ham3) ham))))
 
 (define-test literals
   (test= true true)

@@ -1196,9 +1196,9 @@ setenv("during-compilation", {_stash: true, macro: function () {
   _eval(__form5);
   return __form5;
 }});
-var reader = require("reader");
-var compiler = require("compiler");
-var system = require("system");
+var reader = require("./reader");
+var compiler = require("./compiler");
+var system = require("./system");
 var eval_print = function (form) {
   var ____id = (function () {
     try {
@@ -1272,8 +1272,9 @@ var usage = function () {
   print(" -t <target>\tTarget language (default: lua)");
   return print(" -e <expr>\tExpression to evaluate");
 };
-var main = function () {
-  var __arg = hd(system.argv);
+var main = function (argv) {
+  var __argv = argv || system.argv;
+  var __arg = hd(__argv);
   if (__arg && script_file63(__arg)) {
     return _load(__arg);
   } else {
@@ -1285,7 +1286,6 @@ var main = function () {
       var __output = undefined;
       var __target1 = undefined;
       var __expr = undefined;
-      var __argv = system.argv;
       var __i = 0;
       while (__i < _35(__argv)) {
         var __a = __argv[__i];
@@ -1345,4 +1345,7 @@ var main = function () {
     }
   }
 };
-main();
+exports.reader = reader;
+exports.compiler = compiler;
+exports.system = system;
+exports.main = main;

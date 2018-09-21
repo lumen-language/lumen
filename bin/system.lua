@@ -67,7 +67,7 @@ end
 local function exit(code)
   return os.exit(code)
 end
-local argv = arg
+local argv = arg or args or {}
 local function reload(module)
   package.loaded[module] = nil
   return require(module)

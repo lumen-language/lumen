@@ -1078,7 +1078,6 @@ lower = function (form, hoist, stmt63, tail63) {
 expand = function (form) {
   return lower(macroexpand(form));
 };
-global.require = require;
 var run = eval;
 _37result = undefined;
 _eval = function (form) {

@@ -1,6 +1,6 @@
-(define reader (require 'reader))
-(define compiler (require 'compiler))
-(define system (require 'system))
+(define reader (require "./reader"))
+(define compiler (require "./compiler"))
+(define system (require "./system"))
 
 (define eval-print (form)
   (let ((ok v) (guard ((get compiler 'eval) form)))
@@ -66,8 +66,9 @@
   (print " -t <target>\tTarget language (default: lua)")
   (print " -e <expr>\tExpression to evaluate"))
 
-(define main ()
-  (let arg (hd (get system 'argv))
+(define main (argv)
+  (let (argv (or argv (get system 'argv))
+        arg (hd argv))
     (if (and arg (script-file? arg))
         (load arg)
         (or (= arg "-h")
@@ -77,8 +78,7 @@
             input nil
             output nil
             target1 nil
-            expr nil
-            argv (get system 'argv))
+            expr nil)
         (for i (# argv)
           (let a (at argv i)
             (if (or (= a "-c") (= a "-o") (= a "-t") (= a "-e"))
@@ -100,4 +100,4 @@
                     (print code)
                   ((get system 'write-file) output code)))))))))
 
-(main)
+(export reader compiler system main)

@@ -1,0 +1,18 @@
+#!/bin/sh
+
+dir="$(pwd)"
+bin="$0"
+while [ -L "${bin}" ]
+do
+    x="$(readlink "${bin}")"
+    cd "$(dirname "${bin}")"
+    bin="${x}"
+done
+cd "$(dirname "${bin}")"/..
+home="$(pwd)"
+cd "${dir}"
+
+code=index.js
+export NODE_PATH="$NODE_PATH:${dir}/lib"
+
+exec node "${home}/${code}" "$@"

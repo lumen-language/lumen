@@ -73,7 +73,7 @@
           lua: ((get os 'exit) code)))
 
 (define argv
-  (target js: (cut (get process 'argv) 2) lua: arg))
+  (target js: (cut (get process 'argv) 2) lua: (or arg args ())))
 
 (define reload (module)
   (wipe (target

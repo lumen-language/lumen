@@ -1070,9 +1070,9 @@ setenv("during-compilation", {_stash = true, macro = function (...)
   _eval(__form5)
   return __form5
 end})
-local reader = require("reader")
-local compiler = require("compiler")
-local system = require("system")
+local reader = require("./reader")
+local compiler = require("./compiler")
+local system = require("./system")
 local function eval_print(form)
   local ____id = {xpcall(function ()
     return compiler["eval"](form)
@@ -1164,8 +1164,9 @@ local function usage()
   print(" -t <target>\tTarget language (default: lua)")
   return print(" -e <expr>\tExpression to evaluate")
 end
-local function main()
-  local __arg = hd(system.argv)
+local function main(argv)
+  local __argv = argv or system.argv
+  local __arg = hd(__argv)
   if __arg and script_file63(__arg) then
     return _load(__arg)
   else
@@ -1177,7 +1178,6 @@ local function main()
       local __output = nil
       local __target1 = nil
       local __expr = nil
-      local __argv = system.argv
       local __i = 0
       while __i < _35(__argv) do
         local __a = __argv[__i + 1]
@@ -1237,4 +1237,4 @@ local function main()
     end
   end
 end
-main()
+return {reader = reader, compiler = compiler, system = system, main = main}
