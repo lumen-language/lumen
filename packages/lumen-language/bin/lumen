@@ -1,8 +1,8 @@
 #!/bin/sh
 
-if [ -x "lumen-${1}" ]
+bin="$(which "lumen-${1}" 2>/dev/null)"
+if [ -x "${bin}" ]
 then
-  bin="lumen-${1}"
   shift
   exec "${bin}" "$@"
 fi
