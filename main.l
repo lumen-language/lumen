@@ -54,12 +54,12 @@
       (set target previous)
       ((get compiler 'run) code))))
 
-(define script-file? (path)
+(define-global script-file? (path)
   (not (or (= "-" (char path 0))
            (= ".js" (clip path (- (# path) 3)))
            (= ".lua" (clip path (- (# path) 4))))))
 
-(define run-file (path)
+(define-global run-file (path)
   (if (script-file? path)
       (load-file path)
     ((get compiler 'run) ((get system 'read-file) path))))
