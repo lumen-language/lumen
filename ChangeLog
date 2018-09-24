@@ -1,0 +1,11 @@
+2018-09-24  Shawn Presser  (shawnpresser@gmail.com)
+
+Version 0.0.24
+
+  * runtime.l: Rename VALUES to UNPACK
+	* compiler.l: `load` is no longer a reserved word.
+	* main.l: Rename LOAD to LOAD-FILE
+	* main.l: Define READ-FILE, READ-FROM-FILE, and EXPAND-FILE globally
+	* main.l: Make RUN-FILE and SCRIPT-FILE? global
+
+
