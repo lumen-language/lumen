@@ -1238,25 +1238,34 @@ var repl = function () {
   ___in.setEncoding("utf8");
   return ___in.on("data", rep1);
 };
-compile_file = function (path) {
+read_file = function (path) {
+  return system["read-file"](path);
+};
+read_from_file = function (path) {
   var __s = reader.stream(system["read-file"](path));
   var __body = reader["read-all"](__s);
-  var __form1 = compiler.expand(join(["do"], __body));
+  return join(["do"], __body);
+};
+expand_file = function (path) {
+  return compiler.expand(read_from_file(path));
+};
+compile_file = function (path) {
+  var __form1 = expand_file(path);
   return compiler.compile(__form1, {_stash: true, stmt: true});
 };
-_load = function (path) {
+load_file = function (path) {
   var __previous = target;
   target = "js";
   var __code = compile_file(path);
   target = __previous;
   return compiler.run(__code);
 };
-var script_file63 = function (path) {
+script_file63 = function (path) {
   return !( "-" === char(path, 0) || ".js" === clip(path, _35(path) - 3) || ".lua" === clip(path, _35(path) - 4));
 };
-var run_file = function (path) {
+run_file = function (path) {
   if (script_file63(path)) {
-    return _load(path);
+    return load_file(path);
   } else {
     return compiler.run(system["read-file"](path));
   }
@@ -1276,7 +1285,7 @@ var main = function (argv) {
   var __argv = argv || system.argv;
   var __arg = hd(__argv);
   if (__arg && script_file63(__arg)) {
-    return _load(__arg);
+    return load_file(__arg);
   } else {
     if (__arg === "-h" || __arg === "--help") {
       return usage();

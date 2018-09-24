@@ -576,10 +576,10 @@ function str(x, stack)
     end
   end
 end
-local values = unpack or table.unpack
+local unpack = unpack or table.unpack
 function apply(f, args)
   local __args = stash(args)
-  return f(values(__args))
+  return f(unpack(__args))
 end
 function call(f, ...)
   local ____r72 = unstash({...})
@@ -1130,25 +1130,34 @@ local function repl()
     end
   end
 end
-function compile_file(path)
+function read_file(path)
+  return system["read-file"](path)
+end
+function read_from_file(path)
   local __s1 = reader.stream(system["read-file"](path))
   local __body = reader["read-all"](__s1)
-  local __form1 = compiler.expand(join({"do"}, __body))
+  return join({"do"}, __body)
+end
+function expand_file(path)
+  return compiler.expand(read_from_file(path))
+end
+function compile_file(path)
+  local __form1 = expand_file(path)
   return compiler.compile(__form1, {_stash = true, stmt = true})
 end
-function _load(path)
+function load_file(path)
   local __previous = target
   target = "lua"
   local __code = compile_file(path)
   target = __previous
   return compiler.run(__code)
 end
-local function script_file63(path)
+function script_file63(path)
   return not( "-" == char(path, 0) or ".js" == clip(path, _35(path) - 3) or ".lua" == clip(path, _35(path) - 4))
 end
-local function run_file(path)
+function run_file(path)
   if script_file63(path) then
-    return _load(path)
+    return load_file(path)
   else
     return compiler.run(system["read-file"](path))
   end
@@ -1168,7 +1177,7 @@ local function main(argv)
   local __argv = argv or system.argv
   local __arg = hd(__argv)
   if __arg and script_file63(__arg) then
-    return _load(__arg)
+    return load_file(__arg)
   else
     if __arg == "-h" or __arg == "--help" then
       return usage()
