@@ -323,12 +323,12 @@
       (cat s  ")"))))
 
 (target lua:
-  (define values (or unpack (get table 'unpack))))
+  (define unpack (or unpack (get table 'unpack))))
 
 (define-global apply (f args)
   (let args (stash args)
     (target js: ((get f 'apply) f args)
-            lua: (f (values args)))))
+            lua: (f (unpack args)))))
 
 (define-global call (f rest: args)
   (apply f args))
