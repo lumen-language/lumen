@@ -216,7 +216,7 @@
           "instanceof" "let" "new" "return" "switch" "throw"
           "try" "typeof" "var" "void" "with"
           ;; lua
-          "and" "end" "in" "load" "repeat" "while" "break"
+          "and" "end" "in" "repeat" "while" "break"
           "false" "local" "return" "do" "for" "nil" "then"
           "else" "function" "not" "true" "elseif" "if" "or"
           "until"))
@@ -571,7 +571,7 @@
 
 (target js: (define run |eval|))
 
-(target lua: (define load1 (or |loadstring| |load|)))
+(target lua: (define load1 (or (get _G 'loadstring) (get _G 'load))))
 (target lua:
   (define run (code)
     (let |f,e| (load1 code)
