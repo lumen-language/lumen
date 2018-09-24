@@ -1,5 +1,12 @@
 #!/bin/sh
 
+bin="$(which "lumen-${1}" 2>/dev/null)"
+if [ -x "${bin}" ]
+then
+  shift
+  exec "${bin}" "$@"
+fi
+
 dir="$(pwd)"
 bin="$0"
 while [ -L "${bin}" ]
