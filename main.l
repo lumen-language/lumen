@@ -38,7 +38,7 @@
         form ((get compiler 'expand) `(do ,@body)))
     ((get compiler 'compile) form :stmt)))
 
-(define-global load (path)
+(define-global load-file (path)
   (let previous target
     (set target (language))
     (let code (compile-file path)
@@ -52,7 +52,7 @@
 
 (define run-file (path)
   (if (script-file? path)
-      (load path)
+      (load-file path)
     ((get compiler 'run) ((get system 'read-file) path))))
 
 (define usage ()
@@ -70,7 +70,7 @@
   (let (argv (or argv (get system 'argv))
         arg (hd argv))
     (if (and arg (script-file? arg))
-        (load arg)
+        (load-file arg)
         (or (= arg "-h")
             (= arg "--help"))
         (usage)
