@@ -36,7 +36,7 @@ var write = function (x, out) {
 var exit = function (code) {
   return process.exit(code);
 };
-var argv = cut(process.argv, 2);
+argv = cut(process.argv, 2);
 var reload = function (module) {
   delete require.cache[require.resolve(module)];
   return require(module);
