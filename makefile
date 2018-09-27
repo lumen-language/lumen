@@ -1,4 +1,4 @@
-.PHONY: all rebuild bundle clean test
+.PHONY: all rebuild bootstrap bundle clean test
 
 LUMEN_LUA  ?= lua
 LUMEN_NODE ?= node
@@ -23,6 +23,9 @@ rebuild:
 	@make clean
 	@LUMEN_HOST=node make -B
 	@LUMEN_HOST=node make -B
+	@make bootstrap
+
+bootstrap:
 	@make bundle
 	@make test
 

@@ -9,12 +9,13 @@
     "lumen-language": "bin/lumen-language"
   },
   "scripts": {
-    "preinstall": "npx cross-env LUMEN_HOST=node make",
-    "install": "npx cross-env LUMEN_HOST=node make",
-    "postinstall": "npx cross-env LUMEN_HOST=node make",
-    "prepublish": "npx cross-env LUMEN_HOST=node make clean",
-    "clean": "npx cross-env LUMEN_HOST=node make clean",
-    "test": "npx cross-env LUMEN_HOST=node make test",
+    "preinstall": "make",
+    "install": "make",
+    "postinstall": "make",
+    "bootstrap": "make bootstrap",
+    "rebuild": "make rebuild",
+    "clean": "make clean",
+    "test": "make test",
     "luvi": "bin/lumen-luvi",
     "node": "node ./index.js",
     "start": "node ./index.js"

@@ -1,41 +1,62 @@
 @ECHO off
 @SET LUMEN_HOME=%~dp0
-@SET LUMEN=%LUMEN_HOME%bin\lumen-language
 
 IF NOT "x%1" == "x" GOTO :%1
 
-:clean
-IF EXIST "%LUMEN%" DEL /F /Q "%LUMEN%"
-IF EXIST "%LUMEN%.exe" DEL /F /Q "%LUMEN%.exe"
-GOTO :end
-
 :all
-CALL make.bat bundle
+CALL make bundle
 if %errorlevel% neq 0 goto error
 GOTO :end
 
-:rebuild
-CALL make.bat clean
-CALL make.bat all
-CALL make.bat test
+:clean
+set LUMEN_CWD=%CD%
+cd "%LUMEN_HOME%bin"
+IF EXIST lumen-language DEL /F /Q lumen-language
+IF EXIST lumen-language.exe DEL /F /Q lumen-language.exe
+IF EXIST lumen-node.exe DEL /F /Q lumen-node.exe
+cd "%LUMEN_CWD%"
 GOTO :end
 
 :bundle
-IF NOT EXIST "%LUMEN%.exe" CALL npx -p luvit luvi . -o "%LUMEN%.exe"
-if %errorlevel% neq 0 goto error
-IF NOT EXIST "%LUMEN%" CALL mklink /H "%LUMEN%" "%LUMEN%".exe
+set LUMEN_ERROR=0
+set LUMEN_CWD=%CD%
+cd "%LUMEN_HOME%"
+IF NOT EXIST bin\lumen-language.exe CALL npx luvit-luvi . -o bin\lumen-language.exe
+if %errorlevel% neq 0 set LUMEN_ERROR=%errorlevel%
+IF NOT EXIST bin\lumen-node.exe CALL npx pkg index.js -t win -o bin\lumen-node.exe
+if %errorlevel% neq 0 set LUMEN_ERROR=%errorlevel%
+cd "%LUMEN_HOME%bin"
+IF NOT EXIST lumen-language CALL mklink /H lumen-language lumen-language.exe
+if %errorlevel% neq 0 set LUMEN_ERROR=%errorlevel%
+cd "%LUMEN_CWD%"
+set errorlevel=%LUMEN_ERROR%
 if %errorlevel% neq 0 goto error
 GOTO :end
 
 :test
-CALL make.bat all
+CALL make all
+set LUMEN_ERROR=0
 ECHO node:
-node "%LUMEN_HOME%index.js" "%LUMEN_HOME%test.l"
-if %errorlevel% neq 0 goto error
+CALL "%LUEMN_HOME%bin\lumen-node" "%LUMEN_HOME%test.l"
+if %errorlevel% neq 0 set LUMEN_ERROR=%errorlevel%
 ECHO luvi:
 SET LUA_PATH=%LUMEN_HOME%bin\?.lua;;%LUA_PATH%
-"%LUMEN_HOME%bin\lumen-language.exe" "%LUMEN_HOME%test.l"
+CALL "%LUEMN_HOME%bin\lumen-language" "%LUMEN_HOME%test.l"
+if %errorlevel% neq 0 set LUMEN_ERROR=%errorlevel%
+set errorlevel=%LUMEN_ERROR%
 if %errorlevel% neq 0 goto error
+GOTO :end
+
+:-B
+:rebuild
+CALL make clean
+CALL make all
+CALL make test
+GOTO :end
+
+:bootstrap
+CALL make bundle
+CALL make test
 GOTO :end
 
 :error
