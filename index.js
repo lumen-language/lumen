@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const path = require('path');
-process.env.NODE_PATH = (process.env.NODE_PATH || "") + ":" + path.join(__dirname, 'bin');
+process.env.NODE_PATH = (process.env.NODE_PATH || "") + path.delimiter + path.join(__dirname, 'bin');
 if (require.main === module) {
   module.paths = require('module').Module._nodeModulePaths(path.resolve('repl'));
 }
