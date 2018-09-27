@@ -24,6 +24,9 @@ rebuild:
 	@LUMEN_HOST=node make -B
 	@make test
 
+bootstrap:
+	@bin/lumen-luvi -e nil
+
 bundle:
 	@npx luvit-luvi . -o bin/lumen-language
 
@@ -62,8 +65,7 @@ bin/%.lua : %.l
 	@echo $@
 	@$(LUMEN) -c $< -o $@ -t lua
 
-test: all
-	@bin/lumen-luvi -e nil
+test: all bootstrap
 	@echo js:
 	@LUMEN_HOST=$(LUMEN_NODE) ./test.l
 	@echo lua:
