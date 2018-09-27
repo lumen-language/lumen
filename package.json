@@ -4,12 +4,16 @@
   "description": "A Lisp for Lua and JavaScript",
   "main": "index.js",
   "bin": {
-    "lumen": "bin/lumen",
-    "lumen-node": "bin/lumen-node"
+    "lumen": "bin/lumen-language",
+    "lumen-node": "./index.js",
+    "lumen-language": "bin/lumen-language"
   },
   "scripts": {
-    "test": "LUMEN_HOST=node ./test.l",
-    "start": "bin/lumen"
+    "preinstall": "make test",
+    "rebuild": "make rebuild",
+    "clean": "make clean",
+    "test": "make test",
+    "start": "node ./index.js"
   },
   "repository": {
     "type": "git",

@@ -1,0 +1,24 @@
+#!/bin/sh
+
+dir="$(pwd)"
+bin="$0"
+while [ -L "${bin}" ]
+do
+    x="$(readlink "${bin}")"
+    cd "$(dirname "${bin}")"
+    bin="${x}"
+done
+cd "$(dirname "${bin}")"/..
+home="$(pwd)"
+cd "${dir}"
+
+export LUA_PATH="$LUA_PATH;${home}/bin/?.lua;${dir}/lib/?.lua;;"
+
+lumen="${home}/bin/lumen-language"
+
+if [ ! -x "${lumen}" ]
+then
+  cd "${home}" && make bundle && cd "${dir}"
+fi
+
+exec "${lumen}" "$@"

@@ -36,6 +36,8 @@ else
 fi
 
 case $host in
+    luvi*)
+        exec "${home}/bin/lumen-luvi" "$@";;
     node*)
         code=index.js
         export NODE_PATH="$NODE_PATH:${dir}/lib";;

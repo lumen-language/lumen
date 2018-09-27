@@ -1,4 +1,4 @@
-.PHONY: all clean test
+.PHONY: all rebuild bundle clean test
 
 LUMEN_LUA  ?= lua
 LUMEN_NODE ?= node
@@ -15,12 +15,24 @@ MODS := bin/lumen.x	\
 	bin/compiler.x	\
 	bin/system.x
 
-all: $(MODS:.x=.js) $(MODS:.x=.lua)
+BINS := bin/lumen-language
+
+all: $(MODS:.x=.js) $(MODS:.x=.lua) $(BINS)
+
+rebuild:
+	@make clean
+	@LUMEN_HOST=node make -B
+	@make test
+
+bundle:
+	@npx luvit-luvi . -o bin/lumen-language
 
 clean:
-	@git checkout bin/*.js
-	@git checkout bin/*.lua
-	@rm -f obj/*
+	@git checkout $(MODS:.x=.js) $(MODS:.x=.lua)
+	@rm -f obj/* $(BINS)
+
+bin/lumen-language: $(MODS:.x=.js) $(MODS:.x=.lua) init.lua main.lua package.json index.js
+	@rm -f $(BINS)
 
 bin/lumen.js: $(OBJS:.o=.js)
 	@echo $@
@@ -34,10 +46,12 @@ bin/lumen.lua: $(OBJS:.o=.lua)
 
 obj/%.js : %.l
 	@echo "  $@"
+	@mkdir -p obj
 	@$(LUMEN) -c $< -o $@ -t js
 
 obj/%.lua : %.l
 	@echo "  $@"
+	@mkdir -p obj
 	@$(LUMEN) -c $< -o $@ -t lua
 
 bin/%.js : %.l
@@ -49,7 +63,10 @@ bin/%.lua : %.l
 	@$(LUMEN) -c $< -o $@ -t lua
 
 test: all
+	@bin/lumen-luvi -e nil
 	@echo js:
 	@LUMEN_HOST=$(LUMEN_NODE) ./test.l
 	@echo lua:
 	@LUMEN_HOST=$(LUMEN_LUA) ./test.l
+	@echo luvi:
+	@LUMEN_HOST=$(LUMEN_LUVI) ./test.l
