@@ -28,9 +28,5 @@
   "bugs": {
     "url": "https://github.com/sctb/lumen/issues"
   },
-  "homepage": "https://github.com/sctb/lumen",
-  "dependencies": {
-    "cross-env": "^5.2.0",
-    "luvit": "^0.0.11"
-  }
+  "homepage": "https://github.com/sctb/lumen"
 }
