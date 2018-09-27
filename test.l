@@ -975,10 +975,11 @@ c"
   (test= true (in? true '(2 4 :bar))))
 
 (define-test first
-  (test= nil (first (fn (x) x) ()))
-  (test= 7 (first (fn (x) x) '(7)))
-  (test= true (first (fn (x) (= x 7)) '(2 4 7)))
-  (test= 4 (first (fn (x) (and (> x 3) x)) '(1 2 3 4 5 6))))
+  (test= nil (first 'x ()))
+  (test= 0 (first 7 '(7)))
+  (test= 2 (first 7 '(2 4 7 1 7)))
+  (test= 4 (first 7 '(2 4 7 1 7) 3))
+  (test= 3 (first (fn (x) (> x 3)) '(1 2 3 4 5 6))))
 
 (define-test sort
   (test= '(a b c) (sort '(c a b)))

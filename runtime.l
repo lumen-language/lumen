@@ -134,18 +134,35 @@
             (if (number? k) (inc k n))
             (set (get r k) v)))))))
 
-(define-global find (f t)
-  (each x t
-    (let y (f x)
-      (if y (return y)))))
+(define-global testify (x test)
+  (if (function? x) x
+      test
+      (fn (y) (test x y))
+    (fn (y) (= x y))))
 
-(define-global first (f l)
-  (step x l
-    (let y (f x)
-      (if y (return y)))))
+(define-global find (x t)
+  (let f (testify x)
+    (each x t
+      (let y (f x)
+        (if y (return y))))))
+
+(define-global first (x l pos)
+  (let (f (testify x)
+        i (either pos 0)
+        n -1)
+    (each (k v) l
+      (when (number? k)
+        (target lua: (dec k))
+        (set n (max n k))))
+    (inc n)
+    (while (< i n)
+      (let v (at l i)
+        (let-when y (f v)
+          (return i)))
+      (inc i))))
 
 (define-global in? (x t)
-  (find (fn (y) (= x y)) t))
+  (find (testify x) t))
 
 (define-global pair (l)
   (with l1 ()
@@ -170,8 +187,9 @@
           (when (is? y)
             (set (get t k) y)))))))
 
-(define-global keep (f x)
-  (map (fn (v) (when (yes (f v)) v)) x))
+(define-global keep (v x)
+  (let f (testify v)
+    (map (fn (v) (when (yes (f v)) v)) x)))
 
 (define-global keys? (t)
   (each (k v) t

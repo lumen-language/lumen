@@ -41,8 +41,7 @@ local function skip_non_code(s)
   end
 end
 local read_table = {}
-local eof = {}
-local function read(s)
+local function read(s, eof)
   skip_non_code(s)
   local __c2 = peek_char(s)
   if is63(__c2) then
@@ -53,9 +52,10 @@ local function read(s)
 end
 local function read_all(s)
   local __l = {}
+  local __eof = {}
   while true do
-    local __form = read(s)
-    if __form == eof then
+    local __form = read(s, __eof)
+    if __form == __eof then
       break
     end
     add(__l, __form)
@@ -63,10 +63,7 @@ local function read_all(s)
   return __l
 end
 function read_string(str, more)
-  local __x = read(stream(str, more))
-  if not( __x == eof) then
-    return __x
-  end
+  return read(stream(str, more))
 end
 local function key63(atom)
   return string63(atom) and _35(atom) > 1 and char(atom, edge(atom)) == ":"
@@ -158,16 +155,16 @@ read_table["("] = function (s)
       if nil63(__c4) then
         __r16 = expected(s, ")")
       else
-        local __x2 = read(s)
-        if key63(__x2) then
-          local __k = clip(__x2, 0, edge(__x2))
+        local __x1 = read(s)
+        if key63(__x1) then
+          local __k = clip(__x1, 0, edge(__x1))
           local __v = read(s)
           __l1[__k] = __v
         else
-          if flag63(__x2) then
-            __l1[clip(__x2, 1)] = true
+          if flag63(__x1) then
+            __l1[clip(__x1, 1)] = true
           else
-            add(__l1, __x2)
+            add(__l1, __x1)
           end
         end
       end

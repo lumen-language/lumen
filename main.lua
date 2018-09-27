@@ -237,4 +237,5 @@ table.insert(package.loaders, 1, function (path)
     return loader(pathJoin(caller:sub(8), ".."), path, true)
   end
 end)
-return require('./bin/lumen.lua').main()
+local lumen = require('./bin/lumen.lua')
+return lumen.main(lumen.system["get-argv"]());

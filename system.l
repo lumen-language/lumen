@@ -72,8 +72,53 @@
   (target js: ((get process 'exit) code)
           lua: ((get os 'exit) code)))
 
-(define-global argv
-  (target js: (cut (get process 'argv) 2) lua: (or arg args ())))
+(define argv nil)
+
+(define-global set-argv (l)
+  (set argv l))
+
+(define-global get-argv ()
+  (when (nil? argv)
+    (set-argv (target js: (cut (get process 'argv) 2) lua: (or (get _G 'arg) (get _G 'args) ()))))
+  argv)
+
+(define-global opt? (x)
+  (and (string? x) (= (char x 0) "-")))
+
+(define-global parse-positional (args pos)
+  (cut args (either pos 0) (first opt? args pos)))
+
+(define-global parse-option (args)
+  (when (opt? (hd args))
+    `(,(hd args) ,(parse-positional args 1))))
+
+(define-global parse-arguments (aliases argv)
+  (let (l (or argv (get-argv))
+        a (or aliases (obj)))
+    (with r (parse-positional l)
+      (set l (cut l (# r)))
+      (while true
+        (let p (parse-option l)
+          (unless p (break))
+          (let-when (o args) p
+            (when (= o "--")
+              (set l (cut l 1))
+              (break))
+            (set l (cut l (+ 1 (# args))))
+            (let (k (if (= (clip o 0 2) "--") (clip o 2) (clip o 1))
+                  k (or (get a k) k)
+                  v (if (none? args) true args))
+              (set (get r k) v)
+              (add r (list k v))))))
+      (set (get r 'rest) l)
+      (set-argv (get r 'rest)))))
+
+(define-global arguments (aliases argv)
+  (let argv (or argv (get-argv))
+    (let r (parse-arguments argv aliases)
+      (set-argv (get r 'rest))
+      (wipe (get r 'rest))
+      (unless (empty? r) r))))
 
 (define reload (module)
   (wipe (target
@@ -99,6 +144,8 @@
         stderr
         write
         exit
-        argv
+        get-argv
+        set-argv
+        arguments
         reload
         run)

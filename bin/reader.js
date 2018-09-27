@@ -41,8 +41,7 @@ var skip_non_code = function (s) {
   }
 };
 var read_table = {};
-var eof = {};
-var read = function (s) {
+var read = function (s, eof) {
   skip_non_code(s);
   var __c2 = peek_char(s);
   if (is63(__c2)) {
@@ -53,9 +52,10 @@ var read = function (s) {
 };
 var read_all = function (s) {
   var __l = [];
+  var __eof = {};
   while (true) {
-    var __form = read(s);
-    if (__form === eof) {
+    var __form = read(s, __eof);
+    if (__form === __eof) {
       break;
     }
     add(__l, __form);
@@ -63,10 +63,7 @@ var read_all = function (s) {
   return __l;
 };
 read_string = function (str, more) {
-  var __x = read(stream(str, more));
-  if (!( __x === eof)) {
-    return __x;
-  }
+  return read(stream(str, more));
 };
 var key63 = function (atom) {
   return string63(atom) && _35(atom) > 1 && char(atom, edge(atom)) === ":";
@@ -158,16 +155,16 @@ read_table["("] = function (s) {
       if (nil63(__c4)) {
         __r16 = expected(s, ")");
       } else {
-        var __x2 = read(s);
-        if (key63(__x2)) {
-          var __k = clip(__x2, 0, edge(__x2));
+        var __x1 = read(s);
+        if (key63(__x1)) {
+          var __k = clip(__x1, 0, edge(__x1));
           var __v = read(s);
           __l1[__k] = __v;
         } else {
-          if (flag63(__x2)) {
-            __l1[clip(__x2, 1)] = true;
+          if (flag63(__x1)) {
+            __l1[clip(__x1, 1)] = true;
           } else {
-            add(__l1, __x2);
+            add(__l1, __x1);
           }
         }
       }

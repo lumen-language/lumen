@@ -25,9 +25,8 @@
         (break)))))
 
 (define read-table (obj))
-(define eof (obj))
 
-(define read (s)
+(define read (s eof)
   (skip-non-code s)
   (let c (peek-char s)
     (if (is? c)
@@ -38,14 +37,14 @@
 
 (define read-all (s)
   (with l ()
-    (while true
-      (let form (read s)
-        (if (= form eof) (break))
-        (add l form)))))
+    (let eof (obj)
+      (while true
+        (let form (read s eof)
+          (if (= form eof) (break))
+          (add l form))))))
 
 (define-global read-string (str more)
-  (let x (read (stream str more))
-    (unless (= x eof) x)))
+  (read (stream str more)))
 
 (define key? (atom)
   (and (string? atom)

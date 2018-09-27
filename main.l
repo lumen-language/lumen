@@ -35,6 +35,9 @@
 (define-global read-file (path)
   ((get system 'read-file) path))
 
+(define-global write-file (path data)
+  ((get system 'write-file) path data))
+
 (define-global read-from-file (path)
   (let (s ((get reader 'stream) ((get system 'read-file) path))
         body ((get reader 'read-all) s))
@@ -55,58 +58,114 @@
       ((get compiler 'run) code))))
 
 (define-global script-file? (path)
-  (not (or (= "-" (char path 0))
-           (= ".js" (clip path (- (# path) 3)))
-           (= ".lua" (clip path (- (# path) 4))))))
+  (and (string? path)
+       (not (or (= "-" (char path 0))
+                (= ".js" (clip path (- (# path) 3)))
+                (= ".lua" (clip path (- (# path) 4)))))))
 
 (define-global run-file (path)
   (if (script-file? path)
       (load-file path)
-    ((get compiler 'run) ((get system 'read-file) path))))
+    ((get compiler 'run) (read-file path))))
+
+(define-global read-from-string (str start end)
+  (let s ((get reader 'stream) str)
+    (set (get s 'pos) (either start (get s 'pos))
+         (get s 'len) (either end (get s 'len)))
+    (let form ((get reader 'read) s)
+      (if (nil? form)
+          (error "End of string during parsing")
+        `(,form rest: ,(get s 'pos))))))
+
+(define-global readable-string? (str)
+  (and (string? str)
+       (let ((ok v) (guard (read-from-string str)))
+         (and ok (= (hd v) str)))))
+
+(define-global pp-to-string (x stack)
+  (if (nil? x) "nil"
+      (nan? x) "nan"
+      (= x inf) "inf"
+      (= x -inf) "-inf"
+      (boolean? x) (if x "true" "false")
+      (string? x) (if (readable-string? x) x (escape x))
+      (function? x) "function"
+      (atom? x) (tostring x)
+      (and stack (in? x stack)) "circular"
+      (target js: false lua: (not (= (type x) 'table)))
+      (escape (tostring x))
+    (let (s "(" sp ""
+          xs () ks ()
+          l (or stack ()))
+      (add l x)
+      (each (k v) x
+        (if (number? k)
+            (set (get xs k) (pp-to-string v l))
+          (do (target lua:
+                (unless (string? k)
+                  (set k (pp-to-string k l))))
+              (add ks (cat k ":"))
+              (add ks (pp-to-string v l)))))
+      (drop l)
+      (each v (join xs ks)
+        (cat! s sp v)
+        (set sp " "))
+      (cat s  ")"))))
 
 (define usage ()
-  (print "usage: lumen [<file> <arguments> | options <object files>]")
-  (print " <file>\t\tProgram read from script file")
-  (print " <arguments>\tPassed to program in system.argv")
-  (print " <object files>\tLoaded before compiling <input>")
-  (print "options:")
-  (print " -c <input>\tCompile input file")
-  (print " -o <output>\tOutput file")
-  (print " -t <target>\tTarget language (default: lua)")
-  (print " -e <expr>\tExpression to evaluate"))
+  "
+Usage:
+  lumen <file> [<args>...]
+  lumen [options] [<object-files>...]
+
+  <file>          Program read from script file
+  <object-files>  Loaded before compiling <input>
+
+Options:
+  -c <input>...   Compile input files
+  -o <output>     Write compiler output to <output>
+  -t <target>     Set target language (default: lua)
+  -e <expr>...    Expressions to evaluate
+")
 
 (define main (argv)
-  (let (argv (or argv (get system 'argv))
-        arg (hd argv))
-    (if (and arg (script-file? arg))
-        (load-file arg)
-        (or (= arg "-h")
-            (= arg "--help"))
-        (usage)
-      (let (pre ()
-            input nil
-            output nil
-            target1 nil
-            expr nil)
-        (for i (# argv)
-          (let a (at argv i)
-            (if (or (= a "-c") (= a "-o") (= a "-t") (= a "-e"))
-                (if (= i (edge argv))
-                    (print (cat "missing argument for " a))
-                  (do (inc i)
-                      (let val (at argv i)
-                        (if (= a "-c") (set input val)
-                            (= a "-o") (set output val)
-                            (= a "-t") (set target1 val)
-                            (= a "-e") (set expr val)))))
-                (not (= "-" (char a 0))) (add pre a))))
+  (set argv (or argv (get-argv)))
+  (let arg (hd argv)
+    (when (script-file? arg)
+      (set-argv (tl argv))
+      (return (load-file arg))))
+  (let args (parse-arguments
+              (obj c: 'compile
+                   o: 'output
+                   t: 'target
+                   e: 'eval
+                   h: 'help
+                   r: 'repl)
+              argv)
+    (if (script-file? (hd args))
+        (load-file (hd args))
+        (get args 'help)
+        (print (usage))
+      (let (pre (keep string? args)
+            cmds (keep obj? args)
+            input ""
+            enter-repl true)
         (step file pre
           (run-file file))
-        (if (nil? input) (if expr (rep expr) (repl))
-          (do (if target1 (set target target1))
-              (let code (compile-file input)
-                (if (or (nil? output) (= output "-"))
-                    (print code)
-                  ((get system 'write-file) output code)))))))))
+        (step (a val) cmds
+          (when (= a 'target)
+            (set target (hd val))
+            (break)))
+        (step (a val) cmds
+          (if (= a 'help) (print (usage))
+              (= a 'repl) (set enter-repl true)
+              (or (boolean? val) (none? val))
+              (print (cat "missing argument for " a))
+              (= a 'compile) (do (step x val (cat! input (compile-file x))) (set enter-repl false))
+              (= a 'output) (do (write-file (hd val) input) (set input ""))
+              (= a 'target) (set target (hd val))
+              (= a 'eval) (do (step x val (rep x)) (set enter-repl false))))
+        (if (some? input) (print input))
+        (if (or enter-repl (get args 'repl)) (repl))))))
 
 (export reader compiler system main)
