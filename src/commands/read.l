@@ -1,4 +1,4 @@
-#!/usr/bin/env lumen
+#!/usr/bin/env bin/lumen
 
 (define-global lumen-read-usage "
 Read a Lisp file.

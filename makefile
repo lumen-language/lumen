@@ -1,4 +1,4 @@
-.PHONY: all bundle clean test
+.PHONY: all rebuild bundle clean test
 
 LUMEN_LUA  ?= lua
 LUMEN_NODE ?= node
@@ -17,18 +17,24 @@ MODS := bin/lumen.x	\
 
 BINS := bin/lumen-language
 
-all: $(MODS:.x=.js) $(MODS:.x=.lua)
+all: $(MODS:.x=.js) $(MODS:.x=.lua) $(BINS)
 
-bundle: all $(BINS) init.lua main.lua package.json index.js
-	@echo luvi:
-	@bin/lumen-luvi ./test.l
+rebuild:
+	@make clean
+	@LUMEN_HOST=node make -B
+	@LUMEN_HOST=node make -B
+	@make bundle
+	@make test
 
-bin/lumen-language: all
+bundle:
 	@npx luvit-luvi . -o bin/lumen-language
 
 clean:
 	@git checkout $(MODS:.x=.js) $(MODS:.x=.lua)
 	@rm -f obj/* $(BINS)
+
+bin/lumen-language: $(MODS:.x=.js) $(MODS:.x=.lua) init.lua main.lua package.json index.js
+	@rm -f $(BINS)
 
 bin/lumen.js: $(OBJS:.o=.js)
 	@echo $@
@@ -57,7 +63,10 @@ bin/%.lua : %.l
 	@$(LUMEN) -c $< -o $@ -t lua
 
 test: all
+	@bin/lumen-luvi -e nil
 	@echo js:
 	@LUMEN_HOST=$(LUMEN_NODE) ./test.l
 	@echo lua:
 	@LUMEN_HOST=$(LUMEN_LUA) ./test.l
+	@echo luvi:
+	@LUMEN_HOST=$(LUMEN_LUVI) ./test.l
