@@ -217,25 +217,32 @@ end
 
 -- Register as a normal lua package loader.
 local cwd = uv.cwd()
-table.insert(package.loaders, 1, function (path)
+local lumen
+if package.loaders then
+  table.insert(package.loaders, 1, function (path)
 
-  -- Ignore built-in libraries with this loader.
-  if path:match("^[a-z]+$") and package.preload[path] then
-    return
-  end
+    -- Ignore built-in libraries with this loader.
+    if path:match("^[a-z]+$") and package.preload[path] then
+      return
+    end
 
-  local level, caller = 3
-  -- Loop past any C functions to get to the real caller
-  -- This avoids pcall(require, "path") getting "=C" as the source
-  repeat
-    caller = debug.getinfo(level, "S").source
-    level = level + 1
-  until caller ~= "=[C]"
-  if string.sub(caller, 1, 1) == "@" then
-    return loader(pathJoin(cwd, caller:sub(2), ".."), path)
-  elseif string.sub(caller, 1, 7) == "bundle:" then
-    return loader(pathJoin(caller:sub(8), ".."), path, true)
-  end
-end)
-local lumen = require('./bin/lumen.lua')
+    local level, caller = 3
+    -- Loop past any C functions to get to the real caller
+    -- This avoids pcall(require, "path") getting "=C" as the source
+    repeat
+      caller = debug.getinfo(level, "S").source
+      level = level + 1
+    until caller ~= "=[C]"
+    if string.sub(caller, 1, 1) == "@" then
+      return loader(pathJoin(cwd, caller:sub(2), ".."), path)
+    elseif string.sub(caller, 1, 7) == "bundle:" then
+      return loader(pathJoin(caller:sub(8), ".."), path, true)
+    end
+  end)
+  lumen = require('./bin/lumen.lua')
+else
+  local fullPath = pathJoin(uv.fs_realpath(cwd), "bin", "?.lua")
+  package.path = package.path .. ";;" .. fullPath
+  lumen = require('lumen')
+end
 return lumen.main(lumen.system["get-argv"]());

@@ -12,19 +12,13 @@ cd "$(dirname "${bin}")"/..
 home="$(pwd)"
 cd "${dir}"
 
-luvi="$(which luvi 2>/dev/null)"
-if [ -z "${luvi}" ]
-then
-  luvi="npx -p luvit luvi"
-fi
-
 export LUA_PATH="$LUA_PATH;${home}/bin/?.lua;${dir}/lib/?.lua;;"
 
 lumen="${home}/bin/lumen-language"
 
 if [ ! -x "${lumen}" ]
 then
-  $luvi "${home}" -o "${lumen}" || exit 1
+  cd "${home}" && make bundle && cd "${dir}"
 fi
 
 exec "${lumen}" "$@"

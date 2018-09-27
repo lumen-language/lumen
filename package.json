@@ -4,17 +4,20 @@
   "description": "A Lisp for Lua and JavaScript",
   "main": "index.js",
   "bin": {
-    "lumen": "bin/lumen",
-    "lumen-node": "bin/lumen-node",
-    "lumen-language": "bin/lumen-luvi"
+    "lumen": "bin/lumen-language",
+    "lumen-node": "./index.js",
+    "lumen-language": "bin/lumen-language"
   },
   "scripts": {
-    "preinstall": "cross-env LUMEN_HOST=node make",
-    "install": "cross-env LUMEN_HOST=node make",
-    "postinstall": "cross-env LUMEN_HOST=node make",
-    "prepublish": "cross-env LUMEN_HOST=node make clean",
-    "test": "cross-env LUMEN_HOST=node make test",
-    "start": "cross-env bin/lumen"
+    "preinstall": "npx cross-env LUMEN_HOST=node make",
+    "install": "npx cross-env LUMEN_HOST=node make",
+    "postinstall": "npx cross-env LUMEN_HOST=node make",
+    "prepublish": "npx cross-env LUMEN_HOST=node make clean",
+    "clean": "npx cross-env LUMEN_HOST=node make clean",
+    "test": "npx cross-env LUMEN_HOST=node make test",
+    "luvi": "bin/lumen-luvi",
+    "node": "node ./index.js",
+    "start": "node ./index.js"
   },
   "repository": {
     "type": "git",
@@ -27,6 +30,7 @@
   },
   "homepage": "https://github.com/sctb/lumen",
   "dependencies": {
-    "cross-env": "^5.2.0"
+    "cross-env": "^5.2.0",
+    "luvit": "^0.0.11"
   }
 }
