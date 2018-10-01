@@ -84,16 +84,11 @@
               (let k (if (= v true) k v)
                 (join! bs (bind k x))))))))))
 
-(define-macro arguments% (from)
-  `((get (get (get Array 'prototype) 'slice) 'call) arguments ,from))
-
 (define-global bind* (args body)
   (let args1 ()
     (define rest ()
       (set (get args1 'rest) true)
-      (if (= target 'js)
-          `(unstash (arguments% ,(# args1)))
-        '(unstash (list |...|))))
+      `(unstash (list ,"...")))
     (if (atom? args)
         (list args1 `(let ,(list args (rest)) ,@body))
       (let bs ()
@@ -337,6 +332,7 @@
 (define compile-atom (x)
   (if (and (= x "nil") (= target 'lua)) x
       (= x "nil") "undefined"
+      (= x "...") (cat "..." (if (= target 'js) (compile "*args") ""))
       (id-literal? x) (inner x)
       (string-literal? x) (escape-newlines x)
       (string? x) (id x)
@@ -391,9 +387,8 @@
 
 (define-global compile-function (args body :name :prefix)
   (let (id (if name (compile name) "")
-        args1 (if (and (= target 'lua)
-                       (get args 'rest))
-                  `(,@args |...|)
+        args1 (if (get args 'rest)
+                  `(,@args ,"...")
                 args)
         args (compile-args args1)
         body (with-indent (compile body :stmt))
