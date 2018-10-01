@@ -96,6 +96,11 @@
     js: ((get s 'charCodeAt) n)
     lua: ((get string 'byte) s (if n (+ n 1)))))
 
+(define-global from-code (n)
+  (target
+    js: ((get String 'fromCharCode) n)
+    lua: ((get string 'char) n)))
+
 (define-global string-literal? (x)
   (and (string? x) (= (char x 0) "\"")))
 
@@ -298,6 +303,20 @@
       (unless (number-code? (code s i))
         (return false))))
   (some? s))
+
+(define-global lowercase-code? (n)
+  (and (> n 96) (< n 123))) ; a-z
+
+(define-global camel-case (str)
+  (with s ""
+    (let n (# str)
+      (for i n
+        (let c (code str i)
+          (when (and (= c 45) ; "-"
+                     (lowercase-code? (or (code str (- i 1)) 0))
+                     (lowercase-code? (or (code str (+ i 1)) 0)))
+            (set c (- (code str (inc i)) 32)))
+          (cat! s (from-code c)))))))
 
 (target js: (define tostring (x) ((get x 'toString))))
 

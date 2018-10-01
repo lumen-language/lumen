@@ -150,6 +150,9 @@ function code(s, n)
   end
   return string.byte(s, __e5)
 end
+function from_code(n)
+  return string.char(n)
+end
 function string_literal63(x)
   return string63(x) and char(x, 0) == "\""
 end
@@ -190,13 +193,13 @@ function reduce(f, x)
 end
 function join(...)
   local __ls = unstash({...})
-  local __r37 = {}
+  local __r38 = {}
   local ____x2 = __ls
   local ____i4 = 0
   while ____i4 < _35(____x2) do
     local __l11 = ____x2[____i4 + 1]
     if __l11 then
-      local __n3 = _35(__r37)
+      local __n3 = _35(__r38)
       local ____o2 = __l11
       local __k2 = nil
       for __k2 in next, ____o2 do
@@ -204,12 +207,12 @@ function join(...)
         if number63(__k2) then
           __k2 = __k2 + __n3
         end
-        __r37[__k2] = __v2
+        __r38[__k2] = __v2
       end
     end
     ____i4 = ____i4 + 1
   end
-  return __r37
+  return __r38
 end
 function testify(x, test)
   if function63(x) then
@@ -506,28 +509,46 @@ function numeric63(s)
   end
   return some63(s)
 end
+function lowercase_code63(n)
+  return n > 96 and n < 123
+end
+function camel_case(str)
+  local __s = ""
+  local __n16 = _35(str)
+  local __i21 = 0
+  while __i21 < __n16 do
+    local __c = code(str, __i21)
+    if __c == 45 and lowercase_code63(code(str, __i21 - 1) or 0) and lowercase_code63(code(str, __i21 + 1) or 0) then
+      __i21 = __i21 + 1
+      __c = code(str, __i21) - 32
+    end
+    __s = __s .. from_code(__c)
+    __i21 = __i21 + 1
+  end
+  return __s
+end
 function escape(s)
   local __s1 = "\""
-  local __i21 = 0
-  while __i21 < _35(s) do
-    local __c = char(s, __i21)
+  local __i22 = 0
+  while __i22 < _35(s) do
+    local __c1 = char(s, __i22)
     local __e7 = nil
-    if __c == "\n" then
+    if __c1 == "\n" then
       __e7 = "\\n"
     else
       local __e8 = nil
-      if __c == "\r" then
+      if __c1 == "\r" then
         __e8 = "\\r"
       else
         local __e9 = nil
-        if __c == "\"" then
+        if __c1 == "\"" then
           __e9 = "\\\""
         else
           local __e10 = nil
-          if __c == "\\" then
+          if __c1 == "\\" then
             __e10 = "\\\\"
           else
-            __e10 = __c
+            __e10 = __c1
           end
           __e9 = __e10
         end
@@ -535,9 +556,9 @@ function escape(s)
       end
       __e7 = __e8
     end
-    local __c1 = __e7
-    __s1 = __s1 .. __c1
-    __i21 = __i21 + 1
+    local __c11 = __e7
+    __s1 = __s1 .. __c11
+    __i22 = __i22 + 1
   end
   return __s1 .. "\""
 end
@@ -576,7 +597,7 @@ function str(x, stack)
                     if not( type(x) == "table") then
                       return escape(tostring(x))
                     else
-                      local __s = "("
+                      local __s11 = "("
                       local __sp = ""
                       local __xs11 = {}
                       local __ks = {}
@@ -598,13 +619,13 @@ function str(x, stack)
                       end
                       drop(__l4)
                       local ____o12 = join(__xs11, __ks)
-                      local ____i23 = nil
-                      for ____i23 in next, ____o12 do
-                        local __v12 = ____o12[____i23]
-                        __s = __s .. __sp .. __v12
+                      local ____i24 = nil
+                      for ____i24 in next, ____o12 do
+                        local __v12 = ____o12[____i24]
+                        __s11 = __s11 .. __sp .. __v12
                         __sp = " "
                       end
-                      return __s .. ")"
+                      return __s11 .. ")"
                     end
                   end
                 end
@@ -622,16 +643,16 @@ function apply(f, args)
   return f(unpack(__args))
 end
 function call(f, ...)
-  local ____r74 = unstash({...})
-  local __f3 = destash33(f, ____r74)
-  local ____id = ____r74
+  local ____r77 = unstash({...})
+  local __f3 = destash33(f, ____r77)
+  local ____id = ____r77
   local __args11 = cut(____id, 0)
   return apply(__f3, __args11)
 end
 function setenv(k, ...)
-  local ____r75 = unstash({...})
-  local __k10 = destash33(k, ____r75)
-  local ____id1 = ____r75
+  local ____r78 = unstash({...})
+  local __k10 = destash33(k, ____r78)
+  local ____id1 = ____r78
   local __keys = cut(____id1, 0)
   if string63(__k10) then
     local __e11 = nil

@@ -354,6 +354,28 @@
         tr (terminator (and stmt? (not self-tr?))))
     (cat (apply special args) tr)))
 
+(define-global accessor-literal? (x)
+  (and (string? x)
+       (= (char x 0) ".")
+       (not (= (char x 1) "."))
+       (some? (char x 1))))
+
+(define-global accessor-literal (x)
+  (camel-case (clip x 1)))
+
+(define-global compile-method (f args chain?)
+  (if (and chain? (none? args)) f
+    (let x (hd args)
+      (if (accessor-literal? x)
+          (compile-method (cat f "." (accessor-literal x)) (tl args) true)
+          (hd? x accessor-literal?)
+          (compile-method (cat f
+                               (if (= target 'lua) ":" ".")
+                               (accessor-literal (hd x)) (compile-args (tl x)))
+                          (tl args)
+                          true)
+        (cat f (compile-args args))))))
+
 (define parenthesize-call? (x)
   (or (and (not (atom? x))
            (= (hd x) '%function))
@@ -362,7 +384,7 @@
 (define compile-call (form)
   (let (f (hd form)
         f1 (compile f)
-        args (compile-args (stash* (tl form))))
+        args (compile-method "" (stash* (tl form))))
     (if (parenthesize-call? f)
         (cat "(" f1 ")" args)
       (cat f1 args))))

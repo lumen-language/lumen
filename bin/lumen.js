@@ -163,6 +163,9 @@ char = function (s, n) {
 code = function (s, n) {
   return s.charCodeAt(n);
 };
+from_code = function (n) {
+  return String.fromCharCode(n);
+};
 string_literal63 = function (x) {
   return string63(x) && char(x, 0) === "\"";
 };
@@ -204,13 +207,13 @@ reduce = function (f, x) {
 };
 join = function (..._42args) {
   var __ls = unstash([..._42args]);
-  var __r38 = [];
+  var __r39 = [];
   var ____x2 = __ls;
   var ____i4 = 0;
   while (____i4 < _35(____x2)) {
     var __l11 = ____x2[____i4];
     if (__l11) {
-      var __n3 = _35(__r38);
+      var __n3 = _35(__r39);
       var ____o2 = __l11;
       var __k4 = undefined;
       for (__k4 in ____o2) {
@@ -225,12 +228,12 @@ join = function (..._42args) {
         if (number63(__k5)) {
           __k5 = __k5 + __n3;
         }
-        __r38[__k5] = __v2;
+        __r39[__k5] = __v2;
       }
     }
     ____i4 = ____i4 + 1;
   }
-  return __r38;
+  return __r39;
 };
 testify = function (x, test) {
   if (function63(x)) {
@@ -591,31 +594,49 @@ numeric63 = function (s) {
   }
   return some63(s);
 };
+lowercase_code63 = function (n) {
+  return n > 96 && n < 123;
+};
+camel_case = function (str) {
+  var __s = "";
+  var __n17 = _35(str);
+  var __i21 = 0;
+  while (__i21 < __n17) {
+    var __c = code(str, __i21);
+    if (__c === 45 && lowercase_code63(code(str, __i21 - 1) || 0) && lowercase_code63(code(str, __i21 + 1) || 0)) {
+      __i21 = __i21 + 1;
+      __c = code(str, __i21) - 32;
+    }
+    __s = __s + from_code(__c);
+    __i21 = __i21 + 1;
+  }
+  return __s;
+};
 var tostring = function (x) {
   return x.toString();
 };
 escape = function (s) {
   var __s1 = "\"";
-  var __i21 = 0;
-  while (__i21 < _35(s)) {
-    var __c = char(s, __i21);
+  var __i22 = 0;
+  while (__i22 < _35(s)) {
+    var __c1 = char(s, __i22);
     var __e17 = undefined;
-    if (__c === "\n") {
+    if (__c1 === "\n") {
       __e17 = "\\n";
     } else {
       var __e18 = undefined;
-      if (__c === "\r") {
+      if (__c1 === "\r") {
         __e18 = "\\r";
       } else {
         var __e19 = undefined;
-        if (__c === "\"") {
+        if (__c1 === "\"") {
           __e19 = "\\\"";
         } else {
           var __e20 = undefined;
-          if (__c === "\\") {
+          if (__c1 === "\\") {
             __e20 = "\\\\";
           } else {
-            __e20 = __c;
+            __e20 = __c1;
           }
           __e19 = __e20;
         }
@@ -623,9 +644,9 @@ escape = function (s) {
       }
       __e17 = __e18;
     }
-    var __c1 = __e17;
-    __s1 = __s1 + __c1;
-    __i21 = __i21 + 1;
+    var __c11 = __e17;
+    __s1 = __s1 + __c11;
+    __i22 = __i22 + 1;
   }
   return __s1 + "\"";
 };
@@ -664,7 +685,7 @@ str = function (x, stack) {
                     if (false) {
                       return escape(tostring(x));
                     } else {
-                      var __s = "(";
+                      var __s11 = "(";
                       var __sp = "";
                       var __xs11 = [];
                       var __ks = [];
@@ -690,20 +711,20 @@ str = function (x, stack) {
                       }
                       drop(__l4);
                       var ____o12 = join(__xs11, __ks);
-                      var ____i23 = undefined;
-                      for (____i23 in ____o12) {
-                        var __v12 = ____o12[____i23];
+                      var ____i24 = undefined;
+                      for (____i24 in ____o12) {
+                        var __v12 = ____o12[____i24];
                         var __e22 = undefined;
-                        if (numeric63(____i23)) {
-                          __e22 = parseInt(____i23);
+                        if (numeric63(____i24)) {
+                          __e22 = parseInt(____i24);
                         } else {
-                          __e22 = ____i23;
+                          __e22 = ____i24;
                         }
-                        var ____i231 = __e22;
-                        __s = __s + __sp + __v12;
+                        var ____i241 = __e22;
+                        __s11 = __s11 + __sp + __v12;
                         __sp = " ";
                       }
-                      return __s + ")";
+                      return __s11 + ")";
                     }
                   }
                 }
@@ -720,16 +741,16 @@ apply = function (f, args) {
   return f.apply(f, __args);
 };
 call = function (f, ..._42args) {
-  var ____r77 = unstash([..._42args]);
-  var __f3 = destash33(f, ____r77);
-  var ____id = ____r77;
+  var ____r80 = unstash([..._42args]);
+  var __f3 = destash33(f, ____r80);
+  var ____id = ____r80;
   var __args11 = cut(____id, 0);
   return apply(__f3, __args11);
 };
 setenv = function (k, ..._42args) {
-  var ____r78 = unstash([..._42args]);
-  var __k20 = destash33(k, ____r78);
-  var ____id1 = ____r78;
+  var ____r81 = unstash([..._42args]);
+  var __k20 = destash33(k, ____r81);
+  var ____id1 = ____r81;
   var __keys = cut(____id1, 0);
   if (string63(__k20)) {
     var __e23 = undefined;
