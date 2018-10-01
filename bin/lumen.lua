@@ -1002,28 +1002,28 @@ setenv("each", {_stash = true, macro = function (x, t, ...)
   local __o3 = unique("o")
   local __n3 = unique("n")
   local __i3 = unique("i")
-  local __e8 = nil
+  local __e7 = nil
   if atom63(__x302) then
-    __e8 = {__i3, __x302}
+    __e7 = {__i3, __x302}
   else
-    local __e9 = nil
+    local __e8 = nil
     if _35(__x302) > 1 then
-      __e9 = __x302
+      __e8 = __x302
     else
-      __e9 = {__i3, hd(__x302)}
+      __e8 = {__i3, hd(__x302)}
     end
-    __e8 = __e9
+    __e7 = __e8
   end
-  local ____id53 = __e8
+  local ____id53 = __e7
   local __k4 = ____id53[1]
   local __v7 = ____id53[2]
-  local __e10 = nil
+  local __e9 = nil
   if target == "lua" then
-    __e10 = __body37
+    __e9 = __body37
   else
-    __e10 = {join({"let", __k4, {"if", {"numeric?", __k4}, {"parseInt", __k4}, __k4}}, __body37)}
+    __e9 = {join({"let", __k4, {"if", {"numeric?", __k4}, {"parseInt", __k4}, __k4}}, __body37)}
   end
-  return {"let", {__o3, __t1, __k4, "nil"}, {"%for", __o3, __k4, join({"let", {__v7, {"get", __o3, __k4}}}, __e10)}}
+  return {"let", {__o3, __t1, __k4, "nil"}, {"%for", __o3, __k4, join({"let", {__v7, {"get", __o3, __k4}}}, __e9)}}
 end})
 setenv("for", {_stash = true, macro = function (i, to, ...)
   local ____r63 = unstash({...})
@@ -1076,45 +1076,40 @@ setenv("cat!", {_stash = true, macro = function (a, ...)
   return {"set", __a5, join({"cat", __a5}, __bs7)}
 end})
 setenv("inc", {_stash = true, macro = function (n, by)
+  local __e10 = nil
+  if nil63(by) then
+    __e10 = 1
+  else
+    __e10 = by
+  end
+  return {"set", n, {"+", n, __e10}}
+end})
+setenv("dec", {_stash = true, macro = function (n, by)
   local __e11 = nil
   if nil63(by) then
     __e11 = 1
   else
     __e11 = by
   end
-  return {"set", n, {"+", n, __e11}}
-end})
-setenv("dec", {_stash = true, macro = function (n, by)
-  local __e12 = nil
-  if nil63(by) then
-    __e12 = 1
-  else
-    __e12 = by
-  end
-  return {"set", n, {"-", n, __e12}}
+  return {"set", n, {"-", n, __e11}}
 end})
 setenv("with-indent", {_stash = true, macro = function (form)
   local __x381 = unique("x")
   return {"do", {"inc", "indent-level"}, {"with", __x381, form, {"dec", "indent-level"}}}
 end})
+setenv("undefined?", {_stash = true, macro = function (x)
+  local ____x390 = {"target"}
+  ____x390.lua = {"=", x, "nil"}
+  ____x390.js = {"=", {"typeof", x}, "\"undefined\""}
+  return ____x390
+end})
 setenv("export", {_stash = true, macro = function (...)
   local __names5 = unstash({...})
-  if target == "js" then
-    return join({"do"}, map(function (k)
-      return {"set", {"get", "exports", {"quote", k}}, k}
-    end, __names5))
-  else
-    local __x399 = {}
-    local ____o7 = __names5
-    local ____i11 = nil
-    for ____i11 in next, ____o7 do
-      local __k6 = ____o7[____i11]
-      __x399[__k6] = __k6
-    end
-    return {"return", join({"%object"}, mapo(function (x)
-      return x
-    end, __x399))}
-  end
+  local ____x412 = {"target"}
+  ____x412.lua = {"return", "exports"}
+  return join({"with", "exports", {"if", {"undefined?", "exports"}, {"obj"}, "exports"}}, map(function (k)
+    return {"set", {"exports", "." .. k}, k}
+  end, __names5), {____x412})
 end})
 setenv("when-compiling", {_stash = true, macro = function (...)
   local __body43 = unstash({...})
@@ -1131,7 +1126,7 @@ local compiler = require("./compiler")
 local system = require("./system")
 local function eval_print(form)
   local ____id = {xpcall(function ()
-    return compiler["eval"](form)
+    return compiler._eval(form)
   end, function (m)
     if obj63(m) then
       return m
@@ -1162,14 +1157,14 @@ local function eval_print(form)
   end
 end
 local function rep(s)
-  return eval_print(reader["read-string"](s))
+  return eval_print(reader.readString(s))
 end
 local function repl()
   local __buf = ""
   local function rep1(s)
     __buf = __buf .. s
     local __more = {}
-    local __form = reader["read-string"](__buf, __more)
+    local __form = reader.readString(__buf, __more)
     if not( __form == __more) then
       eval_print(__form)
       __buf = ""
@@ -1187,14 +1182,14 @@ local function repl()
   end
 end
 function read_file(path)
-  return system["read-file"](path)
+  return system.readFile(path)
 end
 function write_file(path, data)
-  return system["write-file"](path, data)
+  return system.writeFile(path, data)
 end
 function read_from_file(path)
-  local __s1 = reader.stream(system["read-file"](path))
-  local __body = reader["read-all"](__s1)
+  local __s1 = reader.stream(system.readFile(path))
+  local __body = reader.readAll(__s1)
   return join({"do"}, __body)
 end
 function expand_file(path)
@@ -1445,4 +1440,15 @@ local function main(argv)
     end
   end
 end
-return {reader = reader, compiler = compiler, system = system, main = main}
+local __e7 = nil
+if exports == nil then
+  __e7 = {}
+else
+  __e7 = exports
+end
+local __exports = __e7
+__exports.reader = reader
+__exports.compiler = compiler
+__exports.system = system
+__exports.main = main
+return __exports

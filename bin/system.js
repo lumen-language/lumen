@@ -117,19 +117,27 @@ var reload = function (module) {
 var run = function (command) {
   return child_process.execSync(command).toString();
 };
-exports["read-file"] = read_file;
-exports["write-file"] = write_file;
-exports["file-exists?"] = file_exists63;
-exports["directory-exists?"] = directory_exists63;
-exports["path-separator"] = path_separator;
-exports["path-join"] = path_join;
-exports["get-environment-variable"] = get_environment_variable;
-exports.stdout = stdout;
-exports.stderr = stderr;
-exports.write = write;
-exports.exit = exit;
-exports["get-argv"] = get_argv;
-exports["set-argv"] = set_argv;
-exports.arguments = arguments;
-exports.reload = reload;
-exports.run = run;
+var __e2 = undefined;
+if (typeof(exports) === "undefined") {
+  __e2 = {};
+} else {
+  __e2 = exports;
+}
+var __exports = __e2;
+__exports.readFile = read_file;
+__exports.writeFile = write_file;
+__exports.fileExists63 = file_exists63;
+__exports.directoryExists63 = directory_exists63;
+__exports.pathSeparator = path_separator;
+__exports.pathJoin = path_join;
+__exports.getEnvironmentVariable = get_environment_variable;
+__exports.stdout = stdout;
+__exports.stderr = stderr;
+__exports.write = write;
+__exports.exit = exit;
+__exports.getArgv = get_argv;
+__exports.setArgv = set_argv;
+__exports.arguments = arguments;
+__exports.reload = reload;
+__exports.run = run;
+__exports;

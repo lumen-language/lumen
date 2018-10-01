@@ -153,4 +153,27 @@ local function run(command)
   __f2.close(__f2)
   return __x5
 end
-return {["read-file"] = read_file, ["write-file"] = write_file, ["file-exists?"] = file_exists63, ["directory-exists?"] = directory_exists63, ["path-separator"] = path_separator, ["path-join"] = path_join, ["get-environment-variable"] = get_environment_variable, stdout = stdout, stderr = stderr, write = write, exit = exit, ["get-argv"] = get_argv, ["set-argv"] = set_argv, arguments = arguments, reload = reload, run = run}
+local __e5 = nil
+if exports == nil then
+  __e5 = {}
+else
+  __e5 = exports
+end
+local __exports = __e5
+__exports.readFile = read_file
+__exports.writeFile = write_file
+__exports.fileExists63 = file_exists63
+__exports.directoryExists63 = directory_exists63
+__exports.pathSeparator = path_separator
+__exports.pathJoin = path_join
+__exports.getEnvironmentVariable = get_environment_variable
+__exports.stdout = stdout
+__exports.stderr = stderr
+__exports.write = write
+__exports.exit = exit
+__exports.getArgv = get_argv
+__exports.setArgv = set_argv
+__exports.arguments = arguments
+__exports.reload = reload
+__exports.run = run
+return __exports

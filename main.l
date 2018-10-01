@@ -3,7 +3,7 @@
 (define system (require "./system"))
 
 (define eval-print (form)
-  (let ((ok v) (guard ((get compiler 'eval) form)))
+  (let ((ok v) (guard ((compiler .eval) form)))
     (if (not ok)
         (target
           js: (print (get v 'stack))
@@ -11,19 +11,19 @@
         (is? v) (print (str v)))))
 
 (define rep (s)
-  (eval-print ((get reader 'read-string) s)))
+  (eval-print ((reader .read-string) s)))
 
 (define repl ()
   (let buf ""
     (define rep1 (s)
       (cat! buf s)
       (let (more ()
-            form ((get reader 'read-string) buf more))
+            form ((reader .read-string) buf more))
           (unless (= form more)
             (eval-print form)
             (set buf "")
-            ((get system 'write) "> ")))))
-  ((get system 'write) "> ")
+            ((system .write) "> ")))))
+  ((system .write) "> ")
   (target
     js: (let in (get process 'stdin)
           ((get in 'setEncoding) 'utf8)
@@ -33,29 +33,29 @@
              (if s (rep1 (cat s "\n")) (break))))))
 
 (define-global read-file (path)
-  ((get system 'read-file) path))
+  ((system .read-file) path))
 
 (define-global write-file (path data)
-  ((get system 'write-file) path data))
+  ((system .write-file) path data))
 
 (define-global read-from-file (path)
-  (let (s ((get reader 'stream) ((get system 'read-file) path))
-        body ((get reader 'read-all) s))
+  (let (s ((reader .stream) ((system .read-file) path))
+        body ((reader .read-all) s))
     `(do ,@body)))
 
 (define-global expand-file (path)
-  ((get compiler 'expand) (read-from-file path)))
+  ((compiler .expand) (read-from-file path)))
 
 (define-global compile-file (path)
   (let form (expand-file path)
-    ((get compiler 'compile) form :stmt)))
+    ((compiler .compile) form :stmt)))
 
 (define-global load (path)
   (let previous target
     (set target (language))
     (let code (compile-file path)
       (set target previous)
-      ((get compiler 'run) code))))
+      ((compiler .run) code))))
 
 (define-global script-file? (path)
   (and (string? path)
@@ -66,13 +66,13 @@
 (define-global run-file (path)
   (if (script-file? path)
       (load path)
-    ((get compiler 'run) (read-file path))))
+    ((compiler .run) (read-file path))))
 
 (define-global read-from-string (str start end)
-  (let s ((get reader 'stream) str)
+  (let s ((reader .stream) str)
     (set (get s 'pos) (either start (get s 'pos))
          (get s 'len) (either end (get s 'len)))
-    (let form ((get reader 'read) s)
+    (let form ((reader .read) s)
       (if (nil? form)
           (error "End of string during parsing")
         `(,form rest: ,(get s 'pos))))))

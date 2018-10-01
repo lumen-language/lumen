@@ -8,5 +8,5 @@ require('module').Module._initPaths();
 global.require = require;
 Object.assign(exports, require("./bin/lumen.js"));
 if (require.main === module) {
-  exports.main(exports.system["get-argv"]());
+  exports.main(exports.system.getArgv());
 }

@@ -245,4 +245,4 @@ else
   package.path = package.path .. ";;" .. fullPath
   lumen = require('lumen')
 end
-return lumen.main(lumen.system["get-argv"]());
+return lumen.main(lumen.system.getArgv());

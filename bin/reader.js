@@ -231,8 +231,16 @@ read_table[","] = function (s) {
     return wrap(s, "unquote");
   }
 };
-exports.stream = stream;
-exports.read = read;
-exports["read-all"] = read_all;
-exports["read-string"] = read_string;
-exports["read-table"] = read_table;
+var __e2 = undefined;
+if (typeof(exports) === "undefined") {
+  __e2 = {};
+} else {
+  __e2 = exports;
+}
+var __exports = __e2;
+__exports.stream = stream;
+__exports.read = read;
+__exports.readAll = read_all;
+__exports.readString = read_string;
+__exports.readTable = read_table;
+__exports;

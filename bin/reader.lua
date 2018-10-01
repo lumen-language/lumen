@@ -231,4 +231,16 @@ read_table[","] = function (s)
     return wrap(s, "unquote")
   end
 end
-return {stream = stream, read = read, ["read-all"] = read_all, ["read-string"] = read_string, ["read-table"] = read_table}
+local __e2 = nil
+if exports == nil then
+  __e2 = {}
+else
+  __e2 = exports
+end
+local __exports = __e2
+__exports.stream = stream
+__exports.read = read
+__exports.readAll = read_all
+__exports.readString = read_string
+__exports.readTable = read_table
+return __exports

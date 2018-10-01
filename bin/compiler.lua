@@ -660,7 +660,7 @@ function accessor_literal63(x)
   return string63(x) and char(x, 0) == "." and not( char(x, 1) == ".") and some63(char(x, 1))
 end
 function accessor_literal(x)
-  return camel_case(clip(x, 1))
+  return compile(camel_case(clip(x, 1)))
 end
 function compile_method(f, args, chain63)
   if chain63 and none63(args) then
@@ -1349,4 +1349,15 @@ setenv("%literal", {_stash = true, special = function (...)
   local __args111 = unstash({...})
   return apply(cat, map(unquoted, __args111))
 end})
-return {run = run, ["eval"] = _eval, expand = expand, compile = compile}
+local __e59 = nil
+if exports == nil then
+  __e59 = {}
+else
+  __e59 = exports
+end
+local __exports = __e59
+__exports.run = run
+__exports._eval = _eval
+__exports.expand = expand
+__exports.compile = compile
+return __exports

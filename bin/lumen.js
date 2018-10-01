@@ -846,13 +846,13 @@ setenv("list", {_stash: true, macro: function (..._42args) {
   var __k2 = undefined;
   for (__k2 in ____o1) {
     var __v1 = ____o1[__k2];
-    var __e8 = undefined;
+    var __e7 = undefined;
     if (numeric63(__k2)) {
-      __e8 = parseInt(__k2);
+      __e7 = parseInt(__k2);
     } else {
-      __e8 = __k2;
+      __e7 = __k2;
     }
-    var __k3 = __e8;
+    var __k3 = __e7;
     if (number63(__k3)) {
       __l1[__k3] = __v1;
     } else {
@@ -1120,28 +1120,28 @@ setenv("each", {_stash: true, macro: function (x, t, ..._42args) {
   var __o3 = unique("o");
   var __n3 = unique("n");
   var __i3 = unique("i");
-  var __e9 = undefined;
+  var __e8 = undefined;
   if (atom63(__x302)) {
-    __e9 = [__i3, __x302];
+    __e8 = [__i3, __x302];
   } else {
-    var __e10 = undefined;
+    var __e9 = undefined;
     if (_35(__x302) > 1) {
-      __e10 = __x302;
+      __e9 = __x302;
     } else {
-      __e10 = [__i3, hd(__x302)];
+      __e9 = [__i3, hd(__x302)];
     }
-    __e9 = __e10;
+    __e8 = __e9;
   }
-  var ____id53 = __e9;
+  var ____id53 = __e8;
   var __k5 = ____id53[0];
   var __v7 = ____id53[1];
-  var __e11 = undefined;
+  var __e10 = undefined;
   if (target === "lua") {
-    __e11 = __body37;
+    __e10 = __body37;
   } else {
-    __e11 = [join(["let", __k5, ["if", ["numeric?", __k5], ["parseInt", __k5], __k5]], __body37)];
+    __e10 = [join(["let", __k5, ["if", ["numeric?", __k5], ["parseInt", __k5], __k5]], __body37)];
   }
-  return ["let", [__o3, __t1, __k5, "nil"], ["%for", __o3, __k5, join(["let", [__v7, ["get", __o3, __k5]]], __e11)]];
+  return ["let", [__o3, __t1, __k5, "nil"], ["%for", __o3, __k5, join(["let", [__v7, ["get", __o3, __k5]]], __e10)]];
 }});
 setenv("for", {_stash: true, macro: function (i, to, ..._42args) {
   var ____r63 = unstash([..._42args]);
@@ -1168,13 +1168,13 @@ setenv("set-of", {_stash: true, macro: function (..._42args) {
   var ____i9 = undefined;
   for (____i9 in ____o5) {
     var __x350 = ____o5[____i9];
-    var __e12 = undefined;
+    var __e11 = undefined;
     if (numeric63(____i9)) {
-      __e12 = parseInt(____i9);
+      __e11 = parseInt(____i9);
     } else {
-      __e12 = ____i9;
+      __e11 = ____i9;
     }
-    var ____i91 = __e12;
+    var ____i91 = __e11;
     __l3[__x350] = true;
   }
   return join(["obj"], __l3);
@@ -1201,52 +1201,40 @@ setenv("cat!", {_stash: true, macro: function (a, ..._42args) {
   return ["set", __a5, join(["cat", __a5], __bs7)];
 }});
 setenv("inc", {_stash: true, macro: function (n, by) {
+  var __e12 = undefined;
+  if (nil63(by)) {
+    __e12 = 1;
+  } else {
+    __e12 = by;
+  }
+  return ["set", n, ["+", n, __e12]];
+}});
+setenv("dec", {_stash: true, macro: function (n, by) {
   var __e13 = undefined;
   if (nil63(by)) {
     __e13 = 1;
   } else {
     __e13 = by;
   }
-  return ["set", n, ["+", n, __e13]];
-}});
-setenv("dec", {_stash: true, macro: function (n, by) {
-  var __e14 = undefined;
-  if (nil63(by)) {
-    __e14 = 1;
-  } else {
-    __e14 = by;
-  }
-  return ["set", n, ["-", n, __e14]];
+  return ["set", n, ["-", n, __e13]];
 }});
 setenv("with-indent", {_stash: true, macro: function (form) {
   var __x381 = unique("x");
   return ["do", ["inc", "indent-level"], ["with", __x381, form, ["dec", "indent-level"]]];
 }});
+setenv("undefined?", {_stash: true, macro: function (x) {
+  var ____x390 = ["target"];
+  ____x390.lua = ["=", x, "nil"];
+  ____x390.js = ["=", ["typeof", x], "\"undefined\""];
+  return ____x390;
+}});
 setenv("export", {_stash: true, macro: function (..._42args) {
   var __names5 = unstash([..._42args]);
-  if (target === "js") {
-    return join(["do"], map(function (k) {
-      return ["set", ["get", "exports", ["quote", k]], k];
-    }, __names5));
-  } else {
-    var __x399 = {};
-    var ____o7 = __names5;
-    var ____i11 = undefined;
-    for (____i11 in ____o7) {
-      var __k7 = ____o7[____i11];
-      var __e15 = undefined;
-      if (numeric63(____i11)) {
-        __e15 = parseInt(____i11);
-      } else {
-        __e15 = ____i11;
-      }
-      var ____i111 = __e15;
-      __x399[__k7] = __k7;
-    }
-    return ["return", join(["%object"], mapo(function (x) {
-      return x;
-    }, __x399))];
-  }
+  var ____x412 = ["target"];
+  ____x412.lua = ["return", "exports"];
+  return join(["with", "exports", ["if", ["undefined?", "exports"], ["obj"], "exports"]], map(function (k) {
+    return ["set", ["exports", "." + k], k];
+  }, __names5), [____x412]);
 }});
 setenv("when-compiling", {_stash: true, macro: function (..._42args) {
   var __body43 = unstash([..._42args]);
@@ -1264,10 +1252,10 @@ var system = require("./system");
 var eval_print = function (form) {
   var ____id = (function () {
     try {
-      return [true, compiler["eval"](form)];
+      return [true, compiler._eval(form)];
     }
-    catch (__e3) {
-      return [false, __e3];
+    catch (__e4) {
+      return [false, __e4];
     }
   })();
   var __ok = ____id[0];
@@ -1281,14 +1269,14 @@ var eval_print = function (form) {
   }
 };
 var rep = function (s) {
-  return eval_print(reader["read-string"](s));
+  return eval_print(reader.readString(s));
 };
 var repl = function () {
   var __buf = "";
   var rep1 = function (s) {
     __buf = __buf + s;
     var __more = [];
-    var __form = reader["read-string"](__buf, __more);
+    var __form = reader.readString(__buf, __more);
     if (!( __form === __more)) {
       eval_print(__form);
       __buf = "";
@@ -1301,14 +1289,14 @@ var repl = function () {
   return ___in.on("data", rep1);
 };
 read_file = function (path) {
-  return system["read-file"](path);
+  return system.readFile(path);
 };
 write_file = function (path, data) {
-  return system["write-file"](path, data);
+  return system.writeFile(path, data);
 };
 read_from_file = function (path) {
-  var __s = reader.stream(system["read-file"](path));
-  var __body = reader["read-all"](__s);
+  var __s = reader.stream(system.readFile(path));
+  var __body = reader.readAll(__s);
   return join(["do"], __body);
 };
 expand_file = function (path) {
@@ -1356,8 +1344,8 @@ readable_string63 = function (str) {
       try {
         return [true, read_from_string(str)];
       }
-      catch (__e4) {
-        return [false, __e4];
+      catch (__e5) {
+        return [false, __e5];
       }
     })();
     var __ok1 = ____id1[0];
@@ -1557,7 +1545,15 @@ var main = function (argv) {
     }
   }
 };
-exports.reader = reader;
-exports.compiler = compiler;
-exports.system = system;
-exports.main = main;
+var __e3 = undefined;
+if (typeof(exports) === "undefined") {
+  __e3 = {};
+} else {
+  __e3 = exports;
+}
+var __exports = __e3;
+__exports.reader = reader;
+__exports.compiler = compiler;
+__exports.system = system;
+__exports.main = main;
+__exports;

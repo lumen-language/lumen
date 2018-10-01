@@ -34,7 +34,7 @@
   (print (cat " " passed " passed, " failed " failed")))
 
 (define-test reader
-  (let read (get reader 'read-string)
+  (let read (reader .read-string)
     (test= nil (read ""))
     (test= "nil" (read "nil"))
     (test= 17 (read "17"))
@@ -64,7 +64,7 @@
     (test= "0." (read "0."))))
 
 (define-test read-more
-  (let read (get reader 'read-string)
+  (let read (reader .read-string)
     (test= 17 (read "17" true))
     (let more ()
       (test= more (read "(open" more))
@@ -1034,7 +1034,7 @@ c"
   (test= 116 (apply + 1 5 '(100 10))))
 
 (define-test eval
-  (let eval (get compiler 'eval)
+  (let eval (compiler .eval)
     (test= 4 (eval '(+ 2 2)))
     (test= 5 (eval '(let a 3 (+ 2 a))))
     (test= 9 (eval '(do (define x 7) (+ x 2))))

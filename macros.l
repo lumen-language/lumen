@@ -213,15 +213,16 @@
          (with ,x ,form
            (dec indent-level)))))
 
+(define-macro undefined? (x)
+  `(target lua: (= ,x nil)
+           js: (= (typeof ,x) "undefined")))
+
 (define-macro export names
-  (if (= target 'js)
-      `(do ,@(map (fn (k)
-                    `(set (get exports ',k) ,k))
-                  names))
-    (let x (obj)
-      (each k names
-        (set (get x k) k))
-      `(return (%object ,@(mapo (fn (x) x) x))))))
+  `(with exports (if (undefined? exports) (obj) exports)
+     ,@(map (fn (k)
+              `(set (exports ,(cat "." k)) ,k))
+            names)
+     (target lua: (return exports))))
 
 (define-macro when-compiling body
   (eval `(do ,@body)))

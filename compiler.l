@@ -361,7 +361,7 @@
        (some? (char x 1))))
 
 (define-global accessor-literal (x)
-  (camel-case (clip x 1)))
+  (compile (camel-case (clip x 1))))
 
 (define-global compile-method (f args chain?)
   (if (and chain? (none? args)) f

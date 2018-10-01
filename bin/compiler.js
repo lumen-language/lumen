@@ -714,7 +714,7 @@ accessor_literal63 = function (x) {
   return string63(x) && char(x, 0) === "." && !( char(x, 1) === ".") && some63(char(x, 1));
 };
 accessor_literal = function (x) {
-  return camel_case(clip(x, 1));
+  return compile(camel_case(clip(x, 1)));
 };
 compile_method = function (f, args, chain63) {
   if (chain63 && none63(args)) {
@@ -1407,7 +1407,15 @@ setenv("%literal", {_stash: true, special: function (..._42args) {
   var __args111 = unstash([..._42args]);
   return apply(cat, map(unquoted, __args111));
 }});
-exports.run = run;
-exports["eval"] = _eval;
-exports.expand = expand;
-exports.compile = compile;
+var __e68 = undefined;
+if (typeof(exports) === "undefined") {
+  __e68 = {};
+} else {
+  __e68 = exports;
+}
+var __exports = __e68;
+__exports.run = run;
+__exports._eval = _eval;
+__exports.expand = expand;
+__exports.compile = compile;
+__exports;
