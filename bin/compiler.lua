@@ -55,6 +55,21 @@ function quoted(form)
     end
   end
 end
+function unquoted(form)
+  if string_literal63(form) then
+    if read_string(form) == form then
+      return _eval(form)
+    else
+      return error("unquoted: bad string-literal")
+    end
+  else
+    if hd63(form, "quote") then
+      return form[2]
+    else
+      return compile(form)
+    end
+  end
+end
 local function literal(s)
   if string_literal63(s) then
     return s
@@ -137,7 +152,7 @@ function bind42(args, body)
     return {__args1, join({"let", {args, rest()}}, body)}
   else
     local __bs1 = {}
-    local __r19 = unique("r")
+    local __r20 = unique("r")
     local ____o2 = args
     local __k3 = nil
     for __k3 in next, ____o2 do
@@ -153,15 +168,15 @@ function bind42(args, body)
       end
     end
     if keys63(args) then
-      __bs1 = join(__bs1, {__r19, rest()})
+      __bs1 = join(__bs1, {__r20, rest()})
       local __n3 = _35(__args1)
       local __i4 = 0
       while __i4 < __n3 do
         local __v3 = __args1[__i4 + 1]
-        __bs1 = join(__bs1, {__v3, {"destash!", __v3, __r19}})
+        __bs1 = join(__bs1, {__v3, {"destash!", __v3, __r20}})
         __i4 = __i4 + 1
       end
-      __bs1 = join(__bs1, {keys(args), __r19})
+      __bs1 = join(__bs1, {keys(args), __r20})
     end
     return {__args1, join({"let", __bs1}, body)}
   end
@@ -652,10 +667,10 @@ local function compile_call(form)
   end
 end
 local function op_delims(parent, child, ...)
-  local ____r57 = unstash({...})
-  local __parent = destash33(parent, ____r57)
-  local __child = destash33(child, ____r57)
-  local ____id8 = ____r57
+  local ____r58 = unstash({...})
+  local __parent = destash33(parent, ____r58)
+  local __child = destash33(child, ____r58)
+  local ____id8 = ____r58
   local __right = ____id8.right
   local __e33 = nil
   if __right then
@@ -691,10 +706,10 @@ local function compile_infix(form)
   end
 end
 function compile_function(args, body, ...)
-  local ____r59 = unstash({...})
-  local __args4 = destash33(args, ____r59)
-  local __body3 = destash33(body, ____r59)
-  local ____id13 = ____r59
+  local ____r60 = unstash({...})
+  local __args4 = destash33(args, ____r60)
+  local __body3 = destash33(body, ____r60)
+  local ____id13 = ____r60
   local __name3 = ____id13.name
   local __prefix = ____id13.prefix
   local __e34 = nil
@@ -744,9 +759,9 @@ local function can_return63(form)
   return is63(form) and (atom63(form) or not( hd(form) == "return") and not statement63(hd(form)))
 end
 function compile(form, ...)
-  local ____r61 = unstash({...})
-  local __form = destash33(form, ____r61)
-  local ____id15 = ____r61
+  local ____r62 = unstash({...})
+  local __form = destash33(form, ____r62)
+  local ____id15 = ____r62
   local __stmt1 = ____id15.stmt
   if nil63(__form) then
     return ""
@@ -1301,6 +1316,6 @@ setenv("%object", {_stash = true, special = function (...)
 end})
 setenv("%literal", {_stash = true, special = function (...)
   local __args111 = unstash({...})
-  return apply(cat, map(compile, __args111))
+  return apply(cat, map(unquoted, __args111))
 end})
 return {run = run, ["eval"] = _eval, expand = expand, compile = compile}

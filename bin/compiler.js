@@ -55,6 +55,21 @@ quoted = function (form) {
     }
   }
 };
+unquoted = function (form) {
+  if (string_literal63(form)) {
+    if (read_string(form) === form) {
+      return _eval(form);
+    } else {
+      return error("unquoted: bad string-literal");
+    }
+  } else {
+    if (hd63(form, "quote")) {
+      return form[1];
+    } else {
+      return compile(form);
+    }
+  }
+};
 var literal = function (s) {
   if (string_literal63(s)) {
     return s;
@@ -151,7 +166,7 @@ bind42 = function (args, body) {
     return [__args1, join(["let", [args, rest()]], body)];
   } else {
     var __bs1 = [];
-    var __r19 = unique("r");
+    var __r20 = unique("r");
     var ____o2 = args;
     var __k5 = undefined;
     for (__k5 in ____o2) {
@@ -174,15 +189,15 @@ bind42 = function (args, body) {
       }
     }
     if (keys63(args)) {
-      __bs1 = join(__bs1, [__r19, rest()]);
+      __bs1 = join(__bs1, [__r20, rest()]);
       var __n3 = _35(__args1);
       var __i4 = 0;
       while (__i4 < __n3) {
         var __v3 = __args1[__i4];
-        __bs1 = join(__bs1, [__v3, ["destash!", __v3, __r19]]);
+        __bs1 = join(__bs1, [__v3, ["destash!", __v3, __r20]]);
         __i4 = __i4 + 1;
       }
-      __bs1 = join(__bs1, [keys(args), __r19]);
+      __bs1 = join(__bs1, [keys(args), __r20]);
     }
     return [__args1, join(["let", __bs1], body)];
   }
@@ -706,10 +721,10 @@ var compile_call = function (form) {
   }
 };
 var op_delims = function (parent, child) {
-  var ____r57 = unstash(Array.prototype.slice.call(arguments, 2));
-  var __parent = destash33(parent, ____r57);
-  var __child = destash33(child, ____r57);
-  var ____id8 = ____r57;
+  var ____r58 = unstash(Array.prototype.slice.call(arguments, 2));
+  var __parent = destash33(parent, ____r58);
+  var __child = destash33(child, ____r58);
+  var ____id8 = ____r58;
   var __right = ____id8.right;
   var __e40 = undefined;
   if (__right) {
@@ -745,10 +760,10 @@ var compile_infix = function (form) {
   }
 };
 compile_function = function (args, body) {
-  var ____r59 = unstash(Array.prototype.slice.call(arguments, 2));
-  var __args4 = destash33(args, ____r59);
-  var __body3 = destash33(body, ____r59);
-  var ____id13 = ____r59;
+  var ____r60 = unstash(Array.prototype.slice.call(arguments, 2));
+  var __args4 = destash33(args, ____r60);
+  var __body3 = destash33(body, ____r60);
+  var ____id13 = ____r60;
   var __name3 = ____id13.name;
   var __prefix = ____id13.prefix;
   var __e41 = undefined;
@@ -798,9 +813,9 @@ var can_return63 = function (form) {
   return is63(form) && (atom63(form) || !( hd(form) === "return") && ! statement63(hd(form)));
 };
 compile = function (form) {
-  var ____r61 = unstash(Array.prototype.slice.call(arguments, 1));
-  var __form = destash33(form, ____r61);
-  var ____id15 = ____r61;
+  var ____r62 = unstash(Array.prototype.slice.call(arguments, 1));
+  var __form = destash33(form, ____r62);
+  var ____id15 = ____r62;
   var __stmt1 = ____id15.stmt;
   if (nil63(__form)) {
     return "";
@@ -1359,7 +1374,7 @@ setenv("%object", {_stash: true, special: function () {
 }});
 setenv("%literal", {_stash: true, special: function () {
   var __args111 = unstash(Array.prototype.slice.call(arguments, 0));
-  return apply(cat, map(compile, __args111));
+  return apply(cat, map(unquoted, __args111));
 }});
 exports.run = run;
 exports["eval"] = _eval;

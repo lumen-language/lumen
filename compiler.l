@@ -42,6 +42,15 @@
       (atom? form) form
     `(list ,@(map quoted form))))
 
+(define-global unquoted (form)
+  (if (string-literal? form)
+      (if (= (read-string form) form)
+          (eval form)
+        (error "unquoted: bad string-literal"))
+      (hd? form 'quote)
+      (at form 1)
+    (compile form)))
+
 (define literal (s)
   (if (string-literal? s) s (quoted s)))
 
@@ -731,7 +740,7 @@
     (cat s "}")))
 
 (define-special %literal args
-  (apply cat (map compile args)))
+  (apply cat (map unquoted args)))
 
 (export run
         eval
