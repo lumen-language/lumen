@@ -17,7 +17,7 @@
           lua: (is? (get l k))))
 
 (define-global # (x)
-  (target js: (or (get x 'length) 0) lua: |#x|))
+  (target js: (or (get x 'length) 0) lua: (%literal |#| x)))
 
 (define-global none? (x) (= (# x) 0))
 (define-global some? (x) (> (# x) 0))

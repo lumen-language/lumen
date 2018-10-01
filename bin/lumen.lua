@@ -787,13 +787,8 @@ setenv("let", {_stash = true, macro = function (bs, ...)
       local __id17 = ____id16[1]
       local __val1 = ____id16[2]
       local __bs12 = cut(____id16, 2)
-      local __renames1 = {}
-      if not id_literal63(__id17) then
-        local __id121 = unique(__id17)
-        __renames1 = {__id17, __id121}
-        __id17 = __id121
-      end
-      return {"do", {"%local", __id17, __val1}, {"let-symbol", __renames1, join({"let", join(__bs12, __bs21)}, __body9)}}
+      local __id121 = unique(__id17)
+      return {"do", {"%local", __id121, __val1}, {"let-symbol", {__id17, __id121}, join({"let", join(__bs12, __bs21)}, __body9)}}
     end
   end
 end})

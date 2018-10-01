@@ -905,13 +905,8 @@ setenv("let", {_stash: true, macro: function (bs) {
       var __id17 = ____id16[0];
       var __val1 = ____id16[1];
       var __bs12 = cut(____id16, 2);
-      var __renames1 = [];
-      if (! id_literal63(__id17)) {
-        var __id121 = unique(__id17);
-        __renames1 = [__id17, __id121];
-        __id17 = __id121;
-      }
-      return ["do", ["%local", __id17, __val1], ["let-symbol", __renames1, join(["let", join(__bs12, __bs21)], __body9)]];
+      var __id121 = unique(__id17);
+      return ["do", ["%local", __id121, __val1], ["let-symbol", [__id17, __id121], join(["let", join(__bs12, __bs21)], __body9)]];
     }
   }
 }});
