@@ -3,12 +3,14 @@
 (define system (require "./system"))
 
 (define eval-print (form)
-  (let ((ok v) (guard ((compiler .eval) form)))
+  (let ((ok v) (guard ((compiler .eval) `(results ,form))))
     (if (not ok)
         (target
           js: (print (get v 'stack))
           lua: (print (cat "error: " (get v 'message) "\n" (get v 'stack))))
-        (is? v) (print (str v)))))
+      (step x v
+        (when (or (is? x) (> (# v) 1))
+          (print (str x)))))))
 
 (define rep (s)
   (eval-print ((reader .read-string) s)))

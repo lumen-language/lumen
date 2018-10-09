@@ -329,12 +329,13 @@ c"
          (macroexpand '``(,x))))
 
 (define-test calls
-  (let (f (fn () 42)
+  (let (f (fn () (values 42 true))
         l (list f)
         t (obj f: f))
     (f)
     ((fn ()
-      (test= 42 (f))))
+      (test= 42 (f))
+      (test= '(42 true) (results (f)))))
     (test= 42 ((at l 0)))
     (test= 42 ((get t 'f)))
     (test= nil ((fn () (return))))

@@ -1,5 +1,12 @@
 environment = {{}}
 target = "lua"
+local __v = nil
+function values(...)
+  return ...
+end
+function results(x, ...)
+  return {x, ...}
+end
 function nil63(x)
   return x == nil
 end
@@ -112,9 +119,9 @@ function cut(x, from, upto)
   local ____o = x
   local __k = nil
   for __k in pairs(____o) do
-    local __v = ____o[__k]
+    local __v1 = ____o[__k]
     if not number63(__k) then
-      __l[__k] = __v
+      __l[__k] = __v1
     end
   end
   return __l
@@ -124,9 +131,9 @@ function keys(x)
   local ____o1 = x
   local __k1 = nil
   for __k1 in pairs(____o1) do
-    local __v1 = ____o1[__k1]
+    local __v2 = ____o1[__k1]
     if not number63(__k1) then
-      __t[__k1] = __v1
+      __t[__k1] = __v2
     end
   end
   return __t
@@ -193,26 +200,26 @@ function reduce(f, x)
 end
 function join(...)
   local __ls = unstash({...})
-  local __r38 = {}
-  local ____x2 = __ls
+  local __r40 = {}
+  local ____x3 = __ls
   local ____i4 = 0
-  while ____i4 < _35(____x2) do
-    local __l11 = ____x2[____i4 + 1]
+  while ____i4 < _35(____x3) do
+    local __l11 = ____x3[____i4 + 1]
     if __l11 then
-      local __n3 = _35(__r38)
+      local __n3 = _35(__r40)
       local ____o2 = __l11
       local __k2 = nil
       for __k2 in pairs(____o2) do
-        local __v2 = ____o2[__k2]
+        local __v3 = ____o2[__k2]
         if number63(__k2) then
           __k2 = __k2 + __n3
         end
-        __r38[__k2] = __v2
+        __r40[__k2] = __v3
       end
     end
     ____i4 = ____i4 + 1
   end
-  return __r38
+  return __r40
 end
 function testify(x, test)
   if function63(x) then
@@ -234,8 +241,8 @@ function find(x, t)
   local ____o3 = t
   local ____i6 = nil
   for ____i6 in pairs(____o3) do
-    local __x3 = ____o3[____i6]
-    local __y = __f(__x3)
+    local __x4 = ____o3[____i6]
+    local __y = __f(__x4)
     if __y then
       return __y
     end
@@ -248,7 +255,7 @@ function first(x, l, pos)
   local ____o4 = l
   local __k3 = nil
   for __k3 in pairs(____o4) do
-    local __v3 = ____o4[__k3]
+    local __v4 = ____o4[__k3]
     if number63(__k3) then
       __k3 = __k3 - 1
       __n6 = max(__n6, __k3)
@@ -256,8 +263,8 @@ function first(x, l, pos)
   end
   __n6 = __n6 + 1
   while __i7 < __n6 do
-    local __v4 = l[__i7 + 1]
-    local ____y1 = __f1(__v4)
+    local __v5 = l[__i7 + 1]
+    local ____y1 = __f1(__v5)
     if yes(____y1) then
       local __y2 = ____y1
       return __i7
@@ -284,11 +291,11 @@ function sort(l, f)
 end
 function map(f, x)
   local __t1 = {}
-  local ____x5 = x
+  local ____x6 = x
   local ____i10 = 0
-  while ____i10 < _35(____x5) do
-    local __v5 = ____x5[____i10 + 1]
-    local __y3 = f(__v5)
+  while ____i10 < _35(____x6) do
+    local __v6 = ____x6[____i10 + 1]
+    local __y3 = f(__v6)
     if is63(__y3) then
       add(__t1, __y3)
     end
@@ -297,9 +304,9 @@ function map(f, x)
   local ____o5 = x
   local __k4 = nil
   for __k4 in pairs(____o5) do
-    local __v6 = ____o5[__k4]
+    local __v7 = ____o5[__k4]
     if not number63(__k4) then
-      local __y4 = f(__v6)
+      local __y4 = f(__v7)
       if is63(__y4) then
         __t1[__k4] = __y4
       end
@@ -319,7 +326,7 @@ function keys63(t)
   local ____o6 = t
   local __k5 = nil
   for __k5 in pairs(____o6) do
-    local __v7 = ____o6[__k5]
+    local __v8 = ____o6[__k5]
     if not number63(__k5) then
       return true
     end
@@ -330,7 +337,7 @@ function empty63(t)
   local ____o7 = t
   local ____i13 = nil
   for ____i13 in pairs(____o7) do
-    local __x6 = ____o7[____i13]
+    local __x7 = ____o7[____i13]
     return false
   end
   return true
@@ -341,9 +348,9 @@ function stash(args)
     local ____o8 = args
     local __k6 = nil
     for __k6 in pairs(____o8) do
-      local __v8 = ____o8[__k6]
+      local __v9 = ____o8[__k6]
       if not number63(__k6) then
-        __p[__k6] = __v8
+        __p[__k6] = __v9
       end
     end
     __p._stash = true
@@ -361,9 +368,9 @@ function unstash(args)
       local ____o9 = __l2
       local __k7 = nil
       for __k7 in pairs(____o9) do
-        local __v9 = ____o9[__k7]
+        local __v10 = ____o9[__k7]
         if not( __k7 == "_stash") then
-          __args1[__k7] = __v9
+          __args1[__k7] = __v10
         end
       end
       return __args1
@@ -377,9 +384,9 @@ function destash33(l, args1)
     local ____o10 = l
     local __k8 = nil
     for __k8 in pairs(____o10) do
-      local __v10 = ____o10[__k8]
+      local __v11 = ____o10[__k8]
       if not( __k8 == "_stash") then
-        args1[__k8] = __v10
+        args1[__k8] = __v11
       end
     end
   else
@@ -587,23 +594,23 @@ function str(x, stack)
             local ____o11 = x
             local __k9 = nil
             for __k9 in pairs(____o11) do
-              local __v11 = ____o11[__k9]
+              local __v12 = ____o11[__k9]
               if number63(__k9) then
-                __xs11[__k9] = str(__v11, __l4)
+                __xs11[__k9] = str(__v12, __l4)
               else
                 if not string63(__k9) then
                   __k9 = str(__k9, __l4)
                 end
                 add(__ks, __k9 .. ":")
-                add(__ks, str(__v11, __l4))
+                add(__ks, str(__v12, __l4))
               end
             end
             drop(__l4)
             local ____o12 = join(__xs11, __ks)
             local ____i24 = nil
             for ____i24 in pairs(____o12) do
-              local __v12 = ____o12[____i24]
-              __s11 = __s11 .. __sp .. __v12
+              local __v13 = ____o12[____i24]
+              __s11 = __s11 .. __sp .. __v13
               __sp = " "
             end
             return __s11 .. ")"
@@ -620,9 +627,9 @@ function call(f, ...)
   return f(...)
 end
 function setenv(k, ...)
-  local ____r78 = unstash({...})
-  local __k10 = destash33(k, ____r78)
-  local ____id = ____r78
+  local ____r80 = unstash({...})
+  local __k10 = destash33(k, ____r80)
+  local ____id = ____r80
   local __keys = cut(____id, 0)
   if string63(__k10) then
     local __e11 = nil
@@ -636,8 +643,8 @@ function setenv(k, ...)
     local ____o13 = __keys
     local __k11 = nil
     for __k11 in pairs(____o13) do
-      local __v13 = ____o13[__k11]
-      __entry[__k11] = __v13
+      local __v14 = ____o13[__k11]
+      __entry[__k11] = __v14
     end
     __frame[__k10] = __entry
     return __frame[__k10]
@@ -1159,7 +1166,7 @@ local compiler = require("./compiler")
 local system = require("./system")
 local function eval_print(form)
   local ____id = {xpcall(function ()
-    return compiler.eval(form)
+    return compiler.eval({"results", form})
   end, function (m)
     if obj63(m) then
       return m
@@ -1184,8 +1191,14 @@ local function eval_print(form)
   if not __ok then
     return print("error: " .. __v.message .. "\n" .. __v.stack)
   else
-    if is63(__v) then
-      return print(str(__v))
+    local ____x2 = __v
+    local ____i = 0
+    while ____i < _35(____x2) do
+      local __x3 = ____x2[____i + 1]
+      if is63(__x3) or _35(__v) > 1 then
+        print(str(__x3))
+      end
+      ____i = ____i + 1
     end
   end
 end
@@ -1257,9 +1270,9 @@ function read_from_string(str, start, _end)
   if nil63(__form2) then
     return error("End of string during parsing")
   else
-    local ____x2 = {__form2}
-    ____x2.rest = __s2.pos
-    return ____x2
+    local ____x5 = {__form2}
+    ____x5.rest = __s2.pos
+    return ____x5
   end
 end
 function readable_string63(str)
@@ -1356,9 +1369,9 @@ function pp_to_string(x, stack)
                       end
                       drop(__l)
                       local ____o1 = join(__xs, __ks)
-                      local ____i1 = nil
-                      for ____i1 in pairs(____o1) do
-                        local __v3 = ____o1[____i1]
+                      local ____i2 = nil
+                      for ____i2 in pairs(____o1) do
+                        local __v3 = ____o1[____i2]
                         __s3 = __s3 .. __sp .. __v3
                         __sp = " "
                       end
@@ -1395,29 +1408,29 @@ local function main(argv)
       local __cmds = keep(obj63, __args)
       local __input = ""
       local __enter_repl = true
-      local ____x4 = __pre
-      local ____i2 = 0
-      while ____i2 < _35(____x4) do
-        local __file = ____x4[____i2 + 1]
-        run_file(__file)
-        ____i2 = ____i2 + 1
-      end
-      local ____x5 = __cmds
+      local ____x7 = __pre
       local ____i3 = 0
-      while ____i3 < _35(____x5) do
-        local ____id2 = ____x5[____i3 + 1]
+      while ____i3 < _35(____x7) do
+        local __file = ____x7[____i3 + 1]
+        run_file(__file)
+        ____i3 = ____i3 + 1
+      end
+      local ____x8 = __cmds
+      local ____i4 = 0
+      while ____i4 < _35(____x8) do
+        local ____id2 = ____x8[____i4 + 1]
         local __a = ____id2[1]
         local __val = ____id2[2]
         if __a == "target" then
           target = hd(__val)
           break
         end
-        ____i3 = ____i3 + 1
+        ____i4 = ____i4 + 1
       end
-      local ____x6 = __cmds
-      local ____i4 = 0
-      while ____i4 < _35(____x6) do
-        local ____id3 = ____x6[____i4 + 1]
+      local ____x9 = __cmds
+      local ____i5 = 0
+      while ____i5 < _35(____x9) do
+        local ____id3 = ____x9[____i5 + 1]
         local __a1 = ____id3[1]
         local __val1 = ____id3[2]
         if __a1 == "help" then
@@ -1430,12 +1443,12 @@ local function main(argv)
               print("missing argument for " .. __a1)
             else
               if __a1 == "compile" then
-                local ____x7 = __val1
-                local ____i5 = 0
-                while ____i5 < _35(____x7) do
-                  local __x8 = ____x7[____i5 + 1]
-                  __input = __input .. compile_file(__x8)
-                  ____i5 = ____i5 + 1
+                local ____x10 = __val1
+                local ____i6 = 0
+                while ____i6 < _35(____x10) do
+                  local __x11 = ____x10[____i6 + 1]
+                  __input = __input .. compile_file(__x11)
+                  ____i6 = ____i6 + 1
                 end
                 __enter_repl = false
               else
@@ -1447,12 +1460,12 @@ local function main(argv)
                     target = hd(__val1)
                   else
                     if __a1 == "eval" then
-                      local ____x9 = __val1
-                      local ____i6 = 0
-                      while ____i6 < _35(____x9) do
-                        local __x10 = ____x9[____i6 + 1]
-                        rep(__x10)
-                        ____i6 = ____i6 + 1
+                      local ____x12 = __val1
+                      local ____i7 = 0
+                      while ____i7 < _35(____x12) do
+                        local __x13 = ____x12[____i7 + 1]
+                        rep(__x13)
+                        ____i7 = ____i7 + 1
                       end
                       __enter_repl = false
                     end
@@ -1462,7 +1475,7 @@ local function main(argv)
             end
           end
         end
-        ____i4 = ____i4 + 1
+        ____i5 = ____i5 + 1
       end
       if some63(__input) then
         print(__input)

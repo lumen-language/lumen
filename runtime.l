@@ -1,6 +1,16 @@
 (define-global environment (list (obj)))
 (define-global target (language))
 
+(let v nil
+  (define-global values (...)
+    (target lua: ...
+            js: (at (set v (list ...)) 0)))
+
+  (define-global results (x ...)
+    (target lua: (list x ...)
+            js: (with r (or v (list x ...))
+                  (set v nil)))))
+
 (target js:
   (define-global pairs (l)
     ((get ((get Object 'keys) l) 'map)
@@ -11,6 +21,11 @@
 (target js:
   (define-global ipairs (l)
     ((get (pairs l) 'filter) number?)))
+
+(target js:
+  (define-global pcall (f ...)
+    (let ((ok v) (guard (results (f ...))))
+      (values ok (unpack v)))))
 
 (define-global nil? (x)
   (target
