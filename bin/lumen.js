@@ -612,8 +612,36 @@ camel_case = function (str) {
   }
   return __s;
 };
-var tostring = function (x) {
-  return x.toString();
+tostring = function (x) {
+  if (string63(x)) {
+    return x;
+  } else {
+    if (nil63(x)) {
+      return "nil";
+    } else {
+      if (nan63(x)) {
+        return "nan";
+      } else {
+        if (x === inf) {
+          return "inf";
+        } else {
+          if (x === _inf) {
+            return "-inf";
+          } else {
+            if (boolean63(x)) {
+              if (x) {
+                return "true";
+              } else {
+                return "false";
+              }
+            } else {
+              return x.toString();
+            }
+          }
+        }
+      }
+    }
+  }
 };
 escape = function (s) {
   var __s1 = "\"";
@@ -651,85 +679,61 @@ escape = function (s) {
   return __s1 + "\"";
 };
 str = function (x, stack) {
-  if (nil63(x)) {
-    return "nil";
+  if (string63(x)) {
+    return escape(x);
   } else {
-    if (nan63(x)) {
-      return "nan";
+    if (atom63(x)) {
+      return tostring(x);
     } else {
-      if (x === inf) {
-        return "inf";
+      if (function63(x)) {
+        return "function";
       } else {
-        if (x === _inf) {
-          return "-inf";
+        if (stack && in63(x, stack)) {
+          return "circular";
         } else {
-          if (boolean63(x)) {
-            if (x) {
-              return "true";
-            } else {
-              return "false";
-            }
+          if (false) {
+            return escape(tostring(x));
           } else {
-            if (string63(x)) {
-              return escape(x);
-            } else {
-              if (atom63(x)) {
-                return tostring(x);
+            var __s11 = "(";
+            var __sp = "";
+            var __xs11 = [];
+            var __ks = [];
+            var __l4 = stack || [];
+            add(__l4, x);
+            var ____o11 = x;
+            var __k18 = undefined;
+            for (__k18 in ____o11) {
+              var __v11 = ____o11[__k18];
+              var __e21 = undefined;
+              if (numeric63(__k18)) {
+                __e21 = parseInt(__k18);
               } else {
-                if (function63(x)) {
-                  return "function";
-                } else {
-                  if (stack && in63(x, stack)) {
-                    return "circular";
-                  } else {
-                    if (false) {
-                      return escape(tostring(x));
-                    } else {
-                      var __s11 = "(";
-                      var __sp = "";
-                      var __xs11 = [];
-                      var __ks = [];
-                      var __l4 = stack || [];
-                      add(__l4, x);
-                      var ____o11 = x;
-                      var __k18 = undefined;
-                      for (__k18 in ____o11) {
-                        var __v11 = ____o11[__k18];
-                        var __e21 = undefined;
-                        if (numeric63(__k18)) {
-                          __e21 = parseInt(__k18);
-                        } else {
-                          __e21 = __k18;
-                        }
-                        var __k19 = __e21;
-                        if (number63(__k19)) {
-                          __xs11[__k19] = str(__v11, __l4);
-                        } else {
-                          add(__ks, __k19 + ":");
-                          add(__ks, str(__v11, __l4));
-                        }
-                      }
-                      drop(__l4);
-                      var ____o12 = join(__xs11, __ks);
-                      var ____i24 = undefined;
-                      for (____i24 in ____o12) {
-                        var __v12 = ____o12[____i24];
-                        var __e22 = undefined;
-                        if (numeric63(____i24)) {
-                          __e22 = parseInt(____i24);
-                        } else {
-                          __e22 = ____i24;
-                        }
-                        var ____i241 = __e22;
-                        __s11 = __s11 + __sp + __v12;
-                        __sp = " ";
-                      }
-                      return __s11 + ")";
-                    }
-                  }
-                }
+                __e21 = __k18;
+              }
+              var __k19 = __e21;
+              if (number63(__k19)) {
+                __xs11[__k19] = str(__v11, __l4);
+              } else {
+                add(__ks, __k19 + ":");
+                add(__ks, str(__v11, __l4));
               }
             }
+            drop(__l4);
+            var ____o12 = join(__xs11, __ks);
+            var ____i24 = undefined;
+            for (____i24 in ____o12) {
+              var __v12 = ____o12[____i24];
+              var __e22 = undefined;
+              if (numeric63(____i24)) {
+                __e22 = parseInt(____i24);
+              } else {
+                __e22 = ____i24;
+              }
+              var ____i241 = __e22;
+              __s11 = __s11 + __sp + __v12;
+              __sp = " ";
+            }
+            return __s11 + ")";
           }
         }
       }

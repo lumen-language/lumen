@@ -318,7 +318,15 @@
             (set c (- (code str (inc i)) 32)))
           (cat! s (from-code c)))))))
 
-(target js: (define tostring (x) ((get x 'toString))))
+(target js:
+  (define-global tostring (x)
+    (if (string? x) x
+        (nil? x) "nil"
+        (nan? x) "nan"
+        (= x inf) "inf"
+        (= x -inf) "-inf"
+        (boolean? x) (if x "true" "false")
+      ((get x 'toString)))))
 
 (define-global escape (s)
   (let s1 "\""
@@ -333,12 +341,7 @@
     (cat s1 "\"")))
 
 (define-global str (x stack)
-  (if (nil? x) "nil"
-      (nan? x) "nan"
-      (= x inf) "inf"
-      (= x -inf) "-inf"
-      (boolean? x) (if x "true" "false")
-      (string? x) (escape x)
+  (if (string? x) (escape x)
       (atom? x) (tostring x)
       (function? x) "function"
       (and stack (in? x stack)) "circular"

@@ -563,74 +563,50 @@ function escape(s)
   return __s1 .. "\""
 end
 function str(x, stack)
-  if nil63(x) then
-    return "nil"
+  if string63(x) then
+    return escape(x)
   else
-    if nan63(x) then
-      return "nan"
+    if atom63(x) then
+      return tostring(x)
     else
-      if x == inf then
-        return "inf"
+      if function63(x) then
+        return "function"
       else
-        if x == _inf then
-          return "-inf"
+        if stack and in63(x, stack) then
+          return "circular"
         else
-          if boolean63(x) then
-            if x then
-              return "true"
-            else
-              return "false"
-            end
+          if not( type(x) == "table") then
+            return escape(tostring(x))
           else
-            if string63(x) then
-              return escape(x)
-            else
-              if atom63(x) then
-                return tostring(x)
+            local __s11 = "("
+            local __sp = ""
+            local __xs11 = {}
+            local __ks = {}
+            local __l4 = stack or {}
+            add(__l4, x)
+            local ____o11 = x
+            local __k9 = nil
+            for __k9 in next, ____o11 do
+              local __v11 = ____o11[__k9]
+              if number63(__k9) then
+                __xs11[__k9] = str(__v11, __l4)
               else
-                if function63(x) then
-                  return "function"
-                else
-                  if stack and in63(x, stack) then
-                    return "circular"
-                  else
-                    if not( type(x) == "table") then
-                      return escape(tostring(x))
-                    else
-                      local __s11 = "("
-                      local __sp = ""
-                      local __xs11 = {}
-                      local __ks = {}
-                      local __l4 = stack or {}
-                      add(__l4, x)
-                      local ____o11 = x
-                      local __k9 = nil
-                      for __k9 in next, ____o11 do
-                        local __v11 = ____o11[__k9]
-                        if number63(__k9) then
-                          __xs11[__k9] = str(__v11, __l4)
-                        else
-                          if not string63(__k9) then
-                            __k9 = str(__k9, __l4)
-                          end
-                          add(__ks, __k9 .. ":")
-                          add(__ks, str(__v11, __l4))
-                        end
-                      end
-                      drop(__l4)
-                      local ____o12 = join(__xs11, __ks)
-                      local ____i24 = nil
-                      for ____i24 in next, ____o12 do
-                        local __v12 = ____o12[____i24]
-                        __s11 = __s11 .. __sp .. __v12
-                        __sp = " "
-                      end
-                      return __s11 .. ")"
-                    end
-                  end
+                if not string63(__k9) then
+                  __k9 = str(__k9, __l4)
                 end
+                add(__ks, __k9 .. ":")
+                add(__ks, str(__v11, __l4))
               end
             end
+            drop(__l4)
+            local ____o12 = join(__xs11, __ks)
+            local ____i24 = nil
+            for ____i24 in next, ____o12 do
+              local __v12 = ____o12[____i24]
+              __s11 = __s11 .. __sp .. __v12
+              __sp = " "
+            end
+            return __s11 .. ")"
           end
         end
       end

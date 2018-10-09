@@ -1106,4 +1106,13 @@ c"
     (set (hd l) 'z)
     (test= '(z b c) l)))
 
+(define-test tostring
+  (test= "foo" (tostring "foo"))
+  (test= "nil" (tostring nil))
+  (test= "nan" (tostring nan))
+  (test= "inf" (tostring inf))
+  (test= "-inf" (tostring -inf))
+  (test= "true" (tostring true))
+  (test= "false" (tostring false)))
+
 (run)
