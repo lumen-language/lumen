@@ -80,8 +80,8 @@ function get_argv()
   end
   return argv
 end
-function opt63(x)
-  return string63(x) and char(x, 0) == "-"
+local function opt63(x)
+  return string63(x) and char(x, 0) == "-" and not( x == "-")
 end
 function parse_positional(args, pos)
   return cut(args, either(pos, 0), first(opt63, args, pos))

@@ -82,8 +82,8 @@
     (set-argv (target js: (cut (get process 'argv) 2) lua: (or (get _G 'arg) (get _G 'args) ()))))
   argv)
 
-(define-global opt? (x)
-  (and (string? x) (= (char x 0) "-")))
+(define opt? (x)
+  (and (string? x) (= (char x 0) "-") (not (= x "-"))))
 
 (define-global parse-positional (args pos)
   (cut args (either pos 0) (first opt? args pos)))

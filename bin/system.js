@@ -47,8 +47,8 @@ get_argv = function () {
   }
   return argv;
 };
-opt63 = function (x) {
-  return string63(x) && char(x, 0) === "-";
+var opt63 = function (x) {
+  return string63(x) && char(x, 0) === "-" && !( x === "-");
 };
 parse_positional = function (args, pos) {
   return cut(args, either(pos, 0), first(opt63, args, pos));
