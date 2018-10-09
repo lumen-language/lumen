@@ -10,6 +10,9 @@
         (if gf (apply gf setfn (tl place))
           (error (cat (str place) " is not a valid place expression")))))))
 
+(define-macro let-place (vars place rest: body)
+  `(get-place ,place (fn ,vars ,@body)))
+
 (define-macro quote (form)
   (quoted form))
 
