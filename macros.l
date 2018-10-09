@@ -1,3 +1,15 @@
+(define-global get-place (place setfn)
+  (let place (macroexpand place)
+    (if (or (atom? place)
+            (and (= (hd place) 'get)
+                 (nil? (getenv 'get 'expander)))
+            (accessor-literal? (hd (tl place))))
+        (setfn place (fn (v) `(%set ,place ,v)))
+      (let (head (hd place)
+            gf (getenv head 'expander))
+        (if gf (apply gf setfn (tl place))
+          (error (cat (str place) " is not a valid place expression")))))))
+
 (define-macro quote (form)
   (quoted form))
 
