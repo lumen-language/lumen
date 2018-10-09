@@ -195,20 +195,19 @@
     (let ((k v) (if (atom? x) (list i x)
                   (if (> (# x) 1) x
                       (list i (hd x)))))
-      `(let (,o ,t ,k nil)
-         (%for ,o ,k
+      `(let (,o ,t)
+         (for (,k) (pairs ,o)
            (let (,v (get ,o ,k))
-             ,@(if (= target 'lua) body
-                   `((let ,k (if (numeric? ,k)
-                                 (parseInt ,k)
-                               ,k)
-                       ,@body)))))))))
+             ,@body))))))
 
 (define-macro for (i to rest: body)
-  `(let ,i 0
-     (while (< ,i ,to)
-       ,@body
-       (inc ,i))))
+  (if (obj? i)
+      `(let ,(apply join (map (fn (x) `(,x nil)) i))
+         (%for ,to (%names ,@i) (do ,@body)))
+    `(let ,i 0
+       (while (< ,i ,to)
+         ,@body
+         (inc ,i)))))
 
 (define-macro step (v t rest: body)
   (let-unique (x i)

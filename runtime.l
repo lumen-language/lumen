@@ -1,6 +1,17 @@
 (define-global environment (list (obj)))
 (define-global target (language))
 
+(target js:
+  (define-global pairs (l)
+    ((get ((get Object 'keys) l) 'map)
+     (fn (k) (if (numeric? k)
+                 (parseInt k)
+               k)))))
+
+(target js:
+  (define-global ipairs (l)
+    ((get (pairs l) 'filter) number?)))
+
 (define-global nil? (x)
   (target
     js: (or (= x nil) (= x null))

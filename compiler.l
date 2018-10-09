@@ -653,13 +653,22 @@
         (cat ind "while (" cond ") {\n" body ind "}\n")
       (cat ind "while " cond " do\n" body ind "end\n"))))
 
+(define-special %names args
+  (if (one? args) (compile (hd args))
+    (let (s (if (= target 'js) "[" "") c "")
+      (step x args
+        (cat! s c (compile x))
+        (set c ", "))
+      (cat s (if (= target 'js) "]" "")))))
+
 (define-special %for (t k form) :stmt :tr
   (let (t (compile t)
+        k (compile k)
         ind (indentation)
         body (with-indent (compile form :stmt)))
     (if (= target 'lua)
-        (cat ind "for " k " in next, " t " do\n" body ind "end\n")
-      (cat ind "for (" k " in " t ") {\n" body ind "}\n"))))
+        (cat ind "for " k " in " t " do\n" body ind "end\n")
+      (cat ind "for (" k " of " t ") {\n" body ind "}\n"))))
 
 (define-special %try (form) :stmt :tr
   (let-unique (e)

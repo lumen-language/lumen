@@ -1,5 +1,17 @@
 environment = [{}];
 target = "js";
+pairs = function (l) {
+  return Object.keys(l).map(function (k) {
+    if (numeric63(k)) {
+      return parseInt(k);
+    } else {
+      return k;
+    }
+  });
+};
+ipairs = function (l) {
+  return pairs(l).filter(number63);
+};
 nil63 = function (x) {
   return x === undefined || x === null;
 };
@@ -114,17 +126,10 @@ cut = function (x, from, upto) {
   }
   var ____o = x;
   var __k = undefined;
-  for (__k in ____o) {
+  for (__k of pairs(____o)) {
     var __v = ____o[__k];
-    var __e5 = undefined;
-    if (numeric63(__k)) {
-      __e5 = parseInt(__k);
-    } else {
-      __e5 = __k;
-    }
-    var __k1 = __e5;
-    if (! number63(__k1)) {
-      __l[__k1] = __v;
+    if (! number63(__k)) {
+      __l[__k] = __v;
     }
   }
   return __l;
@@ -132,18 +137,11 @@ cut = function (x, from, upto) {
 keys = function (x) {
   var __t = [];
   var ____o1 = x;
-  var __k2 = undefined;
-  for (__k2 in ____o1) {
-    var __v1 = ____o1[__k2];
-    var __e6 = undefined;
-    if (numeric63(__k2)) {
-      __e6 = parseInt(__k2);
-    } else {
-      __e6 = __k2;
-    }
-    var __k3 = __e6;
-    if (! number63(__k3)) {
-      __t[__k3] = __v1;
+  var __k1 = undefined;
+  for (__k1 of pairs(____o1)) {
+    var __v1 = ____o1[__k1];
+    if (! number63(__k1)) {
+      __t[__k1] = __v1;
     }
   }
   return __t;
@@ -207,33 +205,26 @@ reduce = function (f, x) {
 };
 join = function (..._42args) {
   var __ls = unstash([..._42args]);
-  var __r39 = [];
+  var __r42 = [];
   var ____x2 = __ls;
   var ____i4 = 0;
   while (____i4 < _35(____x2)) {
     var __l11 = ____x2[____i4];
     if (__l11) {
-      var __n3 = _35(__r39);
+      var __n3 = _35(__r42);
       var ____o2 = __l11;
-      var __k4 = undefined;
-      for (__k4 in ____o2) {
-        var __v2 = ____o2[__k4];
-        var __e7 = undefined;
-        if (numeric63(__k4)) {
-          __e7 = parseInt(__k4);
-        } else {
-          __e7 = __k4;
+      var __k2 = undefined;
+      for (__k2 of pairs(____o2)) {
+        var __v2 = ____o2[__k2];
+        if (number63(__k2)) {
+          __k2 = __k2 + __n3;
         }
-        var __k5 = __e7;
-        if (number63(__k5)) {
-          __k5 = __k5 + __n3;
-        }
-        __r39[__k5] = __v2;
+        __r42[__k2] = __v2;
       }
     }
     ____i4 = ____i4 + 1;
   }
-  return __r39;
+  return __r42;
 };
 testify = function (x, test) {
   if (function63(x)) {
@@ -254,15 +245,8 @@ find = function (x, t) {
   var __f = testify(x);
   var ____o3 = t;
   var ____i6 = undefined;
-  for (____i6 in ____o3) {
+  for (____i6 of pairs(____o3)) {
     var __x3 = ____o3[____i6];
-    var __e8 = undefined;
-    if (numeric63(____i6)) {
-      __e8 = parseInt(____i6);
-    } else {
-      __e8 = ____i6;
-    }
-    var ____i61 = __e8;
     var __y = __f(__x3);
     if (__y) {
       return __y;
@@ -274,18 +258,11 @@ first = function (x, l, pos) {
   var __i7 = either(pos, 0);
   var __n6 = -1;
   var ____o4 = l;
-  var __k6 = undefined;
-  for (__k6 in ____o4) {
-    var __v3 = ____o4[__k6];
-    var __e9 = undefined;
-    if (numeric63(__k6)) {
-      __e9 = parseInt(__k6);
-    } else {
-      __e9 = __k6;
-    }
-    var __k7 = __e9;
-    if (number63(__k7)) {
-      __n6 = max(__n6, __k7);
+  var __k3 = undefined;
+  for (__k3 of pairs(____o4)) {
+    var __v3 = ____o4[__k3];
+    if (number63(__k3)) {
+      __n6 = max(__n6, __k3);
     }
   }
   __n6 = __n6 + 1;
@@ -313,9 +290,9 @@ pair = function (l) {
   return __l12;
 };
 sort = function (l, f) {
-  var __e10 = undefined;
+  var __e5 = undefined;
   if (f) {
-    __e10 = function (a, b) {
+    __e5 = function (a, b) {
       if (f(a, b)) {
         return -1;
       } else {
@@ -323,7 +300,7 @@ sort = function (l, f) {
       }
     };
   }
-  return l.sort(__e10);
+  return l.sort(__e5);
 };
 map = function (f, x) {
   var __t1 = [];
@@ -338,20 +315,13 @@ map = function (f, x) {
     ____i10 = ____i10 + 1;
   }
   var ____o5 = x;
-  var __k8 = undefined;
-  for (__k8 in ____o5) {
-    var __v6 = ____o5[__k8];
-    var __e11 = undefined;
-    if (numeric63(__k8)) {
-      __e11 = parseInt(__k8);
-    } else {
-      __e11 = __k8;
-    }
-    var __k9 = __e11;
-    if (! number63(__k9)) {
+  var __k4 = undefined;
+  for (__k4 of pairs(____o5)) {
+    var __v6 = ____o5[__k4];
+    if (! number63(__k4)) {
       var __y4 = f(__v6);
       if (is63(__y4)) {
-        __t1[__k9] = __y4;
+        __t1[__k4] = __y4;
       }
     }
   }
@@ -367,17 +337,10 @@ keep = function (v, x) {
 };
 keys63 = function (t) {
   var ____o6 = t;
-  var __k10 = undefined;
-  for (__k10 in ____o6) {
-    var __v7 = ____o6[__k10];
-    var __e12 = undefined;
-    if (numeric63(__k10)) {
-      __e12 = parseInt(__k10);
-    } else {
-      __e12 = __k10;
-    }
-    var __k11 = __e12;
-    if (! number63(__k11)) {
+  var __k5 = undefined;
+  for (__k5 of pairs(____o6)) {
+    var __v7 = ____o6[__k5];
+    if (! number63(__k5)) {
       return true;
     }
   }
@@ -386,15 +349,8 @@ keys63 = function (t) {
 empty63 = function (t) {
   var ____o7 = t;
   var ____i13 = undefined;
-  for (____i13 in ____o7) {
+  for (____i13 of pairs(____o7)) {
     var __x6 = ____o7[____i13];
-    var __e13 = undefined;
-    if (numeric63(____i13)) {
-      __e13 = parseInt(____i13);
-    } else {
-      __e13 = ____i13;
-    }
-    var ____i131 = __e13;
     return false;
   }
   return true;
@@ -403,18 +359,11 @@ stash = function (args) {
   if (keys63(args)) {
     var __p = [];
     var ____o8 = args;
-    var __k12 = undefined;
-    for (__k12 in ____o8) {
-      var __v8 = ____o8[__k12];
-      var __e14 = undefined;
-      if (numeric63(__k12)) {
-        __e14 = parseInt(__k12);
-      } else {
-        __e14 = __k12;
-      }
-      var __k13 = __e14;
-      if (! number63(__k13)) {
-        __p[__k13] = __v8;
+    var __k6 = undefined;
+    for (__k6 of pairs(____o8)) {
+      var __v8 = ____o8[__k6];
+      if (! number63(__k6)) {
+        __p[__k6] = __v8;
       }
     }
     __p._stash = true;
@@ -430,18 +379,11 @@ unstash = function (args) {
     if (obj63(__l2) && __l2._stash) {
       var __args1 = almost(args);
       var ____o9 = __l2;
-      var __k14 = undefined;
-      for (__k14 in ____o9) {
-        var __v9 = ____o9[__k14];
-        var __e15 = undefined;
-        if (numeric63(__k14)) {
-          __e15 = parseInt(__k14);
-        } else {
-          __e15 = __k14;
-        }
-        var __k15 = __e15;
-        if (!( __k15 === "_stash")) {
-          __args1[__k15] = __v9;
+      var __k7 = undefined;
+      for (__k7 of pairs(____o9)) {
+        var __v9 = ____o9[__k7];
+        if (!( __k7 === "_stash")) {
+          __args1[__k7] = __v9;
         }
       }
       return __args1;
@@ -453,18 +395,11 @@ unstash = function (args) {
 destash33 = function (l, args1) {
   if (obj63(l) && l._stash) {
     var ____o10 = l;
-    var __k16 = undefined;
-    for (__k16 in ____o10) {
-      var __v10 = ____o10[__k16];
-      var __e16 = undefined;
-      if (numeric63(__k16)) {
-        __e16 = parseInt(__k16);
-      } else {
-        __e16 = __k16;
-      }
-      var __k17 = __e16;
-      if (!( __k17 === "_stash")) {
-        args1[__k17] = __v10;
+    var __k8 = undefined;
+    for (__k8 of pairs(____o10)) {
+      var __v10 = ____o10[__k8];
+      if (!( __k8 === "_stash")) {
+        args1[__k8] = __v10;
       }
     }
   } else {
@@ -648,31 +583,31 @@ escape = function (s) {
   var __i22 = 0;
   while (__i22 < _35(s)) {
     var __c1 = char(s, __i22);
-    var __e17 = undefined;
+    var __e6 = undefined;
     if (__c1 === "\n") {
-      __e17 = "\\n";
+      __e6 = "\\n";
     } else {
-      var __e18 = undefined;
+      var __e7 = undefined;
       if (__c1 === "\r") {
-        __e18 = "\\r";
+        __e7 = "\\r";
       } else {
-        var __e19 = undefined;
+        var __e8 = undefined;
         if (__c1 === "\"") {
-          __e19 = "\\\"";
+          __e8 = "\\\"";
         } else {
-          var __e20 = undefined;
+          var __e9 = undefined;
           if (__c1 === "\\") {
-            __e20 = "\\\\";
+            __e9 = "\\\\";
           } else {
-            __e20 = __c1;
+            __e9 = __c1;
           }
-          __e19 = __e20;
+          __e8 = __e9;
         }
-        __e18 = __e19;
+        __e7 = __e8;
       }
-      __e17 = __e18;
+      __e6 = __e7;
     }
-    var __c11 = __e17;
+    var __c11 = __e6;
     __s1 = __s1 + __c11;
     __i22 = __i22 + 1;
   }
@@ -701,35 +636,21 @@ str = function (x, stack) {
             var __l4 = stack || [];
             add(__l4, x);
             var ____o11 = x;
-            var __k18 = undefined;
-            for (__k18 in ____o11) {
-              var __v11 = ____o11[__k18];
-              var __e21 = undefined;
-              if (numeric63(__k18)) {
-                __e21 = parseInt(__k18);
+            var __k9 = undefined;
+            for (__k9 of pairs(____o11)) {
+              var __v11 = ____o11[__k9];
+              if (number63(__k9)) {
+                __xs11[__k9] = str(__v11, __l4);
               } else {
-                __e21 = __k18;
-              }
-              var __k19 = __e21;
-              if (number63(__k19)) {
-                __xs11[__k19] = str(__v11, __l4);
-              } else {
-                add(__ks, __k19 + ":");
+                add(__ks, __k9 + ":");
                 add(__ks, str(__v11, __l4));
               }
             }
             drop(__l4);
             var ____o12 = join(__xs11, __ks);
             var ____i24 = undefined;
-            for (____i24 in ____o12) {
+            for (____i24 of pairs(____o12)) {
               var __v12 = ____o12[____i24];
-              var __e22 = undefined;
-              if (numeric63(____i24)) {
-                __e22 = parseInt(____i24);
-              } else {
-                __e22 = ____i24;
-              }
-              var ____i241 = __e22;
               __s11 = __s11 + __sp + __v12;
               __sp = " ";
             }
@@ -745,41 +666,34 @@ apply = function (f, args) {
   return f.apply(f, __args);
 };
 call = function (f, ..._42args) {
-  var ____r80 = unstash([..._42args]);
-  var __f3 = destash33(f, ____r80);
-  var ____id = ____r80;
+  var ____r83 = unstash([..._42args]);
+  var __f3 = destash33(f, ____r83);
+  var ____id = ____r83;
   var __args11 = cut(____id, 0);
   return apply(__f3, __args11);
 };
 setenv = function (k, ..._42args) {
-  var ____r81 = unstash([..._42args]);
-  var __k20 = destash33(k, ____r81);
-  var ____id1 = ____r81;
+  var ____r84 = unstash([..._42args]);
+  var __k10 = destash33(k, ____r84);
+  var ____id1 = ____r84;
   var __keys = cut(____id1, 0);
-  if (string63(__k20)) {
-    var __e23 = undefined;
+  if (string63(__k10)) {
+    var __e10 = undefined;
     if (__keys.toplevel) {
-      __e23 = hd(environment);
+      __e10 = hd(environment);
     } else {
-      __e23 = last(environment);
+      __e10 = last(environment);
     }
-    var __frame = __e23;
-    var __entry = __frame[__k20] || {};
+    var __frame = __e10;
+    var __entry = __frame[__k10] || {};
     var ____o13 = __keys;
-    var __k21 = undefined;
-    for (__k21 in ____o13) {
-      var __v13 = ____o13[__k21];
-      var __e24 = undefined;
-      if (numeric63(__k21)) {
-        __e24 = parseInt(__k21);
-      } else {
-        __e24 = __k21;
-      }
-      var __k22 = __e24;
-      __entry[__k22] = __v13;
+    var __k11 = undefined;
+    for (__k11 of pairs(____o13)) {
+      var __v13 = ____o13[__k11];
+      __entry[__k11] = __v13;
     }
-    __frame[__k20] = __entry;
-    return __frame[__k20];
+    __frame[__k10] = __entry;
+    return __frame[__k10];
   }
 };
 print = function (x) {
@@ -901,20 +815,13 @@ setenv("list", {_stash: true, macro: function (..._42args) {
   var __l1 = [];
   var __forms1 = [];
   var ____o1 = __body5;
-  var __k2 = undefined;
-  for (__k2 in ____o1) {
-    var __v2 = ____o1[__k2];
-    var __e7 = undefined;
-    if (numeric63(__k2)) {
-      __e7 = parseInt(__k2);
+  var __k1 = undefined;
+  for (__k1 of pairs(____o1)) {
+    var __v2 = ____o1[__k1];
+    if (number63(__k1)) {
+      __l1[__k1] = __v2;
     } else {
-      __e7 = __k2;
-    }
-    var __k3 = __e7;
-    if (number63(__k3)) {
-      __l1[__k3] = __v2;
-    } else {
-      add(__forms1, ["set", ["get", __x53, ["quote", __k3]], __v2]);
+      add(__forms1, ["set", ["get", __x53, ["quote", __k1]], __v2]);
     }
   }
   if (some63(__forms1)) {
@@ -1171,69 +1078,62 @@ setenv("guard", {_stash: true, macro: function (expr) {
 }});
 setenv("each", {_stash: true, macro: function (x, t, ..._42args) {
   var ____r73 = unstash([..._42args]);
-  var __x329 = destash33(x, ____r73);
+  var __x326 = destash33(x, ____r73);
   var __t1 = destash33(t, ____r73);
   var ____id56 = ____r73;
   var __body41 = cut(____id56, 0);
   var __o3 = unique("o");
   var __n3 = unique("n");
   var __i3 = unique("i");
-  var __e8 = undefined;
-  if (atom63(__x329)) {
-    __e8 = [__i3, __x329];
+  var __e4 = undefined;
+  if (atom63(__x326)) {
+    __e4 = [__i3, __x326];
   } else {
-    var __e9 = undefined;
-    if (_35(__x329) > 1) {
-      __e9 = __x329;
+    var __e5 = undefined;
+    if (_35(__x326) > 1) {
+      __e5 = __x326;
     } else {
-      __e9 = [__i3, hd(__x329)];
+      __e5 = [__i3, hd(__x326)];
     }
-    __e8 = __e9;
+    __e4 = __e5;
   }
-  var ____id57 = __e8;
-  var __k5 = ____id57[0];
+  var ____id57 = __e4;
+  var __k3 = ____id57[0];
   var __v8 = ____id57[1];
-  var __e10 = undefined;
-  if (target === "lua") {
-    __e10 = __body41;
-  } else {
-    __e10 = [join(["let", __k5, ["if", ["numeric?", __k5], ["parseInt", __k5], __k5]], __body41)];
-  }
-  return ["let", [__o3, __t1, __k5, "nil"], ["%for", __o3, __k5, join(["let", [__v8, ["get", __o3, __k5]]], __e10)]];
+  return ["let", [__o3, __t1], ["for", [__k3], ["pairs", __o3], join(["let", [__v8, ["get", __o3, __k3]]], __body41)]];
 }});
 setenv("for", {_stash: true, macro: function (i, to, ..._42args) {
-  var ____r75 = unstash([..._42args]);
-  var __i5 = destash33(i, ____r75);
-  var __to1 = destash33(to, ____r75);
-  var ____id59 = ____r75;
+  var ____r76 = unstash([..._42args]);
+  var __i5 = destash33(i, ____r76);
+  var __to1 = destash33(to, ____r76);
+  var ____id59 = ____r76;
   var __body43 = cut(____id59, 0);
-  return ["let", __i5, 0, join(["while", ["<", __i5, __to1]], __body43, [["inc", __i5]])];
+  if (obj63(__i5)) {
+    return ["let", apply(join, map(function (x) {
+      return [x, "nil"];
+    }, __i5)), ["%for", __to1, join(["%names"], __i5), join(["do"], __body43)]];
+  } else {
+    return ["let", __i5, 0, join(["while", ["<", __i5, __to1]], __body43, [["inc", __i5]])];
+  }
 }});
 setenv("step", {_stash: true, macro: function (v, t, ..._42args) {
-  var ____r77 = unstash([..._42args]);
-  var __v10 = destash33(v, ____r77);
-  var __t3 = destash33(t, ____r77);
-  var ____id61 = ____r77;
+  var ____r79 = unstash([..._42args]);
+  var __v10 = destash33(v, ____r79);
+  var __t3 = destash33(t, ____r79);
+  var ____id61 = ____r79;
   var __body45 = cut(____id61, 0);
-  var __x365 = unique("x");
+  var __x369 = unique("x");
   var __i7 = unique("i");
-  return ["let", [__x365, __t3], ["for", __i7, ["#", __x365], join(["let", [__v10, ["at", __x365, __i7]]], __body45)]];
+  return ["let", [__x369, __t3], ["for", __i7, ["#", __x369], join(["let", [__v10, ["at", __x369, __i7]]], __body45)]];
 }});
 setenv("set-of", {_stash: true, macro: function (..._42args) {
   var __xs1 = unstash([..._42args]);
   var __l3 = [];
   var ____o5 = __xs1;
   var ____i9 = undefined;
-  for (____i9 in ____o5) {
-    var __x377 = ____o5[____i9];
-    var __e11 = undefined;
-    if (numeric63(____i9)) {
-      __e11 = parseInt(____i9);
-    } else {
-      __e11 = ____i9;
-    }
-    var ____i91 = __e11;
-    __l3[__x377] = true;
+  for (____i9 of pairs(____o5)) {
+    var __x381 = ____o5[____i9];
+    __l3[__x381] = true;
   }
   return join(["obj"], __l3);
 }});
@@ -1245,54 +1145,54 @@ setenv("target", {_stash: true, macro: function (..._42args) {
   return __clauses3[target];
 }});
 setenv("join!", {_stash: true, macro: function (a, ..._42args) {
-  var ____r81 = unstash([..._42args]);
-  var __a3 = destash33(a, ____r81);
-  var ____id63 = ____r81;
+  var ____r83 = unstash([..._42args]);
+  var __a3 = destash33(a, ____r83);
+  var ____id63 = ____r83;
   var __bs5 = cut(____id63, 0);
   return ["set", __a3, join(["join", __a3], __bs5)];
 }});
 setenv("cat!", {_stash: true, macro: function (a, ..._42args) {
-  var ____r83 = unstash([..._42args]);
-  var __a5 = destash33(a, ____r83);
-  var ____id65 = ____r83;
+  var ____r85 = unstash([..._42args]);
+  var __a5 = destash33(a, ____r85);
+  var ____id65 = ____r85;
   var __bs7 = cut(____id65, 0);
   return ["set", __a5, join(["cat", __a5], __bs7)];
 }});
 setenv("inc", {_stash: true, macro: function (n, by) {
-  var __e12 = undefined;
+  var __e6 = undefined;
   if (nil63(by)) {
-    __e12 = 1;
+    __e6 = 1;
   } else {
-    __e12 = by;
+    __e6 = by;
   }
-  return ["set", n, ["+", n, __e12]];
+  return ["set", n, ["+", n, __e6]];
 }});
 setenv("dec", {_stash: true, macro: function (n, by) {
-  var __e13 = undefined;
+  var __e7 = undefined;
   if (nil63(by)) {
-    __e13 = 1;
+    __e7 = 1;
   } else {
-    __e13 = by;
+    __e7 = by;
   }
-  return ["set", n, ["-", n, __e13]];
+  return ["set", n, ["-", n, __e7]];
 }});
 setenv("with-indent", {_stash: true, macro: function (form) {
-  var __x408 = unique("x");
-  return ["do", ["inc", "indent-level"], ["with", __x408, form, ["dec", "indent-level"]]];
+  var __x412 = unique("x");
+  return ["do", ["inc", "indent-level"], ["with", __x412, form, ["dec", "indent-level"]]];
 }});
 setenv("undefined?", {_stash: true, macro: function (x) {
-  var ____x417 = ["target"];
-  ____x417.lua = ["=", x, "nil"];
-  ____x417.js = ["=", ["typeof", x], "\"undefined\""];
-  return ____x417;
+  var ____x421 = ["target"];
+  ____x421.lua = ["=", x, "nil"];
+  ____x421.js = ["=", ["typeof", x], "\"undefined\""];
+  return ____x421;
 }});
 setenv("export", {_stash: true, macro: function (..._42args) {
   var __names5 = unstash([..._42args]);
-  var ____x439 = ["target"];
-  ____x439.lua = ["return", "exports"];
+  var ____x443 = ["target"];
+  ____x443.lua = ["return", "exports"];
   return join(["with", "exports", ["if", ["undefined?", "exports"], ["obj"], "exports"]], map(function (k) {
     return ["set", ["exports", "." + k], k];
-  }, __names5), [____x439]);
+  }, __names5), [____x443]);
 }});
 setenv("when-compiling", {_stash: true, macro: function (..._42args) {
   var __body47 = unstash([..._42args]);
@@ -1305,9 +1205,9 @@ setenv("during-compilation", {_stash: true, macro: function (..._42args) {
   return __form7;
 }});
 setenv("hd", {_stash: true, expander: function (setfn, ..._42args) {
-  var ____r96 = unstash([..._42args]);
-  var __setfn1 = destash33(setfn, ____r96);
-  var ____id67 = ____r96;
+  var ____r98 = unstash([..._42args]);
+  var __setfn1 = destash33(setfn, ____r98);
+  var ____id67 = ____r98;
   var __args11 = cut(____id67, 0);
   return define_setter("hd", function (v, l) {
     return ["set", ["at", l, 0], v];
@@ -1321,8 +1221,8 @@ var eval_print = function (form) {
     try {
       return [true, compiler.eval(form)];
     }
-    catch (__e4) {
-      return [false, __e4];
+    catch (__e2) {
+      return [false, __e2];
     }
   })();
   var __ok = ____id[0];
@@ -1411,8 +1311,8 @@ readable_string63 = function (str) {
       try {
         return [true, read_from_string(str)];
       }
-      catch (__e5) {
-        return [false, __e5];
+      catch (__e3) {
+        return [false, __e3];
       }
     })();
     var __ok1 = ____id1[0];
@@ -1470,34 +1370,20 @@ pp_to_string = function (x, stack) {
                       add(__l, x);
                       var ____o = x;
                       var __k = undefined;
-                      for (__k in ____o) {
+                      for (__k of pairs(____o)) {
                         var __v2 = ____o[__k];
-                        var __e1 = undefined;
-                        if (numeric63(__k)) {
-                          __e1 = parseInt(__k);
+                        if (number63(__k)) {
+                          __xs[__k] = pp_to_string(__v2, __l);
                         } else {
-                          __e1 = __k;
-                        }
-                        var __k1 = __e1;
-                        if (number63(__k1)) {
-                          __xs[__k1] = pp_to_string(__v2, __l);
-                        } else {
-                          add(__ks, __k1 + ":");
+                          add(__ks, __k + ":");
                           add(__ks, pp_to_string(__v2, __l));
                         }
                       }
                       drop(__l);
                       var ____o1 = join(__xs, __ks);
                       var ____i1 = undefined;
-                      for (____i1 in ____o1) {
+                      for (____i1 of pairs(____o1)) {
                         var __v3 = ____o1[____i1];
-                        var __e2 = undefined;
-                        if (numeric63(____i1)) {
-                          __e2 = parseInt(____i1);
-                        } else {
-                          __e2 = ____i1;
-                        }
-                        var ____i11 = __e2;
                         __s2 = __s2 + __sp + __v3;
                         __sp = " ";
                       }
@@ -1612,13 +1498,13 @@ var main = function (argv) {
     }
   }
 };
-var __e3 = undefined;
+var __e1 = undefined;
 if (typeof(exports) === "undefined") {
-  __e3 = {};
+  __e1 = {};
 } else {
-  __e3 = exports;
+  __e1 = exports;
 }
-var __exports = __e3;
+var __exports = __e1;
 __exports.reader = reader;
 __exports.compiler = compiler;
 __exports.system = system;
