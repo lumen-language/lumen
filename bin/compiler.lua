@@ -1371,6 +1371,13 @@ setenv("%literal", {_stash = true, special = function (...)
   local __args13 = unstash({...})
   return apply(cat, map(unquoted, __args13))
 end})
+setenv("unpack", {_stash = true, special = function (x)
+  if target == "lua" then
+    return "(unpack or table.unpack)(" .. compile(x) .. ")"
+  else
+    return "..." .. compile(x)
+  end
+end})
 local __e60 = nil
 if exports == nil then
   __e60 = {}

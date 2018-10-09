@@ -74,9 +74,9 @@ atom63 = function (x) {
   return nil63(x) || string63(x) || number63(x) || boolean63(x);
 };
 hd63 = function (l, x) {
-  var __id2 = obj63(l);
+  var __id1 = obj63(l);
   var __e1 = undefined;
-  if (__id2) {
+  if (__id1) {
     var __e2 = undefined;
     if (function63(x)) {
       __e2 = x(hd(l));
@@ -85,7 +85,7 @@ hd63 = function (l, x) {
     }
     __e1 = __e2;
   } else {
-    __e1 = __id2;
+    __e1 = __id1;
   }
   return __e1;
 };
@@ -662,21 +662,16 @@ str = function (x, stack) {
   }
 };
 apply = function (f, args) {
-  var __args = stash(args);
-  return f.apply(f, __args);
+  return f(...stash(args));
 };
 call = function (f, ..._42args) {
-  var ____r83 = unstash([..._42args]);
-  var __f3 = destash33(f, ____r83);
-  var ____id = ____r83;
-  var __args11 = cut(____id, 0);
-  return apply(__f3, __args11);
+  return f(..._42args);
 };
 setenv = function (k, ..._42args) {
   var ____r84 = unstash([..._42args]);
   var __k10 = destash33(k, ____r84);
-  var ____id1 = ____r84;
-  var __keys = cut(____id1, 0);
+  var ____id = ____r84;
+  var __keys = cut(____id, 0);
   if (string63(__k10)) {
     var __e10 = undefined;
     if (__keys.toplevel) {

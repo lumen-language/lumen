@@ -766,6 +766,11 @@
 (define-special %literal args
   (apply cat (map unquoted args)))
 
+(define-special unpack (x)
+  (if (= target 'lua)
+      (cat "(unpack or table.unpack)(" (compile x) ")")
+    (cat "..." (compile x))))
+
 (export run
         eval
         expand

@@ -1359,6 +1359,13 @@ setenv("%literal", {_stash: true, special: function (..._42args) {
   var __args13 = unstash([..._42args]);
   return apply(cat, map(unquoted, __args13));
 }});
+setenv("unpack", {_stash: true, special: function (x) {
+  if (target === "lua") {
+    return "(unpack or table.unpack)(" + compile(x) + ")";
+  } else {
+    return "..." + compile(x);
+  }
+}});
 var __e59 = undefined;
 if (typeof(exports) === "undefined") {
   __e59 = {};

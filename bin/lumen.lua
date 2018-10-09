@@ -59,9 +59,9 @@ function atom63(x)
   return nil63(x) or string63(x) or number63(x) or boolean63(x)
 end
 function hd63(l, x)
-  local __id2 = obj63(l)
+  local __id1 = obj63(l)
   local __e1 = nil
-  if __id2 then
+  if __id1 then
     local __e2 = nil
     if function63(x) then
       __e2 = x(hd(l))
@@ -70,7 +70,7 @@ function hd63(l, x)
     end
     __e1 = __e2
   else
-    __e1 = __id2
+    __e1 = __id1
   end
   return __e1
 end
@@ -613,23 +613,17 @@ function str(x, stack)
     end
   end
 end
-local unpack = unpack or table.unpack
 function apply(f, args)
-  local __args = stash(args)
-  return f(unpack(__args))
+  return f((unpack or table.unpack)(stash(args)))
 end
 function call(f, ...)
-  local ____r77 = unstash({...})
-  local __f3 = destash33(f, ____r77)
-  local ____id = ____r77
-  local __args11 = cut(____id, 0)
-  return apply(__f3, __args11)
+  return f(...)
 end
 function setenv(k, ...)
   local ____r78 = unstash({...})
   local __k10 = destash33(k, ____r78)
-  local ____id1 = ____r78
-  local __keys = cut(____id1, 0)
+  local ____id = ____r78
+  local __keys = cut(____id, 0)
   if string63(__k10) then
     local __e11 = nil
     if __keys.toplevel then
