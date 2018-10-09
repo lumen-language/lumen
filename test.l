@@ -1101,4 +1101,9 @@ c"
   (test= true (hd? '(1 2 3) number?))
   (test= false (hd? '(1 2 3) string?)))
 
+(define-test setforms
+  (let l '(a b c)
+    (set (hd l) 'z)
+    (test= '(z b c) l)))
+
 (run)

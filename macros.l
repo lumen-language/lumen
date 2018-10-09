@@ -263,3 +263,6 @@
 (define-macro during-compilation body
   (with form `(do ,@body)
     (eval form)))
+
+(define-setter hd (v l)
+  `(set (at ,l 0) ,v))

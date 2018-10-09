@@ -1175,6 +1175,15 @@ setenv("during-compilation", {_stash = true, macro = function (...)
   _eval(__form7)
   return __form7
 end})
+setenv("hd", {_stash = true, expander = function (setfn, ...)
+  local ____r96 = unstash({...})
+  local __setfn1 = destash33(setfn, ____r96)
+  local ____id67 = ____r96
+  local __args11 = cut(____id67, 0)
+  return define_setter("hd", function (v, l)
+    return {"set", {"at", l, 0}, v}
+  end, __setfn1, __args11)
+end})
 local reader = require("./reader")
 local compiler = require("./compiler")
 local system = require("./system")

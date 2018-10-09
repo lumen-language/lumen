@@ -1300,6 +1300,15 @@ setenv("during-compilation", {_stash: true, macro: function (..._42args) {
   _eval(__form7);
   return __form7;
 }});
+setenv("hd", {_stash: true, expander: function (setfn, ..._42args) {
+  var ____r96 = unstash([..._42args]);
+  var __setfn1 = destash33(setfn, ____r96);
+  var ____id67 = ____r96;
+  var __args11 = cut(____id67, 0);
+  return define_setter("hd", function (v, l) {
+    return ["set", ["at", l, 0], v];
+  }, __setfn1, __args11);
+}});
 var reader = require("./reader");
 var compiler = require("./compiler");
 var system = require("./system");
