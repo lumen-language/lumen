@@ -1,3 +1,9 @@
+(define-macro quote (form)
+  (quoted form))
+
+(define-macro quasiquote (form)
+  (quasiexpand form 1))
+
 (define-global get-place (place setfn)
   (let place (macroexpand place)
     (if (or (atom? place)
@@ -13,14 +19,26 @@
 (define-macro let-place (vars place rest: body)
   `(get-place ,place (fn ,vars ,@body)))
 
-(define-macro quote (form)
-  (quoted form))
+(define-macro define-expander (name handler)
+  (with form `(setenv ',name expander: ,handler)
+    (eval form)))
 
-(define-macro quasiquote (form)
-  (quasiexpand form 1))
+(define-global define-setter (name setter setfn args vars)
+  (if (none? args)
+      (let vars (reverse vars)
+        (setfn `(,name ,@vars) (fn (v) (apply setter v vars))))
+    (let v (hd args)
+      (%call define-setter name setter setfn (tl args) `(,v ,@vars)))))
+
+(define-macro define-setter (name arglist rest: body)
+  `(define-expander ,name
+     (fn (setfn rest: args)
+       (%call define-setter ',name (fn ,arglist ,@body) setfn args))))
 
 (define-macro set args
-  `(do ,@(map (fn ((lh rh)) `(%set ,lh ,rh))
+  `(do ,@(map (fn ((lh rh))
+                (let-place (getter setter) lh
+                  (setter rh)))
               (pair args))))
 
 (define-macro at (l i)
