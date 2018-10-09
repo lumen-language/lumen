@@ -212,21 +212,20 @@
       (cat! s "  "))))
 
 (define reserved
-  (set-of "=" "==" "+" "-" "%" "*" "/" "<" ">" "<=" ">="
-          ;; js
-          "break" "case" "catch" "class" "const" "continue"
-          "debugger" "default" "delete" "do" "else" "eval"
-          "finally" "for" "function" "if" "import" "in"
-          "instanceof" "let" "new" "return" "switch" "throw"
-          "try" "typeof" "var" "void" "with"
-          ;; lua
-          "and" "end" "in" "load" "repeat" "while" "break"
-          "false" "local" "return" "do" "for" "nil" "then"
-          "else" "function" "not" "true" "elseif" "if" "or"
-          "until"))
+  (obj js: (set-of "=" "==" "+" "-" "%" "*" "/" "<" ">" "<=" ">="
+                   "break" "case" "catch" "class" "const" "continue"
+                   "debugger" "default" "delete" "do" "else" "eval"
+                   "finally" "for" "function" "if" "import" "in"
+                   "instanceof" "let" "new" "return" "switch" "throw"
+                   "try" "typeof" "var" "void" "with")
+       lua: (set-of "=" "==" "+" "-" "%" "*" "/" "<" ">" "<=" ">="
+                    "and" "end" "in" "load" "repeat" "while" "break"
+                    "false" "local" "return" "do" "for" "nil" "then"
+                    "else" "function" "not" "true" "elseif" "if" "or"
+                    "until")))
 
 (define-global reserved? (x)
-  (has? reserved x))
+  (has? (get reserved target) x))
 
 (define valid-code? (n)
   (or (number-code? n)         ; 0-9
@@ -234,7 +233,7 @@
       (and (> n 96) (< n 123)) ; a-z
       (= n 95)))               ; _
 
-(define id (id)
+(define-global compile-id (id escape-reserved?)
   (let id1 (if (number-code? (code id 0)) "_" "")
     (for i (# id)
       (let (c (char id i)
@@ -246,16 +245,17 @@
                    (= i 0) (cat "_" n)
                  n))
         (cat! id1 c1)))
-    (if (reserved? id1)
+    (if (and (either escape-reserved? true)
+             (reserved? id1))
         (cat "_" id1)
-        id1)))
+      id1)))
 
-(define-global valid-id? (x)
-  (and (some? x) (= x (id x))))
+(define-global valid-id? (x escape-reserved?)
+  (and (some? x) (= x (compile-id x escape-reserved?))))
 
 (let (names (obj))
   (define-global unique (x)
-    (let x (id x)
+    (let x (compile-id x true)
       (if (has? names x)
           (let i (get names x)
             (inc (get names x))
@@ -266,10 +266,8 @@
 (define-global key (k)
   (if (string-literal? k)
       (let i (inner k)
-        (if (valid-id? i) i
-            (= target 'js) k
-          (cat "[" k "]")))
-    (cat "[" (if (string? k) k (str k)) "]")))
+        (if (valid-id? i) i (cat "[" k "]")))
+    (cat "[" (tostring k) "]")))
 
 (define-global mapo (f t)
   (with o ()
@@ -329,13 +327,13 @@
                      (= c "\r") "\\r"
                    c))))))
 
-(define compile-atom (x)
+(define-global compile-atom (x escape-reserved?)
   (if (and (= x "nil") (= target 'lua)) x
       (= x "nil") "undefined"
       (= x "...") (cat "..." (if (= target 'js) (compile "*args") ""))
       (id-literal? x) (inner x)
       (string-literal? x) (escape-newlines x)
-      (string? x) (id x)
+      (string? x) (compile-id x (either escape-reserved? true))
       (boolean? x) (if x "true" "false")
       (nan? x) "nan"
       (= x inf) "inf"
@@ -361,7 +359,7 @@
        (some? (char x 1))))
 
 (define-global accessor-literal (x)
-  (compile (camel-case (clip x 1))))
+  (compile (camel-case (clip x 1)) escape-reserved: false))
 
 (define-global compile-method (f args chain?)
   (if (and chain? (none? args)) f
@@ -428,13 +426,13 @@
            (and (not (= (hd form) 'return))
                 (not (statement? (hd form)))))))
 
-(define-global compile (form :stmt)
+(define-global compile (form :stmt :escape-reserved)
   (if (nil? form) ""
       (special-form? form)
       (compile-special form stmt)
     (let (tr (terminator stmt)
           ind (if stmt (indentation) "")
-          form (if (atom? form) (compile-atom form)
+          form (if (atom? form) (compile-atom form (either escape-reserved true))
                    (infix? (hd form)) (compile-infix form)
                  (compile-call form)))
       (cat ind form tr))))
@@ -726,7 +724,7 @@
 
 (define-special get (t k)
   (let (t1 (compile t)
-        k1 (compile k))
+        k1 (compile k escape-reserved: false))
     (when (or (and (= target 'lua)
                    (= (char t1 0) "{"))
               (infix-operator? t))

@@ -704,7 +704,7 @@ setenv("define-expander", {_stash = true, macro = function (name, handler)
   local ____x10 = {"setenv", {"quote", name}}
   ____x10.expander = handler
   local __form1 = ____x10
-  _eval(__form1)
+  eval(__form1)
   return __form1
 end})
 function define_setter(name, setter, setfn, args, vars)
@@ -882,7 +882,7 @@ setenv("define-macro", {_stash = true, macro = function (name, args, ...)
   local ____x152 = {"setenv", {"quote", __name3}}
   ____x152.macro = join({"fn", __args3}, __body19)
   local __form3 = ____x152
-  _eval(__form3)
+  eval(__form3)
   return __form3
 end})
 setenv("define-special", {_stash = true, macro = function (name, args, ...)
@@ -894,7 +894,7 @@ setenv("define-special", {_stash = true, macro = function (name, args, ...)
   local ____x160 = {"setenv", {"quote", __name5}}
   ____x160.special = join({"fn", __args5}, __body21)
   local __form5 = join(____x160, keys(__body21))
-  _eval(__form5)
+  eval(__form5)
   return __form5
 end})
 setenv("define-symbol", {_stash = true, macro = function (name, expansion)
@@ -1143,12 +1143,12 @@ setenv("export", {_stash = true, macro = function (...)
 end})
 setenv("when-compiling", {_stash = true, macro = function (...)
   local __body47 = unstash({...})
-  return _eval(join({"do"}, __body47))
+  return eval(join({"do"}, __body47))
 end})
 setenv("during-compilation", {_stash = true, macro = function (...)
   local __body49 = unstash({...})
   local __form7 = join({"do"}, __body49)
-  _eval(__form7)
+  eval(__form7)
   return __form7
 end})
 setenv("hd", {_stash = true, expander = function (setfn, ...)
@@ -1165,7 +1165,7 @@ local compiler = require("./compiler")
 local system = require("./system")
 local function eval_print(form)
   local ____id = {xpcall(function ()
-    return compiler._eval(form)
+    return compiler.eval(form)
   end, function (m)
     if obj63(m) then
       return m

@@ -1319,7 +1319,7 @@ var system = require("./system");
 var eval_print = function (form) {
   var ____id = (function () {
     try {
-      return [true, compiler._eval(form)];
+      return [true, compiler.eval(form)];
     }
     catch (__e4) {
       return [false, __e4];
@@ -1373,7 +1373,7 @@ compile_file = function (path) {
   var __form1 = expand_file(path);
   return compiler.compile(__form1, {_stash: true, stmt: true});
 };
-_load = function (path) {
+load = function (path) {
   var __previous = target;
   target = "js";
   var __code = compile_file(path);
@@ -1385,15 +1385,15 @@ script_file63 = function (path) {
 };
 run_file = function (path) {
   if (script_file63(path)) {
-    return _load(path);
+    return load(path);
   } else {
     return compiler.run(read_file(path));
   }
 };
-read_from_string = function (str, start, _end) {
+read_from_string = function (str, start, end) {
   var __s1 = reader.stream(str);
   __s1.pos = either(start, __s1.pos);
-  __s1.len = either(_end, __s1.len);
+  __s1.len = either(end, __s1.len);
   var __form2 = reader.read(__s1);
   if (nil63(__form2)) {
     return error("End of string during parsing");
@@ -1521,11 +1521,11 @@ var main = function (argv) {
   var __arg = hd(argv);
   if (script_file63(__arg)) {
     set_argv(tl(argv));
-    return _load(__arg);
+    return load(__arg);
   }
   var __args = parse_arguments({c: "compile", o: "output", t: "target", e: "eval", h: "help", r: "repl"}, argv);
   if (script_file63(hd(__args))) {
-    return _load(hd(__args));
+    return load(hd(__args));
   } else {
     if (__args.help) {
       return print(usage());
