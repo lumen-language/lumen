@@ -1,6 +1,7 @@
 .PHONY: all rebuild bundle clean test
 
 LUMEN_LUA  ?= lua
+LUMEN_LUVI ?= luvi
 LUMEN_NODE ?= node
 LUMEN_HOST ?= $(LUMEN_LUA)
 
@@ -23,9 +24,6 @@ rebuild:
 	@make clean
 	@LUMEN_HOST=node make -B
 	@make test
-
-bootstrap:
-	@bin/lumen-luvi -e nil
 
 bundle:
 	@npx luvit-luvi . -o bin/lumen-language
@@ -65,7 +63,7 @@ bin/%.lua : %.l
 	@echo $@
 	@$(LUMEN) -c $< -o $@ -t lua
 
-test: all bootstrap
+test: all
 	@echo js:
 	@LUMEN_HOST=$(LUMEN_NODE) ./test.l
 	@echo lua:
