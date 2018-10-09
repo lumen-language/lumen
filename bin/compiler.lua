@@ -1,4 +1,4 @@
-local function getenv(k, p)
+function getenv(k, p)
   if string63(k) then
     local __i = edge(environment)
     while __i >= 0 do

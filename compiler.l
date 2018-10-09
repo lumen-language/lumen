@@ -1,4 +1,4 @@
-(define getenv (k p)
+(define-global getenv (k p)
   (when (string? k)
     (let i (edge environment)
       (while (>= i 0)

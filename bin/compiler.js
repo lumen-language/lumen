@@ -1,4 +1,4 @@
-var getenv = function (k, p) {
+getenv = function (k, p) {
   if (string63(k)) {
     var __i = edge(environment);
     while (__i >= 0) {
