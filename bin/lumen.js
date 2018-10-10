@@ -6,9 +6,16 @@ values = function (..._42args) {
   return __v[0];
 };
 results = function (x, ..._42args) {
-  var __r2 = __v || [x, ..._42args];
+  var r = __v || [x, ..._42args];
   __v = undefined;
-  return __r2;
+  return r;
+};
+select = function (n, ..._42args) {
+  if (n === "#") {
+    return values(results(..._42args).length);
+  } else {
+    return values(...cut(results(..._42args), n - 1));
+  }
 };
 pairs = function (l) {
   return Object.keys(l).map(function (k) {

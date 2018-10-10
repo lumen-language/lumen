@@ -1116,4 +1116,9 @@ c"
   (test= "true" (tostring true))
   (test= "false" (tostring false)))
 
+(define-test select
+  (test= 4 (select "#" (values 'a 'b 'c 'd)))
+  (test= 'b (select 2 (values 'a 'b 'c 'd)))
+  (test= '(b c d) (results (select 2 (values 'a 'b 'c 'd)))))
+
 (run)

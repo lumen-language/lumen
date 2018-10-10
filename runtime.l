@@ -8,8 +8,15 @@
 
   (define-global results (x ...)
     (target lua: (list x ...)
-            js: (with r (or v (list x ...))
-                  (set v nil)))))
+            js: (do (define r (or v (list x ...)))
+                    (set v nil)
+                    r))))
+
+(target js:
+  (define-global select (n ...)
+    (if (= n "#")
+        (values (get (results ...) 'length))
+      (values (unpack (cut (results ...) (- n 1)))))))
 
 (target js:
   (define-global pairs (l)
