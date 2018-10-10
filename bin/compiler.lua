@@ -192,7 +192,7 @@ local function expand_local(__x22)
   local __name = ____id1[2]
   local __value = ____id1[3]
   setenv(__name, {_stash = true, variable = true})
-  return {"%local", __name, macroexpand(__value)}
+  return {"%local", macroexpand(__name), macroexpand(__value)}
 end
 local function expand_function(__x25)
   local ____id2 = __x25
@@ -223,7 +223,7 @@ local function expand_definition(__x30)
     local ____x32 = ____o4[____i6]
     setenv(____x32, {_stash = true, variable = true})
   end
-  local ____x33 = join({__x31, __name1, __args11}, macroexpand(__body1))
+  local ____x33 = join({__x31, macroexpand(__name1), __args11}, macroexpand(__body1))
   drop(environment)
   return ____x33
 end

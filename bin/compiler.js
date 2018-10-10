@@ -192,7 +192,7 @@ var expand_local = function (__x22) {
   var __name = ____id1[1];
   var __value = ____id1[2];
   setenv(__name, {_stash: true, variable: true});
-  return ["%local", __name, macroexpand(__value)];
+  return ["%local", macroexpand(__name), macroexpand(__value)];
 };
 var expand_function = function (__x25) {
   var ____id2 = __x25;
@@ -223,7 +223,7 @@ var expand_definition = function (__x30) {
     var ____x32 = ____o4[____i6];
     setenv(____x32, {_stash: true, variable: true});
   }
-  var ____x33 = join([__x31, __name1, __args11], macroexpand(__body1));
+  var ____x33 = join([__x31, macroexpand(__name1), __args11], macroexpand(__body1));
   drop(environment);
   return ____x33;
 };

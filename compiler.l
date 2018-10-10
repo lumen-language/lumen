@@ -124,7 +124,7 @@
 
 (define expand-local ((x name value))
   (setenv name :variable)
-  `(%local ,name ,(macroexpand value)))
+  `(%local ,(macroexpand name) ,(macroexpand value)))
 
 (define expand-function ((x args rest: body))
   (with-bindings (args)
@@ -132,7 +132,7 @@
 
 (define expand-definition ((x name args rest: body))
   (with-bindings (args)
-    `(,x ,name ,args ,@(macroexpand body))))
+    `(,x ,(macroexpand name) ,args ,@(macroexpand body))))
 
 (define expand-macro (form)
   (macroexpand (expand1 form)))
