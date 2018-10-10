@@ -227,7 +227,7 @@ function testify(x, test)
   else
     if test then
       return function (y)
-        return test(x, y)
+        return test(y, x)
       end
     else
       return function (y)

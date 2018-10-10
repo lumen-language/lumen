@@ -262,7 +262,7 @@ testify = function (x, test) {
   } else {
     if (test) {
       return function (y) {
-        return test(x, y);
+        return test(y, x);
       };
     } else {
       return function (y) {

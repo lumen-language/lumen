@@ -178,7 +178,7 @@
 (define-global testify (x test)
   (if (function? x) x
       test
-      (fn (y) (test x y))
+      (fn (y) (test y x))
     (fn (y) (= x y))))
 
 (define-global find (x t)
