@@ -190,12 +190,10 @@ end
 function reduce(f, x)
   if none63(x) then
     return nil
+  elseif one63(x) then
+    return hd(x)
   else
-    if one63(x) then
-      return hd(x)
-    else
-      return f(hd(x), reduce(f, tl(x)))
-    end
+    return f(hd(x), reduce(f, tl(x)))
   end
 end
 function join(...)
@@ -224,15 +222,13 @@ end
 function testify(x, test)
   if function63(x) then
     return x
+  elseif test then
+    return function (y)
+      return test(y, x)
+    end
   else
-    if test then
-      return function (y)
-        return test(y, x)
-      end
-    else
-      return function (y)
-        return x == y
-      end
+    return function (y)
+      return x == y
     end
   end
 end
@@ -572,52 +568,44 @@ end
 function str(x, stack)
   if string63(x) then
     return escape(x)
+  elseif atom63(x) then
+    return tostring(x)
+  elseif function63(x) then
+    return "function"
+  elseif stack and in63(x, stack) then
+    return "circular"
+  elseif not( type(x) == "table") then
+    return escape(tostring(x))
   else
-    if atom63(x) then
-      return tostring(x)
-    else
-      if function63(x) then
-        return "function"
+    local __s11 = "("
+    local __sp = ""
+    local __xs11 = {}
+    local __ks = {}
+    local __l4 = stack or {}
+    add(__l4, x)
+    local ____o11 = x
+    local __k9 = nil
+    for __k9 in pairs(____o11) do
+      local __v12 = ____o11[__k9]
+      if number63(__k9) then
+        __xs11[__k9] = str(__v12, __l4)
       else
-        if stack and in63(x, stack) then
-          return "circular"
-        else
-          if not( type(x) == "table") then
-            return escape(tostring(x))
-          else
-            local __s11 = "("
-            local __sp = ""
-            local __xs11 = {}
-            local __ks = {}
-            local __l4 = stack or {}
-            add(__l4, x)
-            local ____o11 = x
-            local __k9 = nil
-            for __k9 in pairs(____o11) do
-              local __v12 = ____o11[__k9]
-              if number63(__k9) then
-                __xs11[__k9] = str(__v12, __l4)
-              else
-                if not string63(__k9) then
-                  __k9 = str(__k9, __l4)
-                end
-                add(__ks, __k9 .. ":")
-                add(__ks, str(__v12, __l4))
-              end
-            end
-            drop(__l4)
-            local ____o12 = join(__xs11, __ks)
-            local ____i24 = nil
-            for ____i24 in pairs(____o12) do
-              local __v13 = ____o12[____i24]
-              __s11 = __s11 .. __sp .. __v13
-              __sp = " "
-            end
-            return __s11 .. ")"
-          end
+        if not string63(__k9) then
+          __k9 = str(__k9, __l4)
         end
+        add(__ks, __k9 .. ":")
+        add(__ks, str(__v12, __l4))
       end
     end
+    drop(__l4)
+    local ____o12 = join(__xs11, __ks)
+    local ____i24 = nil
+    for ____i24 in pairs(____o12) do
+      local __v13 = ____o12[____i24]
+      __s11 = __s11 .. __sp .. __v13
+      __sp = " "
+    end
+    return __s11 .. ")"
   end
 end
 function apply(f, args)
@@ -743,10 +731,8 @@ end})
 setenv("at", {_stash = true, macro = function (l, i)
   if target == "lua" and number63(i) then
     i = i + 1
-  else
-    if target == "lua" then
-      i = {"+", i, 1}
-    end
+  elseif target == "lua" then
+    i = {"+", i, 1}
   end
   return {"get", l, i}
 end})
@@ -797,18 +783,12 @@ setenv("case", {_stash = true, macro = function (expr, ...)
     local __b1 = ____id9[2]
     if nil63(__b1) then
       return {__a1}
-    else
-      if string63(__a1) or number63(__a1) then
-        return {__eq1(__a1), __b1}
-      else
-        if one63(__a1) then
-          return {__eq1(hd(__a1)), __b1}
-        else
-          if _35(__a1) > 1 then
-            return {join({"or"}, map(__eq1, __a1)), __b1}
-          end
-        end
-      end
+    elseif string63(__a1) or number63(__a1) then
+      return {__eq1(__a1), __b1}
+    elseif one63(__a1) then
+      return {__eq1(hd(__a1)), __b1}
+    elseif _35(__a1) > 1 then
+      return {join({"or"}, map(__eq1, __a1)), __b1}
     end
   end
   return {"let", __x76, __expr1, join({"if"}, apply(join, map(__cl1, pair(__clauses1))))}
@@ -840,21 +820,19 @@ setenv("let", {_stash = true, macro = function (bs, ...)
   local __body13 = cut(____id18, 0)
   if atom63(__bs11) then
     return join({"let", {__bs11, hd(__body13)}}, tl(__body13))
+  elseif none63(__bs11) then
+    return join({"do"}, __body13)
   else
-    if none63(__bs11) then
-      return join({"do"}, __body13)
-    else
-      local ____id19 = __bs11
-      local __lh3 = ____id19[1]
-      local __rh3 = ____id19[2]
-      local __bs21 = cut(____id19, 2)
-      local ____id20 = bind(__lh3, __rh3)
-      local __id21 = ____id20[1]
-      local __val1 = ____id20[2]
-      local __bs12 = cut(____id20, 2)
-      local __id121 = unique(__id21)
-      return {"do", {"%local", __id121, __val1}, {"let-symbol", {__id21, __id121}, join({"let", join(__bs12, __bs21)}, __body13)}}
-    end
+    local ____id19 = __bs11
+    local __lh3 = ____id19[1]
+    local __rh3 = ____id19[2]
+    local __bs21 = cut(____id19, 2)
+    local ____id20 = bind(__lh3, __rh3)
+    local __id21 = ____id20[1]
+    local __val1 = ____id20[2]
+    local __bs12 = cut(____id20, 2)
+    local __id121 = unique(__id21)
+    return {"do", {"%local", __id121, __val1}, {"let-symbol", {__id21, __id121}, join({"let", join(__bs12, __bs21)}, __body13)}}
   end
 end})
 setenv("with", {_stash = true, macro = function (x, v, ...)
@@ -1311,80 +1289,62 @@ end
 function pp_to_string(x, stack)
   if nil63(x) then
     return "nil"
-  else
-    if nan63(x) then
-      return "nan"
+  elseif nan63(x) then
+    return "nan"
+  elseif x == inf then
+    return "inf"
+  elseif x == _inf then
+    return "-inf"
+  elseif boolean63(x) then
+    if x then
+      return "true"
     else
-      if x == inf then
-        return "inf"
+      return "false"
+    end
+  elseif string63(x) then
+    if readable_string63(x) then
+      return x
+    else
+      return escape(x)
+    end
+  elseif function63(x) then
+    return "function"
+  elseif atom63(x) then
+    return tostring(x)
+  elseif stack and in63(x, stack) then
+    return "circular"
+  elseif not( type(x) == "table") then
+    return escape(tostring(x))
+  else
+    local __s3 = "("
+    local __sp = ""
+    local __xs = {}
+    local __ks = {}
+    local __l = stack or {}
+    add(__l, x)
+    local ____o = x
+    local __k = nil
+    for __k in pairs(____o) do
+      local __v2 = ____o[__k]
+      if number63(__k) then
+        __xs[__k] = pp_to_string(__v2, __l)
       else
-        if x == _inf then
-          return "-inf"
-        else
-          if boolean63(x) then
-            if x then
-              return "true"
-            else
-              return "false"
-            end
-          else
-            if string63(x) then
-              if readable_string63(x) then
-                return x
-              else
-                return escape(x)
-              end
-            else
-              if function63(x) then
-                return "function"
-              else
-                if atom63(x) then
-                  return tostring(x)
-                else
-                  if stack and in63(x, stack) then
-                    return "circular"
-                  else
-                    if not( type(x) == "table") then
-                      return escape(tostring(x))
-                    else
-                      local __s3 = "("
-                      local __sp = ""
-                      local __xs = {}
-                      local __ks = {}
-                      local __l = stack or {}
-                      add(__l, x)
-                      local ____o = x
-                      local __k = nil
-                      for __k in pairs(____o) do
-                        local __v2 = ____o[__k]
-                        if number63(__k) then
-                          __xs[__k] = pp_to_string(__v2, __l)
-                        else
-                          if not string63(__k) then
-                            __k = pp_to_string(__k, __l)
-                          end
-                          add(__ks, __k .. ":")
-                          add(__ks, pp_to_string(__v2, __l))
-                        end
-                      end
-                      drop(__l)
-                      local ____o1 = join(__xs, __ks)
-                      local ____i2 = nil
-                      for ____i2 in pairs(____o1) do
-                        local __v3 = ____o1[____i2]
-                        __s3 = __s3 .. __sp .. __v3
-                        __sp = " "
-                      end
-                      return __s3 .. ")"
-                    end
-                  end
-                end
-              end
-            end
-          end
+        if not string63(__k) then
+          __k = pp_to_string(__k, __l)
         end
+        add(__ks, __k .. ":")
+        add(__ks, pp_to_string(__v2, __l))
       end
     end
+    drop(__l)
+    local ____o1 = join(__xs, __ks)
+    local ____i2 = nil
+    for ____i2 in pairs(____o1) do
+      local __v3 = ____o1[____i2]
+      __s3 = __s3 .. __sp .. __v3
+      __sp = " "
+    end
+    return __s3 .. ")"
   end
 end
 local function usage()
@@ -1400,89 +1360,75 @@ local function main(argv)
   local __args = parse_arguments({c = "compile", o = "output", t = "target", e = "eval", h = "help", r = "repl"}, argv)
   if script_file63(hd(__args)) then
     return _load(hd(__args))
+  elseif __args.help then
+    return print(usage())
   else
-    if __args.help then
-      return print(usage())
-    else
-      local __pre = keep(string63, __args)
-      local __cmds = keep(obj63, __args)
-      local __input = ""
-      local __enter_repl = true
-      local ____x7 = __pre
-      local ____i3 = 0
-      while ____i3 < _35(____x7) do
-        local __file = ____x7[____i3 + 1]
-        run_file(__file)
-        ____i3 = ____i3 + 1
+    local __pre = keep(string63, __args)
+    local __cmds = keep(obj63, __args)
+    local __input = ""
+    local __enter_repl = true
+    local ____x7 = __pre
+    local ____i3 = 0
+    while ____i3 < _35(____x7) do
+      local __file = ____x7[____i3 + 1]
+      run_file(__file)
+      ____i3 = ____i3 + 1
+    end
+    local ____x8 = __cmds
+    local ____i4 = 0
+    while ____i4 < _35(____x8) do
+      local ____id2 = ____x8[____i4 + 1]
+      local __a = ____id2[1]
+      local __val = ____id2[2]
+      if __a == "target" then
+        target = hd(__val)
+        break
       end
-      local ____x8 = __cmds
-      local ____i4 = 0
-      while ____i4 < _35(____x8) do
-        local ____id2 = ____x8[____i4 + 1]
-        local __a = ____id2[1]
-        local __val = ____id2[2]
-        if __a == "target" then
-          target = hd(__val)
-          break
+      ____i4 = ____i4 + 1
+    end
+    local ____x9 = __cmds
+    local ____i5 = 0
+    while ____i5 < _35(____x9) do
+      local ____id3 = ____x9[____i5 + 1]
+      local __a1 = ____id3[1]
+      local __val1 = ____id3[2]
+      if __a1 == "help" then
+        print(usage())
+      elseif __a1 == "repl" then
+        __enter_repl = true
+      elseif boolean63(__val1) or none63(__val1) then
+        print("missing argument for " .. __a1)
+      elseif __a1 == "compile" then
+        local ____x10 = __val1
+        local ____i6 = 0
+        while ____i6 < _35(____x10) do
+          local __x11 = ____x10[____i6 + 1]
+          __input = __input .. compile_file(__x11)
+          ____i6 = ____i6 + 1
         end
-        ____i4 = ____i4 + 1
-      end
-      local ____x9 = __cmds
-      local ____i5 = 0
-      while ____i5 < _35(____x9) do
-        local ____id3 = ____x9[____i5 + 1]
-        local __a1 = ____id3[1]
-        local __val1 = ____id3[2]
-        if __a1 == "help" then
-          print(usage())
-        else
-          if __a1 == "repl" then
-            __enter_repl = true
-          else
-            if boolean63(__val1) or none63(__val1) then
-              print("missing argument for " .. __a1)
-            else
-              if __a1 == "compile" then
-                local ____x10 = __val1
-                local ____i6 = 0
-                while ____i6 < _35(____x10) do
-                  local __x11 = ____x10[____i6 + 1]
-                  __input = __input .. compile_file(__x11)
-                  ____i6 = ____i6 + 1
-                end
-                __enter_repl = false
-              else
-                if __a1 == "output" then
-                  write_file(hd(__val1), __input)
-                  __input = ""
-                else
-                  if __a1 == "target" then
-                    target = hd(__val1)
-                  else
-                    if __a1 == "eval" then
-                      local ____x12 = __val1
-                      local ____i7 = 0
-                      while ____i7 < _35(____x12) do
-                        local __x13 = ____x12[____i7 + 1]
-                        rep(__x13)
-                        ____i7 = ____i7 + 1
-                      end
-                      __enter_repl = false
-                    end
-                  end
-                end
-              end
-            end
-          end
+        __enter_repl = false
+      elseif __a1 == "output" then
+        write_file(hd(__val1), __input)
+        __input = ""
+      elseif __a1 == "target" then
+        target = hd(__val1)
+      elseif __a1 == "eval" then
+        local ____x12 = __val1
+        local ____i7 = 0
+        while ____i7 < _35(____x12) do
+          local __x13 = ____x12[____i7 + 1]
+          rep(__x13)
+          ____i7 = ____i7 + 1
         end
-        ____i5 = ____i5 + 1
+        __enter_repl = false
       end
-      if some63(__input) then
-        print(__input)
-      end
-      if __enter_repl or __args.repl then
-        return repl()
-      end
+      ____i5 = ____i5 + 1
+    end
+    if some63(__input) then
+      print(__input)
+    end
+    if __enter_repl or __args.repl then
+      return repl()
     end
   end
 end
