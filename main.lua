@@ -19,13 +19,17 @@ limitations under the License.
 ]]
 
 local hasLuvi, luvi = pcall(require, 'luvi')
-local uv, bundle
+local hasLuv, luv = pcall(require, 'luv')
+local hasUv, uv, bundle
 
 if hasLuvi then
-  uv = require('uv')
+  hasUv, uv = pcall(require, 'uv')
   bundle = luvi.bundle
+elseif hasLuv then
+  hasUv = true
+  uv = luv
 else
-  uv = require('luv')
+  hasUv, uv = pcall(require, 'uv')
 end
 
 local getenv = require('os').getenv
@@ -37,7 +41,16 @@ else
   isWindows = not not package.path:match("\\")
 end
 
-local tmpBase = isWindows and (getenv("TMP") or uv.cwd()) or
+local function run(command)
+  local __f2 = io.popen(command)
+  local __x4 = __f2.read(__f2, "*all")
+  __f2.close(__f2)
+  return __x4:sub(1, #__x4 - 1)
+end
+
+local argv = arg or args
+local cwd = run(isWindows and "echo %CD%" or "pwd")
+local tmpBase = isWindows and (getenv("TMP") or cwd) or
                               (getenv("TMPDIR") or '/tmp')
 local binExt = isWindows and ".dll" or ".so"
 
@@ -141,13 +154,50 @@ local function pathJoin(...)
   return path
 end
 
+local function file_exists63(path)
+  local __f = io.open(path)
+  local __id1 = (__f)
+  local __e = nil
+  if __id1 then
+    local __r6 = (__f.read(__f, 0)) or 0 == __f.seek(__f, "end")
+    __f.close(__f)
+    __e = __r6
+  else
+    __e = __id1
+  end
+  return __e
+end
+local function directory_exists63(path)
+  local __f1 = io.open(path)
+  local __id2 = (__f1)
+  local __e1 = nil
+  if __id2 then
+    local __r8 = not __f1.read(__f1, 0) and not( 0 == __f1.seek(__f1, "end"))
+    __f1.close(__f1)
+    __e1 = __r8
+  else
+    __e1 = __id2
+  end
+  return __e1
+end
+
+local function file_stat(path)
+  if file_exists63(path) then
+    return {type = "file"}
+  elseif directory_exists63(path) then
+    return {type = "dir"}
+  end
+end
+
+local realpath = uv.fs_realpath or function (path) return path end
+
 local function loader(dir, path, bundleOnly)
   local errors = {}
   local fullPath
   local useBundle = bundleOnly
   local function try(tryPath)
     local prefix = useBundle and "bundle:" or ""
-    local fileStat = useBundle and bundle.stat or uv.fs_stat
+    local fileStat = useBundle and bundle.stat or uv.fs_stat or file_stat
 
     local newPath = tryPath
     local stat = fileStat(newPath)
@@ -204,7 +254,7 @@ local function loader(dir, path, bundleOnly)
       return module
     end, key
   end
-  fullPath = uv.fs_realpath(fullPath)
+  fullPath = realpath(fullPath)
   return function ()
     if package.loaded[fullPath] then
       return package.loaded[fullPath]
@@ -216,7 +266,6 @@ local function loader(dir, path, bundleOnly)
 end
 
 -- Register as a normal lua package loader.
-local cwd = uv.cwd()
 local lumen
 if package.loaders then
   table.insert(package.loaders, 1, function (path)
@@ -241,7 +290,7 @@ if package.loaders then
   end)
   lumen = require('./bin/lumen.lua')
 else
-  local fullPath = pathJoin(uv.fs_realpath(cwd), "bin", "?.lua")
+  local fullPath = pathJoin(realpath(cwd), "bin", "?.lua")
   package.path = package.path .. ";;" .. fullPath
   lumen = require('lumen')
 end
