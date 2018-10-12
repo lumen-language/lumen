@@ -1148,7 +1148,7 @@ setenv("when-compiling", {_stash = true, macro = function (...)
 end})
 setenv("during-compilation", {_stash = true, macro = function (...)
   local __body49 = unstash({...})
-  local __form7 = join({"do"}, __body49)
+  local __form7 = join({"do"}, __body49, {{"do"}})
   eval(__form7)
   return __form7
 end})

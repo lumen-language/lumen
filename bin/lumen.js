@@ -1225,7 +1225,7 @@ setenv("when-compiling", {_stash: true, macro: function (..._42args) {
 }});
 setenv("during-compilation", {_stash: true, macro: function (..._42args) {
   var __body49 = unstash([..._42args]);
-  var __form7 = join(["do"], __body49);
+  var __form7 = join(["do"], __body49, [["do"]]);
   _eval(__form7);
   return __form7;
 }});

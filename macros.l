@@ -260,7 +260,7 @@
   (eval `(do ,@body)))
 
 (define-macro during-compilation body
-  (with form `(do ,@body)
+  (with form `(do ,@body (do))
     (eval form)))
 
 (define-setter hd (v l)
