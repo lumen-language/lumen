@@ -57,16 +57,13 @@
     lua: ((get os 'getenv) name)))
 
 (define stdout ()
-  (get (target js: process lua: io) 'stdout))
+  ((or process io) .stdout))
 
 (define stderr ()
-  (get (target js: process lua: io) 'stderr))
+  ((or process io) .stderr))
 
 (define write (x out)
-  (let out (or out (stdout))
-    (target js: ((get out 'write) x)
-            lua: ((get out 'write) out x)))
-  nil)
+  ((or out (stdout)) (.write x)))
 
 (define exit (code)
   (target js: ((get process 'exit) code)

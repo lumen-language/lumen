@@ -56,15 +56,13 @@ local function get_environment_variable(name)
   return os.getenv(name)
 end
 local function stdout()
-  return io.stdout
+  return (process or io).stdout
 end
 local function stderr()
-  return io.stderr
+  return (process or io).stderr
 end
 local function write(x, out)
-  local __out = out or stdout()
-  __out.write(__out, x)
-  return nil
+  return (out or stdout()):write(x)
 end
 local function exit(code)
   return os.exit(code)

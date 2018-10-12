@@ -23,15 +23,13 @@ var get_environment_variable = function (name) {
   return process.env[name];
 };
 var stdout = function () {
-  return process.stdout;
+  return (process || io).stdout;
 };
 var stderr = function () {
-  return process.stderr;
+  return (process || io).stderr;
 };
 var write = function (x, out) {
-  var __out = out || stdout();
-  __out.write(x);
-  return undefined;
+  return (out || stdout()).write(x);
 };
 var exit = function (code) {
   return process.exit(code);
