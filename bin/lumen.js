@@ -1282,9 +1282,11 @@ var repl = function () {
     }
   };
   system.write("> ");
-  var ___in = process.stdin;
-  ___in.setEncoding("utf8");
-  return ___in.on("data", rep1);
+  if (process) {
+    process.stdin.removeAllListeners();
+    process.stdin.setEncoding("utf8");
+    return process.stdin.on("data", rep1);
+  }
 };
 read_file = function (path) {
   return system.readFile(path);

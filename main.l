@@ -26,13 +26,14 @@
             (set buf "")
             ((system .write) "> ")))))
   ((system .write) "> ")
-  (target
-    js: (let in (get process 'stdin)
-          ((get in 'setEncoding) 'utf8)
-          ((get in 'on) 'data rep1))
-    lua: (while true
-           (let s ((get io 'read))
-             (if s (rep1 (cat s "\n")) (break))))))
+  (if process
+      (do (process .stdin (.remove-all-listeners))
+          (target js: (process .stdin (.set-encoding "utf8")))
+          (process .stdin (.on "data" rep1)))
+    (target lua:
+      (while true
+        (let s ((io .read))
+          (if s (rep1 (cat s "\n")) (break)))))))
 
 (define-global read-file (path)
   ((system .read-file) path))

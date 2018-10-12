@@ -1218,12 +1218,17 @@ local function repl()
     end
   end
   system.write("> ")
-  while true do
-    local __s = io.read()
-    if __s then
-      rep1(__s .. "\n")
-    else
-      break
+  if process then
+    process.stdin:removeAllListeners()
+    return process.stdin:on("data", rep1)
+  else
+    while true do
+      local __s = io.read()
+      if __s then
+        rep1(__s .. "\n")
+      else
+        break
+      end
     end
   end
 end
