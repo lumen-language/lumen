@@ -17,17 +17,19 @@ limitations under the License.
 ]]
 
 local hasLuvi, luvi = pcall(require, 'luvi')
-local hasLuv, luv = pcall(require, 'luv')
-local hasUv, uv, bundle
+local hasUv, bundle
 
 if hasLuvi then
-  hasUv, uv = pcall(require, 'uv')
   bundle = luvi.bundle
-elseif hasLuv then
+end
+
+if uv then
   hasUv = true
-  uv = luv
 else
   hasUv, uv = pcall(require, 'uv')
+  if not hasUv then
+    hasUv, uv = pcall(require, 'luv')
+  end
 end
 
 local getenv = require('os').getenv
