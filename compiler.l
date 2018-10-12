@@ -358,6 +358,9 @@
        (not (= (char x 1) "."))
        (some? (char x 1))))
 
+(define-global accessor-form? (x)
+  (and (obj? x) (accessor-literal? (last x))))
+
 (define-global accessor-literal (x)
   (compile (camel-case (clip x 1)) escape-reserved: false))
 
@@ -459,7 +462,8 @@
   (or (and (not (atom? form))
            (not (infix? (hd form)))
            (not (literal? form))
-           (not (= 'get (hd form))))
+           (not (= 'get (hd form)))
+           (not (accessor-form? form)))
       (id-literal? form)))
 
 (define lower-do (args hoist stmt? tail?)

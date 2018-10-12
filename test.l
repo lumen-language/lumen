@@ -200,8 +200,15 @@
     (test= 10 x))
   (test= 12 (do (get but zz) 12))
   (let y nil
-    (let ignore (do (%literal y | = 10;|) 42)
-      (test= 10 y))))
+    (let ignore (do (%literal y " = 10;") 42)
+      (test= 10 y))
+    (let l (obj a: (obj b: 42 f: (fn () (set y 42))))
+      (get (get l 'a) 'b)
+      (test= (get (get l 'a) 'b) 42)
+      (l .a .b)
+      (test= (l .a .b) 42)
+      (l .a (.f))
+      (test= y 42))))
 
 (define-test string
   (test= 3 (# "foo"))

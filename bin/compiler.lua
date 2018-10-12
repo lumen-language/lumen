@@ -649,6 +649,9 @@ end
 function accessor_literal63(x)
   return string63(x) and char(x, 0) == "." and not( char(x, 1) == ".") and some63(char(x, 1))
 end
+function accessor_form63(x)
+  return obj63(x) and accessor_literal63(last(x))
+end
 function accessor_literal(x)
   return compile(camel_case(clip(x, 1)), {_stash = true, ["escape-reserved"] = false})
 end
@@ -688,10 +691,10 @@ local function compile_call(form)
   end
 end
 local function op_delims(parent, child, ...)
-  local ____r59 = unstash({...})
-  local __parent = destash33(parent, ____r59)
-  local __child = destash33(child, ____r59)
-  local ____id8 = ____r59
+  local ____r60 = unstash({...})
+  local __parent = destash33(parent, ____r60)
+  local __child = destash33(child, ____r60)
+  local ____id8 = ____r60
   local __right = ____id8.right
   local __e34 = nil
   if __right then
@@ -727,10 +730,10 @@ local function compile_infix(form)
   end
 end
 function compile_function(args, body, ...)
-  local ____r61 = unstash({...})
-  local __args4 = destash33(args, ____r61)
-  local __body3 = destash33(body, ____r61)
-  local ____id13 = ____r61
+  local ____r62 = unstash({...})
+  local __args4 = destash33(args, ____r62)
+  local __body3 = destash33(body, ____r62)
+  local ____id13 = ____r62
   local __name3 = ____id13.name
   local __prefix = ____id13.prefix
   local __e35 = nil
@@ -780,9 +783,9 @@ local function can_return63(form)
   return is63(form) and (atom63(form) or not( hd(form) == "return") and not statement63(hd(form)))
 end
 function compile(form, ...)
-  local ____r63 = unstash({...})
-  local __form = destash33(form, ____r63)
-  local ____id15 = ____r63
+  local ____r64 = unstash({...})
+  local __form = destash33(form, ____r64)
+  local ____id15 = ____r64
   local __stmt1 = ____id15.stmt
   local __escape_reserved = ____id15["escape-reserved"]
   if nil63(__form) then
@@ -846,7 +849,7 @@ local function literal63(form)
   return atom63(form) or hd(form) == "%array" or hd(form) == "%object"
 end
 local function standalone63(form)
-  return not atom63(form) and not infix63(hd(form)) and not literal63(form) and not( "get" == hd(form)) or id_literal63(form)
+  return not atom63(form) and not infix63(hd(form)) and not literal63(form) and not( "get" == hd(form)) and not accessor_form63(form) or id_literal63(form)
 end
 local function lower_do(args, hoist, stmt63, tail63)
   local ____x83 = almost(args)

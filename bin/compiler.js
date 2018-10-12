@@ -647,6 +647,9 @@ var compile_special = function (form, stmt63) {
 accessor_literal63 = function (x) {
   return string63(x) && char(x, 0) === "." && !( char(x, 1) === ".") && some63(char(x, 1));
 };
+accessor_form63 = function (x) {
+  return obj63(x) && accessor_literal63(last(x));
+};
 accessor_literal = function (x) {
   return compile(camel_case(clip(x, 1)), {_stash: true, ["escape-reserved"]: false});
 };
@@ -686,10 +689,10 @@ var compile_call = function (form) {
   }
 };
 var op_delims = function (parent, child, ..._42args) {
-  var ____r59 = unstash([..._42args]);
-  var __parent = destash33(parent, ____r59);
-  var __child = destash33(child, ____r59);
-  var ____id8 = ____r59;
+  var ____r60 = unstash([..._42args]);
+  var __parent = destash33(parent, ____r60);
+  var __child = destash33(child, ____r60);
+  var ____id8 = ____r60;
   var __right = ____id8.right;
   var __e33 = undefined;
   if (__right) {
@@ -725,10 +728,10 @@ var compile_infix = function (form) {
   }
 };
 compile_function = function (args, body, ..._42args) {
-  var ____r61 = unstash([..._42args]);
-  var __args4 = destash33(args, ____r61);
-  var __body3 = destash33(body, ____r61);
-  var ____id13 = ____r61;
+  var ____r62 = unstash([..._42args]);
+  var __args4 = destash33(args, ____r62);
+  var __body3 = destash33(body, ____r62);
+  var ____id13 = ____r62;
   var __name3 = ____id13.name;
   var __prefix = ____id13.prefix;
   var __e34 = undefined;
@@ -778,9 +781,9 @@ var can_return63 = function (form) {
   return is63(form) && (atom63(form) || !( hd(form) === "return") && ! statement63(hd(form)));
 };
 compile = function (form, ..._42args) {
-  var ____r63 = unstash([..._42args]);
-  var __form = destash33(form, ____r63);
-  var ____id15 = ____r63;
+  var ____r64 = unstash([..._42args]);
+  var __form = destash33(form, ____r64);
+  var ____id15 = ____r64;
   var __stmt1 = ____id15.stmt;
   var __escape_reserved = ____id15["escape-reserved"];
   if (nil63(__form)) {
@@ -844,7 +847,7 @@ var literal63 = function (form) {
   return atom63(form) || hd(form) === "%array" || hd(form) === "%object";
 };
 var standalone63 = function (form) {
-  return ! atom63(form) && ! infix63(hd(form)) && ! literal63(form) && !( "get" === hd(form)) || id_literal63(form);
+  return ! atom63(form) && ! infix63(hd(form)) && ! literal63(form) && !( "get" === hd(form)) && ! accessor_form63(form) || id_literal63(form);
 };
 var lower_do = function (args, hoist, stmt63, tail63) {
   var ____x83 = almost(args);
