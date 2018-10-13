@@ -100,7 +100,7 @@
   (target js: (number? i)
           lua: (natural? i)))
 
-(define-global reduce (f l r)
+(define-global iterate (o f l r)
   (let (from inf upto -inf)
     (each (k v) l
       (if (index? k)
@@ -114,7 +114,14 @@
         (let v (at l i)
           (set r (f r v nil i)))
         (inc i)))
-    (values r from upto)))
+    (with o (or o (obj))
+      (set (get o 'result) r
+           (get o 'from) from
+           (get o 'upto) upto))))
+
+(let o (obj)
+  (define-global reduce (f l r)
+    (get (iterate o f l r) 'result)))
 
 (define-global cut (x from upto)
   (with l ()
