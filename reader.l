@@ -5,9 +5,9 @@
   (obj pos: 0 string: str len: (# str) more: more))
 
 (define peek-char (s)
-  (let ((:pos :len :string) s)
+  (let ((pos: pos len: len string: str) s)
     (when (< pos len)
-      (char string pos))))
+      (char str pos))))
 
 (define read-char (s)
   (let c (peek-char s)
@@ -51,13 +51,8 @@
        (> (# atom) 1)
        (= (char atom (edge atom)) ":")))
 
-(define flag? (atom)
-  (and (string? atom)
-       (> (# atom) 1)
-       (= (char atom 0) ":")))
-
 (define expected (s c)
-  (let ((:more :pos) s)
+  (let ((more: more pos: pos) s)
     (or more (error (cat "Expected " c " at " pos)))))
 
 (define wrap (s x)
@@ -107,7 +102,6 @@
                   (let (k (clip x 0 (edge x))
                         v (read s))
                     (set (get l k) v))
-                  (flag? x) (set (get l (clip x 1)) true)
                 (add l x)))))))))
 
 (define-reader (")" s)

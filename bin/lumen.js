@@ -992,7 +992,6 @@ setenv("define", {_stash: true, macro: function (name, x, ..._42args) {
   var __x94 = destash33(x, ____r26);
   var ____id17 = ____r26;
   var __body12 = cut(____id17, 0);
-  setenv(__name3, {_stash: true, variable: true});
   if (some63(__body12)) {
     return join(["%local-function", __name3], bind42(__x94, __body12));
   } else {
@@ -1005,7 +1004,6 @@ setenv("define-global", {_stash: true, macro: function (name, x, ..._42args) {
   var __x98 = destash33(x, ____r27);
   var ____id18 = ____r27;
   var __body13 = cut(____id18, 0);
-  setenv(__name4, {_stash: true, toplevel: true, variable: true});
   if (some63(__body13)) {
     return join(["%global-function", __name4], bind42(__x98, __body13));
   } else {

@@ -7,9 +7,9 @@ local function peek_char(s)
   local ____id = s
   local __pos = ____id.pos
   local __len = ____id.len
-  local __string = ____id.string
+  local __str = ____id.string
   if __pos < __len then
-    return char(__string, __pos)
+    return char(__str, __pos)
   end
 end
 local function read_char(s)
@@ -68,9 +68,6 @@ end
 local function key63(atom)
   return string63(atom) and _35(atom) > 1 and char(atom, edge(atom)) == ":"
 end
-local function flag63(atom)
-  return string63(atom) and _35(atom) > 1 and char(atom, 0) == ":"
-end
 local function expected(s, c)
   local ____id1 = s
   local __more = ____id1.more
@@ -117,43 +114,43 @@ local function real63(x)
   return number63(x) and not nan63(x) and not inf63(x)
 end
 read_table[""] = function (s)
-  local __str = ""
+  local __str1 = ""
   while true do
     local __c3 = peek_char(s)
     if __c3 and (not whitespace[__c3] and not delimiters[__c3]) then
-      __str = __str .. read_char(s)
+      __str1 = __str1 .. read_char(s)
     else
       break
     end
   end
-  if __str == "true" then
+  if __str1 == "true" then
     return true
   else
-    if __str == "false" then
+    if __str1 == "false" then
       return false
     else
-      local __n1 = maybe_number(__str)
+      local __n1 = maybe_number(__str1)
       if real63(__n1) then
         return __n1
       else
-        return __str
+        return __str1
       end
     end
   end
 end
 read_table["("] = function (s)
   read_char(s)
-  local __r16 = nil
+  local __r15 = nil
   local __l1 = {}
-  while nil63(__r16) do
+  while nil63(__r15) do
     skip_non_code(s)
     local __c4 = peek_char(s)
     if __c4 == ")" then
       read_char(s)
-      __r16 = __l1
+      __r15 = __l1
     else
       if nil63(__c4) then
-        __r16 = expected(s, ")")
+        __r15 = expected(s, ")")
       else
         local __x1 = read(s)
         if key63(__x1) then
@@ -161,58 +158,54 @@ read_table["("] = function (s)
           local __v = read(s)
           __l1[__k] = __v
         else
-          if flag63(__x1) then
-            __l1[clip(__x1, 1)] = true
-          else
-            add(__l1, __x1)
-          end
+          add(__l1, __x1)
         end
       end
     end
   end
-  return __r16
+  return __r15
 end
 read_table[")"] = function (s)
   return error("Unexpected ) at " .. s.pos)
 end
 read_table["\""] = function (s)
   read_char(s)
-  local __r19 = nil
-  local __str1 = "\""
-  while nil63(__r19) do
+  local __r18 = nil
+  local __str2 = "\""
+  while nil63(__r18) do
     local __c5 = peek_char(s)
     if __c5 == "\"" then
-      __r19 = __str1 .. read_char(s)
+      __r18 = __str2 .. read_char(s)
     else
       if nil63(__c5) then
-        __r19 = expected(s, "\"")
+        __r18 = expected(s, "\"")
       else
         if __c5 == "\\" then
-          __str1 = __str1 .. read_char(s)
+          __str2 = __str2 .. read_char(s)
         end
-        __str1 = __str1 .. read_char(s)
-      end
-    end
-  end
-  return __r19
-end
-read_table["|"] = function (s)
-  read_char(s)
-  local __r21 = nil
-  local __str2 = "|"
-  while nil63(__r21) do
-    local __c6 = peek_char(s)
-    if __c6 == "|" then
-      __r21 = __str2 .. read_char(s)
-    else
-      if nil63(__c6) then
-        __r21 = expected(s, "|")
-      else
         __str2 = __str2 .. read_char(s)
       end
     end
   end
-  return __r21
+  return __r18
+end
+read_table["|"] = function (s)
+  read_char(s)
+  local __r20 = nil
+  local __str3 = "|"
+  while nil63(__r20) do
+    local __c6 = peek_char(s)
+    if __c6 == "|" then
+      __r20 = __str3 .. read_char(s)
+    else
+      if nil63(__c6) then
+        __r20 = expected(s, "|")
+      else
+        __str3 = __str3 .. read_char(s)
+      end
+    end
+  end
+  return __r20
 end
 read_table["'"] = function (s)
   read_char(s)
