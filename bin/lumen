@@ -36,14 +36,18 @@ else
 fi
 
 case $host in
-    luvi*)
-        exec "${home}/bin/lumen-luvi" "$@";;
-    node*)
-        code=index.js
+    *node*)
+        args=
+        code="${home}/index.js"
         export NODE_PATH="$NODE_PATH:${dir}/lib";;
+    *luvi)
+        args=--
+        code="${home}"
+        export LUA_PATH="$LUA_PATH;${home}/bin/?.lua;${dir}/lib/?.lua;;";;
     *)
-        code=main.lua
+        args=
+        code="${home}/main.lua"
         export LUA_PATH="$LUA_PATH;${home}/bin/?.lua;${dir}/lib/?.lua;;";;
 esac
 
-exec ${host} "${home}/${code}" "$@"
+exec ${host} "${code}" ${args} "$@"

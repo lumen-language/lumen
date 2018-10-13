@@ -1,7 +1,6 @@
 .PHONY: all rebuild bundle clean test
 
 LUMEN_LUA  ?= lua
-LUMEN_LUVI ?= luvi
 LUMEN_NODE ?= node
 LUMEN_HOST ?= $(LUMEN_LUA)
 
@@ -69,4 +68,4 @@ test: all
 	@echo lua:
 	@LUMEN_HOST=$(LUMEN_LUA) ./test.l
 	@echo luvi:
-	@LUMEN_HOST=$(LUMEN_LUVI) ./test.l
+	@bin/lumen-luvi ./test.l
