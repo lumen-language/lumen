@@ -67,11 +67,11 @@ local function exit(code)
   return os.exit(code)
 end
 local argv = nil
-function set_argv(l)
+function _G.set_argv(l)
   argv = l
   return argv
 end
-function get_argv()
+function _G.get_argv()
   if nil63(argv) then
     set_argv(_G.arg or _G.args or {})
   end
@@ -80,15 +80,15 @@ end
 local function opt63(x)
   return string63(x) and char(x, 0) == "-" and not( x == "-")
 end
-function parse_positional(args, pos)
+function _G.parse_positional(args, pos)
   return cut(args, either(pos, 0), first(opt63, args, pos))
 end
-function parse_option(args)
+function _G.parse_option(args)
   if opt63(hd(args)) then
     return {hd(args), parse_positional(args, 1)}
   end
 end
-function parse_arguments(aliases, argv)
+function _G.parse_arguments(aliases, argv)
   local __l = argv or get_argv()
   local __a = aliases or {}
   local __r22 = parse_positional(__l)
@@ -131,7 +131,7 @@ function parse_arguments(aliases, argv)
   set_argv(__r22.rest)
   return __r22
 end
-function arguments(aliases, argv)
+function _G.arguments(aliases, argv)
   local __argv = argv or get_argv()
   local __r24 = parse_arguments(__argv, aliases)
   set_argv(__r24.rest)

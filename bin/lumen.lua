@@ -1,71 +1,71 @@
 _G.environment = {{}}
 _G.target = "lua"
 local __v = nil
-function values(...)
+function _G.values(...)
   return ...
 end
-function results(x, ...)
+function _G.results(x, ...)
   return {x, ...}
 end
-function nil63(x)
+function _G.nil63(x)
   return x == nil
 end
-function is63(x)
+function _G.is63(x)
   return not nil63(x)
 end
-function no(x)
+function _G.no(x)
   return nil63(x) or x == false
 end
-function yes(x)
+function _G.yes(x)
   return not no(x)
 end
-function either(x, y)
+function _G.either(x, y)
   if is63(x) then
     return x
   else
     return y
   end
 end
-function has63(l, k)
+function _G.has63(l, k)
   return is63(l[k])
 end
-function _35(x)
+function _G._35(x)
   return #x
 end
-function none63(x)
+function _G.none63(x)
   return _35(x) == 0
 end
-function some63(x)
+function _G.some63(x)
   return _35(x) > 0
 end
-function one63(x)
+function _G.one63(x)
   return _35(x) == 1
 end
-function two63(x)
+function _G.two63(x)
   return _35(x) == 2
 end
-function hd(l)
+function _G.hd(l)
   return l[1]
 end
-function string63(x)
+function _G.string63(x)
   return type(x) == "string"
 end
-function number63(x)
+function _G.number63(x)
   return type(x) == "number"
 end
-function boolean63(x)
+function _G.boolean63(x)
   return type(x) == "boolean"
 end
-function function63(x)
+function _G.function63(x)
   return type(x) == "function"
 end
-function obj63(x)
+function _G.obj63(x)
   return is63(x) and type(x) == "table"
 end
-function atom63(x)
+function _G.atom63(x)
   return nil63(x) or string63(x) or number63(x) or boolean63(x)
 end
-function hd63(l, x)
+function _G.hd63(l, x)
   local __id1 = obj63(l)
   local __e1 = nil
   if __id1 then
@@ -84,22 +84,22 @@ end
 nan = 0 / 0
 inf = 1 / 0
 _inf = - inf
-function nan63(n)
+function _G.nan63(n)
   return not( n == n)
 end
-function inf63(n)
+function _G.inf63(n)
   return n == inf or n == _inf
 end
-function clip(s, from, upto)
+function _G.clip(s, from, upto)
   return string.sub(s, from + 1, upto)
 end
-function natural63(i)
+function _G.natural63(i)
   return number63(i) and i > 0 and i % 1 == 0
 end
-function index63(i)
+function _G.index63(i)
   return natural63(i)
 end
-function reduce(f, l, r)
+function _G.reduce(f, l, r)
   local __from = inf
   local __upto = _inf
   local ____o = l
@@ -126,7 +126,7 @@ function reduce(f, l, r)
   end
   return values(r, __from, __upto)
 end
-function cut(x, from, upto)
+function _G.cut(x, from, upto)
   local __l = {}
   local __j = 0
   local __e3 = nil
@@ -159,7 +159,7 @@ function cut(x, from, upto)
   end
   return __l
 end
-function keys(x)
+function _G.keys(x)
   local __t = {}
   local ____o2 = x
   local __k2 = nil
@@ -171,47 +171,47 @@ function keys(x)
   end
   return __t
 end
-function edge(x)
+function _G.edge(x)
   return _35(x) - 1
 end
-function inner(x)
+function _G.inner(x)
   return clip(x, 1, edge(x))
 end
-function tl(l)
+function _G.tl(l)
   return cut(l, 1)
 end
-function char(s, n)
+function _G.char(s, n)
   return clip(s, n, n + 1)
 end
-function code(s, n)
+function _G.code(s, n)
   local __e5 = nil
   if n then
     __e5 = n + 1
   end
   return string.byte(s, __e5)
 end
-function from_code(n)
+function _G.from_code(n)
   return string.char(n)
 end
-function string_literal63(x)
+function _G.string_literal63(x)
   return string63(x) and char(x, 0) == "\""
 end
-function id_literal63(x)
+function _G.id_literal63(x)
   return string63(x) and char(x, 0) == "|"
 end
-function add(l, x)
+function _G.add(l, x)
   return table.insert(l, x)
 end
-function drop(l)
+function _G.drop(l)
   return table.remove(l)
 end
-function last(l)
+function _G.last(l)
   return l[edge(l) + 1]
 end
-function almost(l)
+function _G.almost(l)
   return cut(l, 0, edge(l))
 end
-function reverse(l)
+function _G.reverse(l)
   local __l1 = keys(l)
   local __i5 = edge(l)
   while __i5 >= 0 do
@@ -220,7 +220,7 @@ function reverse(l)
   end
   return __l1
 end
-function join(...)
+function _G.join(...)
   local __ls = unstash({...})
   local __r42 = {}
   local ____x3 = __ls
@@ -243,7 +243,7 @@ function join(...)
   end
   return __r42
 end
-function testify(x, test)
+function _G.testify(x, test)
   if function63(x) then
     return x
   else
@@ -258,7 +258,7 @@ function testify(x, test)
     end
   end
 end
-function find(x, t)
+function _G.find(x, t)
   local __f = testify(x)
   local ____o4 = t
   local ____i8 = nil
@@ -270,7 +270,7 @@ function find(x, t)
     end
   end
 end
-function first(x, l, pos)
+function _G.first(x, l, pos)
   local __f1 = testify(x)
   local __i9 = either(pos, 0)
   local __n7 = -1
@@ -294,10 +294,10 @@ function first(x, l, pos)
     __i9 = __i9 + 1
   end
 end
-function in63(x, t)
+function _G.in63(x, t)
   return find(testify(x), t)
 end
-function pair(l)
+function _G.pair(l)
   local __l12 = {}
   local __i11 = 0
   while __i11 < _35(l) do
@@ -307,11 +307,11 @@ function pair(l)
   end
   return __l12
 end
-function sort(l, f)
+function _G.sort(l, f)
   table.sort(l, f)
   return l
 end
-function map(f, x)
+function _G.map(f, x)
   local __t1 = {}
   local ____x6 = x
   local ____i12 = 0
@@ -336,7 +336,7 @@ function map(f, x)
   end
   return __t1
 end
-function keep(v, x)
+function _G.keep(v, x)
   local __f2 = testify(v)
   return map(function (v)
     if yes(__f2(v)) then
@@ -344,7 +344,7 @@ function keep(v, x)
     end
   end, x)
 end
-function keys63(t)
+function _G.keys63(t)
   local ____o7 = t
   local __k6 = nil
   for __k6 in pairs(____o7) do
@@ -355,7 +355,7 @@ function keys63(t)
   end
   return false
 end
-function empty63(t)
+function _G.empty63(t)
   local ____o8 = t
   local ____i15 = nil
   for ____i15 in pairs(____o8) do
@@ -364,7 +364,7 @@ function empty63(t)
   end
   return true
 end
-function stash(args)
+function _G.stash(args)
   if keys63(args) then
     local __p = {}
     local ____o9 = args
@@ -380,7 +380,7 @@ function stash(args)
   end
   return args
 end
-function unstash(args)
+function _G.unstash(args)
   if none63(args) then
     return {}
   else
@@ -401,7 +401,7 @@ function unstash(args)
     end
   end
 end
-function destash33(l, args1)
+function _G.destash33(l, args1)
   if obj63(l) and l._stash then
     local ____o11 = l
     local __k9 = nil
@@ -415,7 +415,7 @@ function destash33(l, args1)
     return l
   end
 end
-function search(s, pattern, start)
+function _G.search(s, pattern, start)
   local __e6 = nil
   if start then
     __e6 = start + 1
@@ -424,7 +424,7 @@ function search(s, pattern, start)
   local __i19 = string.find(s, pattern, __start, true)
   return __i19 and __i19 - 1
 end
-function split(s, sep)
+function _G.split(s, sep)
   if s == "" or sep == "" then
     return {}
   else
@@ -443,32 +443,32 @@ function split(s, sep)
     return __l3
   end
 end
-function cat(s, ...)
+function _G.cat(s, ...)
   return reduce(function (a, b)
     return a .. b
   end, {...}, s or "")
 end
-function _43(n, ...)
+function _G._43(n, ...)
   return reduce(function (a, b)
     return a + b
   end, {...}, n or 0)
 end
-function _45(n, ...)
+function _G._45(n, ...)
   return reduce(function (a, b)
     return a - b
   end, {...}, n or 0)
 end
-function _42(n, ...)
+function _G._42(n, ...)
   return reduce(function (a, b)
     return a * b
   end, {...}, either(n, 1))
 end
-function _47(n, ...)
+function _G._47(n, ...)
   return reduce(function (a, b)
     return a / b
   end, {...}, either(n, 1))
 end
-function _37(n, ...)
+function _G._37(n, ...)
   return reduce(function (a, b)
     return a % b
   end, {...}, either(n, 1))
@@ -485,43 +485,43 @@ local function pairwise(f, xs)
   end
   return true
 end
-function _60(...)
+function _G._60(...)
   local __xs = unstash({...})
   return pairwise(function (a, b)
     return a < b
   end, __xs)
 end
-function _62(...)
+function _G._62(...)
   local __xs1 = unstash({...})
   return pairwise(function (a, b)
     return a > b
   end, __xs1)
 end
-function _61(...)
+function _G._61(...)
   local __xs2 = unstash({...})
   return pairwise(function (a, b)
     return a == b
   end, __xs2)
 end
-function _6061(...)
+function _G._6061(...)
   local __xs3 = unstash({...})
   return pairwise(function (a, b)
     return a <= b
   end, __xs3)
 end
-function _6261(...)
+function _G._6261(...)
   local __xs4 = unstash({...})
   return pairwise(function (a, b)
     return a >= b
   end, __xs4)
 end
-function number(s)
+function _G.number(s)
   return tonumber(s)
 end
-function number_code63(n)
+function _G.number_code63(n)
   return n > 47 and n < 58
 end
-function numeric63(s)
+function _G.numeric63(s)
   local __n16 = _35(s)
   local __i22 = 0
   while __i22 < __n16 do
@@ -532,10 +532,10 @@ function numeric63(s)
   end
   return some63(s)
 end
-function lowercase_code63(n)
+function _G.lowercase_code63(n)
   return n > 96 and n < 123
 end
-function camel_case(str)
+function _G.camel_case(str)
   local __s = ""
   local __n17 = _35(str)
   local __i23 = 0
@@ -550,7 +550,7 @@ function camel_case(str)
   end
   return __s
 end
-function escape(s)
+function _G.escape(s)
   local __s1 = "\""
   local __i24 = 0
   while __i24 < _35(s) do
@@ -585,7 +585,7 @@ function escape(s)
   end
   return __s1 .. "\""
 end
-function str(x, stack)
+function _G.str(x, stack)
   if string63(x) then
     return escape(x)
   else
@@ -636,13 +636,13 @@ function str(x, stack)
     end
   end
 end
-function apply(f, args)
+function _G.apply(f, args)
   return f((unpack or table.unpack)(stash(args)))
 end
-function call(f, ...)
+function _G.call(f, ...)
   return f(...)
 end
-function setenv(k, ...)
+function _G.setenv(k, ...)
   local ____r88 = unstash({...})
   local __k11 = destash33(k, ____r88)
   local ____id = ____r88
@@ -693,7 +693,7 @@ end})
 setenv("quasiquote", {_stash = true, macro = function (form)
   return quasiexpand(form, 1)
 end})
-function get_place(place, setfn)
+function _G.get_place(place, setfn)
   local __place = macroexpand(place)
   if atom63(__place) or hd(__place) == "get" and nil63(getenv("get", "expander")) or accessor_literal63(hd(tl(__place))) then
     return setfn(__place, function (v)
@@ -724,7 +724,7 @@ setenv("define-expander", {_stash = true, macro = function (name, handler)
   eval(__form)
   return __form
 end})
-function define_setter(name, setter, setfn, args, vars)
+function _G.define_setter(name, setter, setfn, args, vars)
   if none63(args) then
     local __vars1 = reverse(vars)
     return setfn(join({name}, __vars1), function (v)
@@ -1248,42 +1248,42 @@ local function repl()
     end
   end
 end
-function read_file(path)
+function _G.read_file(path)
   return system.readFile(path)
 end
-function write_file(path, data)
+function _G.write_file(path, data)
   return system.writeFile(path, data)
 end
-function read_from_file(path)
+function _G.read_from_file(path)
   local __s1 = reader.stream(system.readFile(path))
   local __body = reader.readAll(__s1)
   return join({"do"}, __body)
 end
-function expand_file(path)
+function _G.expand_file(path)
   return compiler.expand(read_from_file(path))
 end
-function compile_file(path)
+function _G.compile_file(path)
   local __form1 = expand_file(path)
   return compiler.compile(__form1, {_stash = true, stmt = true})
 end
-function _load(path)
+function _G._load(path)
   local __previous = _G.target
   _G.target = "lua"
   local __code = compile_file(path)
   _G.target = __previous
   return compiler.run(__code)
 end
-function script_file63(path)
+function _G.script_file63(path)
   return string63(path) and not( "-" == char(path, 0) or ".js" == clip(path, _35(path) - 3) or ".lua" == clip(path, _35(path) - 4))
 end
-function run_file(path)
+function _G.run_file(path)
   if script_file63(path) then
     return _load(path)
   else
     return compiler.run(read_file(path))
   end
 end
-function read_from_string(str, start, _end)
+function _G.read_from_string(str, start, _end)
   local __s2 = reader.stream(str)
   __s2.pos = either(start, __s2.pos)
   __s2.len = either(_end, __s2.len)
@@ -1296,7 +1296,7 @@ function read_from_string(str, start, _end)
     return ____x5
   end
 end
-function readable_string63(str)
+function _G.readable_string63(str)
   local __id4 = string63(str)
   local __e4 = nil
   if __id4 then
@@ -1329,7 +1329,7 @@ function readable_string63(str)
   end
   return __e4
 end
-function pp_to_string(x, stack)
+function _G.pp_to_string(x, stack)
   if nil63(x) then
     return "nil"
   else

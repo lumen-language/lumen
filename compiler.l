@@ -414,8 +414,9 @@
         (cat op ao " " a ac)
       (cat ao a ac " " op " " bo b bc))))
 
-(define-global compile-function (args body name: name prefix: prefix)
+(define-global compile-function (args body name: name prefix: prefix global: global?)
   (let (id (if name (compile name) "")
+        id (if global? (cat "_G." id) id)
         args1 (if (get args 'rest)
                   `(,@args ,"...")
                 args)
@@ -698,7 +699,7 @@
 
 (define-special %global-function (name args body) stmt: true tr: true
   (if (= target* 'lua)
-      (let x (compile-function args body name: name)
+      (let x (compile-function args body name: name global: true)
         (cat (indentation) x))
     (compile `(%set ,name (%function ,args ,body)) stmt: true)))
 

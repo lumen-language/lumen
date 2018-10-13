@@ -62,7 +62,7 @@ local function read_all(s)
   end
   return __l
 end
-function read_string(str, more)
+function _G.read_string(str, more)
   return read(stream(str, more))
 end
 local function key63(atom)
