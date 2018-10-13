@@ -77,7 +77,7 @@ local function literal(s)
     return quoted(s)
   end
 end
-local function stash42(args)
+local function stash_function(args)
   if keys63(args) then
     local __l = {"%object", "\"_stash\"", true}
     local ____o = args
@@ -365,44 +365,52 @@ end
 local function valid_code63(n)
   return number_code63(n) or n > 64 and n < 91 or n > 96 and n < 123 or n == 95
 end
+function global_id63(id)
+  local __n7 = _35(id)
+  return __n7 > 1 and char(id, __n7 - 1) == "*" and valid_code63(code(id, __n7 - 2))
+end
 function compile_id(id, escape_reserved63)
-  local __e12 = nil
-  if number_code63(code(id, 0)) then
-    __e12 = "_"
+  if global_id63(id) then
+    return "_G." .. compile_id(clip(id, 0, edge(id)), escape_reserved63)
   else
-    __e12 = ""
-  end
-  local __id11 = __e12
-  local __i10 = 0
-  while __i10 < _35(id) do
-    local __c1 = char(id, __i10)
-    local __n7 = code(__c1)
-    local __e13 = nil
-    if __c1 == "-" and not( id == "-") then
-      __e13 = "_"
+    local __e12 = nil
+    if number_code63(code(id, 0)) then
+      __e12 = "_"
     else
-      local __e14 = nil
-      if valid_code63(__n7) then
-        __e14 = __c1
-      else
-        local __e15 = nil
-        if __i10 == 0 then
-          __e15 = "_" .. __n7
-        else
-          __e15 = __n7
-        end
-        __e14 = __e15
-      end
-      __e13 = __e14
+      __e12 = ""
     end
-    local __c11 = __e13
-    __id11 = __id11 .. __c11
-    __i10 = __i10 + 1
-  end
-  if either(escape_reserved63, true) and reserved63(__id11) then
-    return "_" .. __id11
-  else
-    return __id11
+    local __id11 = __e12
+    local __i10 = 0
+    while __i10 < _35(id) do
+      local __c1 = char(id, __i10)
+      local __n8 = code(__c1)
+      local __e13 = nil
+      if __c1 == "-" and not( id == "-") then
+        __e13 = "_"
+      else
+        local __e14 = nil
+        if valid_code63(__n8) then
+          __e14 = __c1
+        else
+          local __e15 = nil
+          if __i10 == 0 then
+            __e15 = "_" .. __n8
+          else
+            __e15 = __n8
+          end
+          __e14 = __e15
+        end
+        __e13 = __e14
+      end
+      local __c11 = __e13
+      __id11 = __id11 .. __c11
+      __i10 = __i10 + 1
+    end
+    if either(escape_reserved63, true) and reserved63(__id11) then
+      return "_" .. __id11
+    else
+      return __id11
+    end
   end
 end
 function valid_id63(x, escape_reserved63)
@@ -674,7 +682,7 @@ end
 local function compile_call(form)
   local __f = hd(form)
   local __f1 = compile(__f)
-  local __args3 = compile_method("", stash42(tl(form)))
+  local __args3 = compile_method("", stash_function(tl(form)))
   if parenthesize_call63(__f) then
     return "(" .. __f1 .. ")" .. __args3
   else
@@ -716,10 +724,10 @@ local function compile_infix(form)
   end
 end
 function compile_function(args, body, ...)
-  local ____r62 = unstash({...})
-  local __args4 = destash33(args, ____r62)
-  local __body3 = destash33(body, ____r62)
-  local ____id12 = ____r62
+  local ____r63 = unstash({...})
+  local __args4 = destash33(args, ____r63)
+  local __body3 = destash33(body, ____r63)
+  local ____id12 = ____r63
   local __name3 = ____id12.name
   local __prefix = ____id12.prefix
   local __e21 = nil
@@ -769,9 +777,9 @@ local function can_return63(form)
   return is63(form) and (atom63(form) or not( hd(form) == "return") and not statement63(hd(form)))
 end
 function compile(form, ...)
-  local ____r64 = unstash({...})
-  local __form = destash33(form, ____r64)
-  local ____id14 = ____r64
+  local ____r65 = unstash({...})
+  local __form = destash33(form, ____r65)
+  local ____id14 = ____r65
   local __stmt1 = ____id14.stmt
   local __esc63 = ____id14["escape-reserved"]
   if nil63(__form) then

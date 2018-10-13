@@ -54,7 +54,7 @@
 (define literal (s)
   (if (string-literal? s) s (quoted s)))
 
-(define stash* (args)
+(define stash-function (args)
   (if (keys? args)
       (let l '(%object "_stash" true)
         (each (k v) args
@@ -231,22 +231,30 @@
       (and (> n 96) (< n 123)) ; a-z
       (= n 95)))               ; _
 
+(define-global global-id? (id)
+  (let n (# id)
+    (and (> n 1)
+         (= (char id (- n 1)) "*")
+         (valid-code? (code id (- n 2))))))
+
 (define-global compile-id (id escape-reserved?)
-  (let id1 (if (number-code? (code id 0)) "_" "")
-    (for i (# id)
-      (let (c (char id i)
-            n (code c)
-            c1 (if (and (= c "-")
-                        (not (= id "-")))
-                   "_"
-                   (valid-code? n) c
-                   (= i 0) (cat "_" n)
-                 n))
-        (cat! id1 c1)))
-    (if (and (either escape-reserved? true)
-             (reserved? id1))
-        (cat "_" id1)
-      id1)))
+  (if (global-id? id)
+      (cat "_G." (compile-id (clip id 0 (edge id)) escape-reserved?))
+    (let id1 (if (number-code? (code id 0)) "_" "")
+      (for i (# id)
+        (let (c (char id i)
+              n (code c)
+              c1 (if (and (= c "-")
+                          (not (= id "-")))
+                     "_"
+                     (valid-code? n) c
+                     (= i 0) (cat "_" n)
+                   n))
+          (cat! id1 c1)))
+      (if (and (either escape-reserved? true)
+               (reserved? id1))
+          (cat "_" id1)
+        id1))))
 
 (define-global valid-id? (x escape-reserved?)
   (and (some? x) (= x (compile-id x escape-reserved?))))
@@ -383,7 +391,7 @@
 (define compile-call (form)
   (let (f (hd form)
         f1 (compile f)
-        args (compile-method "" (stash* (tl form))))
+        args (compile-method "" (stash-function (tl form))))
     (if (parenthesize-call? f)
         (cat "(" f1 ")" args)
       (cat f1 args))))
