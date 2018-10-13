@@ -1,4 +1,4 @@
-environment = [{}];
+_G.environment = [{}];
 _G.target = "js";
 var __v = undefined;
 values = function (..._42args) {
@@ -721,9 +721,9 @@ setenv = function (k, ..._42args) {
   if (string63(__k11)) {
     var __e10 = undefined;
     if (__keys.toplevel) {
-      __e10 = hd(environment);
+      __e10 = hd(_G.environment);
     } else {
-      __e10 = last(environment);
+      __e10 = last(_G.environment);
     }
     var __frame = __e10;
     var __entry = __frame[__k11] || {};
@@ -1029,7 +1029,7 @@ setenv("define-global", {_stash: true, macro: function (name, x, ..._42args) {
 setenv("with-frame", {_stash: true, macro: function (..._42args) {
   var __body14 = unstash([..._42args]);
   var __x102 = unique("x");
-  return ["do", ["add", "environment", ["obj"]], ["with", __x102, join(["do"], __body14), ["drop", "environment"]]];
+  return ["do", ["add", "environment*", ["obj"]], ["with", __x102, join(["do"], __body14), ["drop", "environment*"]]];
 }});
 setenv("with-bindings", {_stash: true, macro: function (__x109, ..._42args) {
   var ____id19 = __x109;
@@ -1048,7 +1048,7 @@ setenv("let-macro", {_stash: true, macro: function (definitions, ..._42args) {
   var __definitions = destash33(definitions, ____r29);
   var ____id21 = ____r29;
   var __body16 = cut(____id21, 0);
-  add(environment, {});
+  add(_G.environment, {});
   var ____x117 = __definitions;
   var ____i1 = 0;
   while (____i1 < _35(____x117)) {
@@ -1057,7 +1057,7 @@ setenv("let-macro", {_stash: true, macro: function (definitions, ..._42args) {
     ____i1 = ____i1 + 1;
   }
   var ____x116 = join(["do"], macroexpand(__body16));
-  drop(environment);
+  drop(_G.environment);
   return ____x116;
 }});
 setenv("let-symbol", {_stash: true, macro: function (expansions, ..._42args) {
@@ -1065,7 +1065,7 @@ setenv("let-symbol", {_stash: true, macro: function (expansions, ..._42args) {
   var __expansions = destash33(expansions, ____r30);
   var ____id22 = ____r30;
   var __body17 = cut(____id22, 0);
-  add(environment, {});
+  add(_G.environment, {});
   var ____x122 = pair(__expansions);
   var ____i2 = 0;
   while (____i2 < _35(____x122)) {
@@ -1076,7 +1076,7 @@ setenv("let-symbol", {_stash: true, macro: function (expansions, ..._42args) {
     ____i2 = ____i2 + 1;
   }
   var ____x121 = join(["do"], macroexpand(__body17));
-  drop(environment);
+  drop(_G.environment);
   return ____x121;
 }});
 setenv("let-unique", {_stash: true, macro: function (names, ..._42args) {

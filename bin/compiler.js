@@ -1,8 +1,8 @@
 getenv = function (k, p) {
   if (string63(k)) {
-    var __i = edge(environment);
+    var __i = edge(_G.environment);
     while (__i >= 0) {
-      var __b = environment[__i][k];
+      var __b = _G.environment[__i][k];
       if (is63(__b)) {
         var __e8 = undefined;
         if (p) {
@@ -190,7 +190,7 @@ var expand_function = function (__x25) {
   var __x26 = ____id2[0];
   var __args = ____id2[1];
   var __body = cut(____id2, 2);
-  add(environment, {});
+  add(_G.environment, {});
   var ____o3 = __args;
   var ____i5 = undefined;
   for (____i5 of pairs(____o3)) {
@@ -198,7 +198,7 @@ var expand_function = function (__x25) {
     setenv(____x27, {_stash: true, variable: true});
   }
   var ____x28 = join(["%function", __args], macroexpand(__body));
-  drop(environment);
+  drop(_G.environment);
   return ____x28;
 };
 var expand_definition = function (__x30) {
@@ -207,7 +207,7 @@ var expand_definition = function (__x30) {
   var __name1 = ____id3[1];
   var __args11 = ____id3[2];
   var __body1 = cut(____id3, 3);
-  add(environment, {});
+  add(_G.environment, {});
   var ____o4 = __args11;
   var ____i6 = undefined;
   for (____i6 of pairs(____o4)) {
@@ -215,7 +215,7 @@ var expand_definition = function (__x30) {
     setenv(____x32, {_stash: true, variable: true});
   }
   var ____x33 = join([__x31, macroexpand(__name1), __args11], macroexpand(__body1));
-  drop(environment);
+  drop(_G.environment);
   return ____x33;
 };
 var expand_macro = function (form) {

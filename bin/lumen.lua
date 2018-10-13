@@ -1,4 +1,4 @@
-environment = {{}}
+_G.environment = {{}}
 _G.target = "lua"
 local __v = nil
 function values(...)
@@ -650,9 +650,9 @@ function setenv(k, ...)
   if string63(__k11) then
     local __e11 = nil
     if __keys.toplevel then
-      __e11 = hd(environment)
+      __e11 = hd(_G.environment)
     else
-      __e11 = last(environment)
+      __e11 = last(_G.environment)
     end
     local __frame = __e11
     local __entry = __frame[__k11] or {}
@@ -952,7 +952,7 @@ end})
 setenv("with-frame", {_stash = true, macro = function (...)
   local __body14 = unstash({...})
   local __x102 = unique("x")
-  return {"do", {"add", "environment", {"obj"}}, {"with", __x102, join({"do"}, __body14), {"drop", "environment"}}}
+  return {"do", {"add", "environment*", {"obj"}}, {"with", __x102, join({"do"}, __body14), {"drop", "environment*"}}}
 end})
 setenv("with-bindings", {_stash = true, macro = function (__x109, ...)
   local ____id19 = __x109
@@ -971,7 +971,7 @@ setenv("let-macro", {_stash = true, macro = function (definitions, ...)
   local __definitions = destash33(definitions, ____r29)
   local ____id21 = ____r29
   local __body16 = cut(____id21, 0)
-  add(environment, {})
+  add(_G.environment, {})
   local ____x117 = __definitions
   local ____i1 = 0
   while ____i1 < _35(____x117) do
@@ -980,7 +980,7 @@ setenv("let-macro", {_stash = true, macro = function (definitions, ...)
     ____i1 = ____i1 + 1
   end
   local ____x116 = join({"do"}, macroexpand(__body16))
-  drop(environment)
+  drop(_G.environment)
   return ____x116
 end})
 setenv("let-symbol", {_stash = true, macro = function (expansions, ...)
@@ -988,7 +988,7 @@ setenv("let-symbol", {_stash = true, macro = function (expansions, ...)
   local __expansions = destash33(expansions, ____r30)
   local ____id22 = ____r30
   local __body17 = cut(____id22, 0)
-  add(environment, {})
+  add(_G.environment, {})
   local ____x122 = pair(__expansions)
   local ____i2 = 0
   while ____i2 < _35(____x122) do
@@ -999,7 +999,7 @@ setenv("let-symbol", {_stash = true, macro = function (expansions, ...)
     ____i2 = ____i2 + 1
   end
   local ____x121 = join({"do"}, macroexpand(__body17))
-  drop(environment)
+  drop(_G.environment)
   return ____x121
 end})
 setenv("let-unique", {_stash = true, macro = function (names, ...)

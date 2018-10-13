@@ -1,4 +1,4 @@
-(define-global environment (list (obj)))
+(define-global environment* (list (obj)))
 (define-global target* (language))
 
 (let v nil
@@ -425,8 +425,8 @@
 (define-global setenv (k rest: keys)
   (when (string? k)
     (let (frame (if (get keys 'toplevel)
-                    (hd environment)
-                  (last environment))
+                    (hd environment*)
+                  (last environment*))
           entry (or (get frame k) (obj)))
       (each (k v) keys
         (set (get entry k) v))

@@ -1,8 +1,8 @@
 function getenv(k, p)
   if string63(k) then
-    local __i = edge(environment)
+    local __i = edge(_G.environment)
     while __i >= 0 do
-      local __b = environment[__i + 1][k]
+      local __b = _G.environment[__i + 1][k]
       if is63(__b) then
         local __e9 = nil
         if p then
@@ -190,7 +190,7 @@ local function expand_function(__x25)
   local __x26 = ____id2[1]
   local __args = ____id2[2]
   local __body = cut(____id2, 2)
-  add(environment, {})
+  add(_G.environment, {})
   local ____o3 = __args
   local ____i5 = nil
   for ____i5 in pairs(____o3) do
@@ -198,7 +198,7 @@ local function expand_function(__x25)
     setenv(____x27, {_stash = true, variable = true})
   end
   local ____x28 = join({"%function", __args}, macroexpand(__body))
-  drop(environment)
+  drop(_G.environment)
   return ____x28
 end
 local function expand_definition(__x30)
@@ -207,7 +207,7 @@ local function expand_definition(__x30)
   local __name1 = ____id3[2]
   local __args11 = ____id3[3]
   local __body1 = cut(____id3, 3)
-  add(environment, {})
+  add(_G.environment, {})
   local ____o4 = __args11
   local ____i6 = nil
   for ____i6 in pairs(____o4) do
@@ -215,7 +215,7 @@ local function expand_definition(__x30)
     setenv(____x32, {_stash = true, variable = true})
   end
   local ____x33 = join({__x31, macroexpand(__name1), __args11}, macroexpand(__body1))
-  drop(environment)
+  drop(_G.environment)
   return ____x33
 end
 local function expand_macro(form)
