@@ -24,6 +24,17 @@ if setfenv then
   require = _G._require
 end
 
+-- fix ufo table.concat
+local function concat(parts, sep, i, j)
+  if i == nil and j == nil then
+    return table.concat(parts, sep)
+  elseif j == nil then
+    return table.concat(parts, sep, i)
+  else
+    return table.concat(parts, sep, i, j)
+  end
+end
+
 local hasLuvi, luvi = pcall(require, 'luvi')
 local hasUv, bundle
 
@@ -78,11 +89,11 @@ if isWindows then
   end
   function joinParts(prefix, parts, i, j)
     if not prefix then
-      return table.concat(parts, '/', i, j)
+      return concat(parts, '/', i, j)
     elseif prefix ~= '/' then
-      return prefix .. table.concat(parts, '\\', i, j)
+      return prefix .. concat(parts, '\\', i, j)
     else
-      return prefix .. table.concat(parts, '/', i, j)
+      return prefix .. concat(parts, '/', i, j)
     end
   end
 else
@@ -99,9 +110,9 @@ else
   end
   function joinParts(prefix, parts, i, j)
     if prefix then
-      return prefix .. table.concat(parts, '/', i, j)
+      return prefix .. concat(parts, '/', i, j)
     end
-    return table.concat(parts, '/', i, j)
+    return concat(parts, '/', i, j)
   end
 end
 
@@ -234,7 +245,7 @@ local function loader(dir, path, bundleOnly)
   if string.sub(path, 1, 1) == "." then
     -- Relative require
     if not try(pathJoin(dir, path)) then
-      return table.concat(errors)
+      return concat(errors)
     end
   else
     while true do
@@ -244,7 +255,7 @@ local function loader(dir, path, bundleOnly)
         break
       end
       if dir == pathJoin(dir, "..") then
-        return table.concat(errors)
+        return concat(errors)
       end
       dir = pathJoin(dir, "..")
     end
