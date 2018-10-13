@@ -48,8 +48,8 @@
     js: (get (require 'path) 'sep)
     lua: (char (get (get _G 'package) 'config) 0)))
 
-(define path-join parts
-  (or (reduce (fn (x y) (cat x path-separator y)) parts) ""))
+(define path-join (a ...)
+  (reduce (fn (x y) (cat x path-separator y)) (list ...) a))
 
 (define get-environment-variable (name)
   (target

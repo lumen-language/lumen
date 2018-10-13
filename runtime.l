@@ -93,6 +93,29 @@
   (target js: ((get s 'substring) from upto)
           lua: ((get string 'sub) s (+ from 1) upto)))
 
+(define-global natural? (i)
+  (and (number? i) (> i 0) (= (% i 1) 0)))
+
+(define-global index? (i)
+  (target js: (number? i)
+          lua: (natural? i)))
+
+(define-global reduce (f l r)
+  (let (from inf upto -inf)
+    (each (k v) l
+      (if (index? k)
+          (do (if (< k from) (set from k))
+              (if (> k upto) (set upto k)))
+        (set r (f r v k nil))))
+    (target js: (inc upto)
+            lua: (dec from))
+    (let i from
+      (while (< i upto)
+        (let v (at l i)
+          (set r (f r v nil i)))
+        (inc i)))
+    (values r from upto)))
+
 (define-global cut (x from upto)
   (with l ()
     (let (j 0
@@ -160,11 +183,6 @@
       (while (>= i 0)
         (add l1 (at l i))
         (dec i)))))
-
-(define-global reduce (f x)
-  (if (none? x) nil
-      (one? x) (hd x)
-    (f (hd x) (reduce f (tl x)))))
 
 (define-global join ls
   (with r ()
@@ -289,23 +307,23 @@
                   (set s (clip s (+ i n)))))))
         (add l s)))))
 
-(define-global cat xs
-  (either (reduce (fn (a b) (cat a b)) xs) ""))
+(define-global cat (s ...)
+  (reduce (fn (a b) (cat a b)) (list ...) (or s "")))
 
-(define-global + xs
-  (either (reduce (fn (a b) (+ a b)) xs) 0))
+(define-global + (n ...)
+  (reduce (fn (a b) (+ a b)) (list ...) (or n 0)))
 
-(define-global - xs
-  (either (reduce (fn (b a) (- a b)) (reverse xs)) 0))
+(define-global - (n ...)
+  (reduce (fn (a b) (- a b)) (list ...) (or n 0)))
 
-(define-global * xs
-  (either (reduce (fn (a b) (* a b)) xs) 1))
+(define-global * (n ...)
+  (reduce (fn (a b) (* a b)) (list ...) (either n 1)))
 
-(define-global / xs
-  (either (reduce (fn (b a) (/ a b)) (reverse xs)) 1))
+(define-global / (n ...)
+  (reduce (fn (a b) (/ a b)) (list ...) (either n 1)))
 
-(define-global % xs
-  (either (reduce (fn (b a) (% a b)) (reverse xs)) 0))
+(define-global % (n ...)
+  (reduce (fn (a b) (% a b)) (list ...) (either n 1)))
 
 (define pairwise (f xs)
   (for i (edge xs)

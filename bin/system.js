@@ -13,11 +13,10 @@ var directory_exists63 = function (path) {
   return fs.existsSync(path, "utf8") && fs.statSync(path).isDirectory();
 };
 var path_separator = require("path").sep;
-var path_join = function (..._42args) {
-  var __parts = unstash([..._42args]);
+var path_join = function (a, ..._42args) {
   return reduce(function (x, y) {
     return x + path_separator + y;
-  }, __parts) || "";
+  }, [..._42args], a);
 };
 var get_environment_variable = function (name) {
   return process.env[name];
@@ -59,8 +58,8 @@ parse_option = function (args) {
 parse_arguments = function (aliases, argv) {
   var __l = argv || get_argv();
   var __a = aliases || {};
-  var __r16 = parse_positional(__l);
-  __l = cut(__l, _35(__r16));
+  var __r17 = parse_positional(__l);
+  __l = cut(__l, _35(__r17));
   while (true) {
     var __p = parse_option(__l);
     if (! __p) {
@@ -91,21 +90,21 @@ parse_arguments = function (aliases, argv) {
         __e1 = __args;
       }
       var __v = __e1;
-      __r16[__k1] = __v;
-      add(__r16, [__k1, __v]);
+      __r17[__k1] = __v;
+      add(__r17, [__k1, __v]);
     }
   }
-  __r16.rest = __l;
-  set_argv(__r16.rest);
-  return __r16;
+  __r17.rest = __l;
+  set_argv(__r17.rest);
+  return __r17;
 };
 arguments = function (aliases, argv) {
   var __argv = argv || get_argv();
-  var __r18 = parse_arguments(__argv, aliases);
-  set_argv(__r18.rest);
-  delete __r18.rest;
-  if (! empty63(__r18)) {
-    return __r18;
+  var __r19 = parse_arguments(__argv, aliases);
+  set_argv(__r19.rest);
+  delete __r19.rest;
+  if (! empty63(__r19)) {
+    return __r19;
   }
 };
 var reload = function (module) {

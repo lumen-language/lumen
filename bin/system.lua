@@ -46,11 +46,10 @@ local function directory_exists63(path)
   return __e2
 end
 local path_separator = char(_G.package.config, 0)
-local function path_join(...)
-  local __parts = unstash({...})
+local function path_join(a, ...)
   return reduce(function (x, y)
     return x .. path_separator .. y
-  end, __parts) or ""
+  end, {...}, a)
 end
 local function get_environment_variable(name)
   return os.getenv(name)
@@ -92,8 +91,8 @@ end
 function parse_arguments(aliases, argv)
   local __l = argv or get_argv()
   local __a = aliases or {}
-  local __r21 = parse_positional(__l)
-  __l = cut(__l, _35(__r21))
+  local __r22 = parse_positional(__l)
+  __l = cut(__l, _35(__r22))
   while true do
     local __p = parse_option(__l)
     if not __p then
@@ -124,21 +123,21 @@ function parse_arguments(aliases, argv)
         __e4 = __args
       end
       local __v = __e4
-      __r21[__k1] = __v
-      add(__r21, {__k1, __v})
+      __r22[__k1] = __v
+      add(__r22, {__k1, __v})
     end
   end
-  __r21.rest = __l
-  set_argv(__r21.rest)
-  return __r21
+  __r22.rest = __l
+  set_argv(__r22.rest)
+  return __r22
 end
 function arguments(aliases, argv)
   local __argv = argv or get_argv()
-  local __r23 = parse_arguments(__argv, aliases)
-  set_argv(__r23.rest)
-  __r23.rest = nil
-  if not empty63(__r23) then
-    return __r23
+  local __r24 = parse_arguments(__argv, aliases)
+  set_argv(__r24.rest)
+  __r24.rest = nil
+  if not empty63(__r24) then
+    return __r24
   end
 end
 local function reload(module)
