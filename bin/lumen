@@ -38,16 +38,13 @@ fi
 case $host in
     *node*)
         args=
-        code="${home}/index.js"
-        export NODE_PATH="$NODE_PATH:${dir}/lib";;
+        code="${home}/index.js";;
     *luvi)
         args=--
-        code="${home}"
-        export LUA_PATH="$LUA_PATH;${home}/bin/?.lua;${dir}/lib/?.lua;;";;
+        code="${home}";;
     *)
         args=
-        code="${home}/main.lua"
-        export LUA_PATH="$LUA_PATH;${home}/bin/?.lua;${dir}/lib/?.lua;;";;
+        code="${home}/main.lua";;
 esac
 
 exec ${host} "${code}" ${args} "$@"

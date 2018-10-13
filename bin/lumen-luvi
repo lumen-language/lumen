@@ -12,8 +12,6 @@ cd "$(dirname "${bin}")"/..
 home="$(pwd)"
 cd "${dir}"
 
-export LUA_PATH="$LUA_PATH;${home}/bin/?.lua;${dir}/lib/?.lua;;"
-
 lumen="${home}/bin/lumen-language"
 
 if [ ! -x "${lumen}" ]

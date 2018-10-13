@@ -327,4 +327,7 @@ else
   package.path = package.path .. ";;" .. fullPath
   lumen = require('lumen')
 end
+package.loaded.reader = lumen.reader
+package.loaded.compiler = lumen.compiler
+package.loaded.system = lumen.system
 return lumen.main(argv)
