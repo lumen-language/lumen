@@ -202,11 +202,11 @@
   (if (is? b) `((%if ,a ,b ,@(expand-if c)))
       (is? a) (list a)))
 
-(define-global indent-level 0)
+(define-global indent-level* 0)
 
 (define-global indentation ()
   (with s ""
-    (for i indent-level
+    (for i indent-level*
       (cat! s "  "))))
 
 (define reserved

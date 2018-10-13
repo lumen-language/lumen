@@ -1142,7 +1142,7 @@ setenv("dec", {_stash = true, macro = function (n, by)
 end})
 setenv("with-indent", {_stash = true, macro = function (form)
   local __x207 = unique("x")
-  return {"do", {"inc", "indent-level"}, {"with", __x207, form, {"dec", "indent-level"}}}
+  return {"do", {"inc", "indent-level*"}, {"with", __x207, form, {"dec", "indent-level*"}}}
 end})
 setenv("undefined?", {_stash = true, macro = function (x)
   local ____x212 = {"target"}

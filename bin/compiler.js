@@ -348,11 +348,11 @@ expand_if = function (__x45) {
     }
   }
 };
-indent_level = 0;
+_G.indent_level = 0;
 indentation = function () {
   var __s = "";
   var __i9 = 0;
-  while (__i9 < indent_level) {
+  while (__i9 < _G.indent_level) {
     __s = __s + "  ";
     __i9 = __i9 + 1;
   }
@@ -743,9 +743,9 @@ compile_function = function (args, body, ..._42args) {
   }
   var __args12 = __e21;
   var __args5 = compile_args(__args12);
-  indent_level = indent_level + 1;
+  _G.indent_level = _G.indent_level + 1;
   var ____x75 = compile(__body3, {_stash: true, stmt: true});
-  indent_level = indent_level - 1;
+  _G.indent_level = _G.indent_level - 1;
   var __body4 = ____x75;
   var __ind = indentation();
   var __e22 = undefined;
@@ -1115,15 +1115,15 @@ setenv("do", {_stash: true, special: function (..._42args) {
 }, stmt: true, tr: true});
 setenv("%if", {_stash: true, special: function (cond, cons, alt) {
   var __cond1 = compile(cond);
-  indent_level = indent_level + 1;
+  _G.indent_level = _G.indent_level + 1;
   var ____x128 = compile(cons, {_stash: true, stmt: true});
-  indent_level = indent_level - 1;
+  _G.indent_level = _G.indent_level - 1;
   var __cons = ____x128;
   var __e34 = undefined;
   if (alt) {
-    indent_level = indent_level + 1;
+    _G.indent_level = _G.indent_level + 1;
     var ____x129 = compile(alt, {_stash: true, stmt: true});
-    indent_level = indent_level - 1;
+    _G.indent_level = _G.indent_level - 1;
     __e34 = ____x129;
   }
   var __alt = __e34;
@@ -1149,9 +1149,9 @@ setenv("%if", {_stash: true, special: function (cond, cons, alt) {
 }, stmt: true, tr: true});
 setenv("while", {_stash: true, special: function (cond, form) {
   var __cond2 = compile(cond);
-  indent_level = indent_level + 1;
+  _G.indent_level = _G.indent_level + 1;
   var ____x130 = compile(form, {_stash: true, stmt: true});
-  indent_level = indent_level - 1;
+  _G.indent_level = _G.indent_level - 1;
   var __body9 = ____x130;
   var __ind3 = indentation();
   if (target === "js") {
@@ -1194,9 +1194,9 @@ setenv("%for", {_stash: true, special: function (t, k, form) {
   var __t1 = compile(t);
   var __k7 = compile(k);
   var __ind4 = indentation();
-  indent_level = indent_level + 1;
+  _G.indent_level = _G.indent_level + 1;
   var ____x134 = compile(form, {_stash: true, stmt: true});
-  indent_level = indent_level - 1;
+  _G.indent_level = _G.indent_level - 1;
   var __body10 = ____x134;
   if (target === "lua") {
     return __ind4 + "for " + __k7 + " in " + __t1 + " do\n" + __body10 + __ind4 + "end\n";
@@ -1207,14 +1207,14 @@ setenv("%for", {_stash: true, special: function (t, k, form) {
 setenv("%try", {_stash: true, special: function (form) {
   var __e6 = unique("e");
   var __ind5 = indentation();
-  indent_level = indent_level + 1;
+  _G.indent_level = _G.indent_level + 1;
   var ____x135 = compile(form, {_stash: true, stmt: true});
-  indent_level = indent_level - 1;
+  _G.indent_level = _G.indent_level - 1;
   var __body11 = ____x135;
   var __hf = ["return", ["%array", false, __e6]];
-  indent_level = indent_level + 1;
+  _G.indent_level = _G.indent_level + 1;
   var ____x138 = compile(__hf, {_stash: true, stmt: true});
-  indent_level = indent_level - 1;
+  _G.indent_level = _G.indent_level - 1;
   var __h = ____x138;
   return __ind5 + "try {\n" + __body11 + __ind5 + "}\n" + __ind5 + "catch (" + __e6 + ") {\n" + __h + __ind5 + "}\n";
 }, stmt: true, tr: true});

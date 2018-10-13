@@ -348,11 +348,11 @@ function expand_if(__x45)
     end
   end
 end
-indent_level = 0
+_G.indent_level = 0
 function indentation()
   local __s = ""
   local __i9 = 0
-  while __i9 < indent_level do
+  while __i9 < _G.indent_level do
     __s = __s .. "  "
     __i9 = __i9 + 1
   end
@@ -745,9 +745,9 @@ function compile_function(args, body, ...)
   end
   local __args12 = __e22
   local __args5 = compile_args(__args12)
-  indent_level = indent_level + 1
+  _G.indent_level = _G.indent_level + 1
   local ____x75 = compile(__body3, {_stash = true, stmt = true})
-  indent_level = indent_level - 1
+  _G.indent_level = _G.indent_level - 1
   local __body4 = ____x75
   local __ind = indentation()
   local __e23 = nil
@@ -1127,15 +1127,15 @@ setenv("do", {_stash = true, special = function (...)
 end, stmt = true, tr = true})
 setenv("%if", {_stash = true, special = function (cond, cons, alt)
   local __cond1 = compile(cond)
-  indent_level = indent_level + 1
+  _G.indent_level = _G.indent_level + 1
   local ____x129 = compile(cons, {_stash = true, stmt = true})
-  indent_level = indent_level - 1
+  _G.indent_level = _G.indent_level - 1
   local __cons = ____x129
   local __e35 = nil
   if alt then
-    indent_level = indent_level + 1
+    _G.indent_level = _G.indent_level + 1
     local ____x130 = compile(alt, {_stash = true, stmt = true})
-    indent_level = indent_level - 1
+    _G.indent_level = _G.indent_level - 1
     __e35 = ____x130
   end
   local __alt = __e35
@@ -1161,9 +1161,9 @@ setenv("%if", {_stash = true, special = function (cond, cons, alt)
 end, stmt = true, tr = true})
 setenv("while", {_stash = true, special = function (cond, form)
   local __cond2 = compile(cond)
-  indent_level = indent_level + 1
+  _G.indent_level = _G.indent_level + 1
   local ____x131 = compile(form, {_stash = true, stmt = true})
-  indent_level = indent_level - 1
+  _G.indent_level = _G.indent_level - 1
   local __body9 = ____x131
   local __ind3 = indentation()
   if target == "js" then
@@ -1206,9 +1206,9 @@ setenv("%for", {_stash = true, special = function (t, k, form)
   local __t1 = compile(t)
   local __k7 = compile(k)
   local __ind4 = indentation()
-  indent_level = indent_level + 1
+  _G.indent_level = _G.indent_level + 1
   local ____x135 = compile(form, {_stash = true, stmt = true})
-  indent_level = indent_level - 1
+  _G.indent_level = _G.indent_level - 1
   local __body10 = ____x135
   if target == "lua" then
     return __ind4 .. "for " .. __k7 .. " in " .. __t1 .. " do\n" .. __body10 .. __ind4 .. "end\n"
@@ -1219,14 +1219,14 @@ end, stmt = true, tr = true})
 setenv("%try", {_stash = true, special = function (form)
   local __e7 = unique("e")
   local __ind5 = indentation()
-  indent_level = indent_level + 1
+  _G.indent_level = _G.indent_level + 1
   local ____x136 = compile(form, {_stash = true, stmt = true})
-  indent_level = indent_level - 1
+  _G.indent_level = _G.indent_level - 1
   local __body11 = ____x136
   local __hf = {"return", {"%array", false, __e7}}
-  indent_level = indent_level + 1
+  _G.indent_level = _G.indent_level + 1
   local ____x139 = compile(__hf, {_stash = true, stmt = true})
-  indent_level = indent_level - 1
+  _G.indent_level = _G.indent_level - 1
   local __h = ____x139
   return __ind5 .. "try {\n" .. __body11 .. __ind5 .. "}\n" .. __ind5 .. "catch (" .. __e7 .. ") {\n" .. __h .. __ind5 .. "}\n"
 end, stmt = true, tr = true})

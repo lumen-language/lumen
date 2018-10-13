@@ -232,9 +232,9 @@
 
 (define-macro with-indent (form)
   (let-unique (x)
-    `(do (inc indent-level)
+    `(do (inc indent-level*)
          (with ,x ,form
-           (dec indent-level)))))
+           (dec indent-level*)))))
 
 (define-macro undefined? (x)
   `(target lua: (= ,x nil)
