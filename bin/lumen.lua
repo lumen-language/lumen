@@ -1416,7 +1416,6 @@ local function usage()
   return "\nUsage:\n  lumen <file> [<args>...]\n  lumen [options] [<object-files>...]\n\n  <file>          Program read from script file\n  <object-files>  Loaded before compiling <input>\n\nOptions:\n  -c <input>...   Compile input files\n  -o <output>     Write compiler output to <output>\n  -t <target>     Set target language (default: lua)\n  -e <expr>...    Expressions to evaluate\n"
 end
 local function main(argv)
-  argv = argv or get_argv()
   local __arg = hd(argv)
   if script_file63(__arg) then
     set_argv(tl(argv))

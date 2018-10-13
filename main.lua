@@ -17,6 +17,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 ]]
+local argv
 
 -- fix luvit require
 if setfenv then
@@ -24,6 +25,12 @@ if setfenv then
   setfenv(1, setmetatable({}, {__newindex = _G, __index = _G}))
   _G.usingLuvit = require ~= _G._require
   require = _G._require
+  if _G.usingLuvit then
+    argv = {select(2, unpack(args))}
+  end
+end
+if not argv then
+  argv = arg or args
 end
 
 local hasLuvi, luvi = pcall(require, 'luvi')
@@ -58,7 +65,6 @@ local function run(command)
   return __x4:sub(1, #__x4 - 1)
 end
 
-local argv = arg or args
 local cwd = run(isWindows and "echo %CD%" or "pwd")
 local tmpBase = isWindows and (getenv("TMP") or cwd) or
                               (getenv("TMPDIR") or '/tmp')
@@ -310,4 +316,4 @@ else
   package.path = package.path .. ";;" .. fullPath
   lumen = require('lumen')
 end
-return lumen.main(lumen.system.getArgv());
+return lumen.main(argv)

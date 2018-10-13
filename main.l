@@ -132,7 +132,6 @@ Options:
 ")
 
 (define main (argv)
-  (set argv (or argv (get-argv)))
   (let arg (hd argv)
     (when (script-file? arg)
       (set-argv (tl argv))

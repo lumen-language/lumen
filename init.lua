@@ -56,7 +56,6 @@ local function run(command)
   return __x4:sub(1, #__x4 - 1)
 end
 
-local argv = arg or args
 local cwd = run(isWindows and "echo %CD%" or "pwd")
 local tmpBase = isWindows and (getenv("TMP") or cwd) or
                               (getenv("TMPDIR") or '/tmp')

@@ -77,7 +77,7 @@
 (define-global get-argv ()
   (when (nil? argv)
     (set-argv (target js: (cut (get process 'argv) 2)
-                      lua: (or (get _G 'arg) (tl (or (get _G 'args) ()))))))
+                      lua: (or (get _G 'arg) (get _G 'args) ()))))
   argv)
 
 (define opt? (x)
