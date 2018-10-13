@@ -330,7 +330,7 @@
     (for i (# s)
       (let c (char s i)
         (cat! s1 (if (= c "\n") "\\n"
-                     (= c "\r") "\\r"
+                     (= c "\r") ""
                    c))))))
 
 (define-global compile-atom (x escape-reserved?)

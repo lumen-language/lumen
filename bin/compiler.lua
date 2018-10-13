@@ -555,7 +555,7 @@ local function escape_newlines(s)
     else
       local __e17 = nil
       if __c3 == "\r" then
-        __e17 = "\\r"
+        __e17 = ""
       else
         __e17 = __c3
       end

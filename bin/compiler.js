@@ -553,7 +553,7 @@ var escape_newlines = function (s) {
     } else {
       var __e16 = undefined;
       if (__c3 === "\r") {
-        __e16 = "\\r";
+        __e16 = "";
       } else {
         __e16 = __c3;
       }
