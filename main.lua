@@ -18,6 +18,14 @@ limitations under the License.
 
 ]]
 
+-- fix luvit require
+if setfenv then
+  _G._require = require
+  setfenv(1, setmetatable({}, {__newindex = _G, __index = _G}))
+  _G.usingLuvit = require ~= _G._require
+  require = _G._require
+end
+
 local hasLuvi, luvi = pcall(require, 'luvi')
 local hasUv, bundle
 
