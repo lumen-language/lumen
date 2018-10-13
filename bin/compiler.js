@@ -1089,7 +1089,7 @@ expand = function (form) {
   return lower(macroexpand(form));
 };
 var run = eval;
-_37result = undefined;
+_G._37result = undefined;
 _eval = function (form) {
   var __previous = _G.target;
   _G.target = "js";

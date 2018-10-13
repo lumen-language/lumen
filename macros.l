@@ -127,7 +127,9 @@
 (define-macro define-global (name x rest: body)
   (if (some? body)
       `(%global-function ,name ,@(bind-function x body))
-    `(set ,name ,x)))
+      (global-id? name)
+      `(set ,name ,x)
+    `(set (get _G ',(compile name)) ,x)))
 
 (define-macro with-frame body
   (let-unique (x)

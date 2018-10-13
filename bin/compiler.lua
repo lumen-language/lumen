@@ -1101,7 +1101,7 @@ local function run(code)
     return error(__e6 .. " in " .. code)
   end
 end
-_37result = nil
+_G._37result = nil
 function _G.eval(form)
   local __previous = _G.target
   _G.target = "lua"
