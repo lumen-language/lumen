@@ -73,7 +73,7 @@ function _G.set_argv(l)
 end
 function _G.get_argv()
   if nil63(argv) then
-    set_argv(_G.arg or _G.args or {})
+    set_argv(_G.arg or tl(_G.args or {}))
   end
   return argv
 end
