@@ -82,7 +82,7 @@
                    `(get ,id ',(bias k)))
             (join! bs (bind v x))))))))
 
-(define-global bind* (args body)
+(define-global bind-function (args body)
   (let args1 ()
     (define rest ()
       (set (get args1 'rest) true)

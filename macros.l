@@ -121,12 +121,12 @@
 
 (define-macro define (name x rest: body)
   (if (some? body)
-      `(%local-function ,name ,@(bind* x body))
+      `(%local-function ,name ,@(bind-function x body))
     `(%local ,name ,x)))
 
 (define-macro define-global (name x rest: body)
   (if (some? body)
-      `(%global-function ,name ,@(bind* x body))
+      `(%global-function ,name ,@(bind-function x body))
     `(set ,name ,x)))
 
 (define-macro with-frame body
@@ -162,7 +162,7 @@
        ,@body)))
 
 (define-macro fn (args rest: body)
-  `(%function ,@(bind* args body)))
+  `(%function ,@(bind-function args body)))
 
 (define-macro apply (f rest: args)
   (if (> (# args) 1)

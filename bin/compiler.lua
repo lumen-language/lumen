@@ -126,7 +126,7 @@ function bind(lh, rh)
     return __bs
   end
 end
-function bind42(args, body)
+function bind_function(args, body)
   local __args1 = {}
   local function rest()
     __args1.rest = true

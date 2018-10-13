@@ -126,7 +126,7 @@ bind = function (lh, rh) {
     return __bs;
   }
 };
-bind42 = function (args, body) {
+bind_function = function (args, body) {
   var __args1 = [];
   var rest = function () {
     __args1.rest = true;

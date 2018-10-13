@@ -932,7 +932,7 @@ setenv("define", {_stash = true, macro = function (name, x, ...)
   local ____id17 = ____r26
   local __body12 = cut(____id17, 0)
   if some63(__body12) then
-    return join({"%local-function", __name3}, bind42(__x94, __body12))
+    return join({"%local-function", __name3}, bind_function(__x94, __body12))
   else
     return {"%local", __name3, __x94}
   end
@@ -944,7 +944,7 @@ setenv("define-global", {_stash = true, macro = function (name, x, ...)
   local ____id18 = ____r27
   local __body13 = cut(____id18, 0)
   if some63(__body13) then
-    return join({"%global-function", __name4}, bind42(__x98, __body13))
+    return join({"%global-function", __name4}, bind_function(__x98, __body13))
   else
     return {"set", __name4, __x98}
   end
@@ -1017,7 +1017,7 @@ setenv("fn", {_stash = true, macro = function (args, ...)
   local __args3 = destash33(args, ____r33)
   local ____id25 = ____r33
   local __body19 = cut(____id25, 0)
-  return join({"%function"}, bind42(__args3, __body19))
+  return join({"%function"}, bind_function(__args3, __body19))
 end})
 setenv("apply", {_stash = true, macro = function (f, ...)
   local ____r34 = unstash({...})
