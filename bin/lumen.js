@@ -811,7 +811,7 @@ setenv("define-expander", {_stash: true, macro: function (name, handler) {
 }});
 define_setter = function (name, setter, setfn, args, vars) {
   if (none63(args)) {
-    var __vars1 = reverse(vars);
+    var __vars1 = reverse(vars || []);
     return setfn(join([name], __vars1), function (v) {
       return apply(setter, join([v], __vars1));
     });

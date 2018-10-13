@@ -734,7 +734,7 @@ setenv("define-expander", {_stash = true, macro = function (name, handler)
 end})
 function _G.define_setter(name, setter, setfn, args, vars)
   if none63(args) then
-    local __vars1 = reverse(vars)
+    local __vars1 = reverse(vars or {})
     return setfn(join({name}, __vars1), function (v)
       return apply(setter, join({v}, __vars1))
     end)

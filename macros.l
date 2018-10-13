@@ -25,7 +25,7 @@
 
 (define-global define-setter (name setter setfn args vars)
   (if (none? args)
-      (let vars (reverse vars)
+      (let vars (reverse (or vars ()))
         (setfn `(,name ,@vars) (fn (v) (apply setter v vars))))
     (let v (hd args)
       (%call define-setter name setter setfn (tl args) `(,v ,@vars)))))
