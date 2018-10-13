@@ -242,6 +242,7 @@ local function loader(dir, path, bundleOnly)
   else
     while true do
       if try(pathJoin(dir, "deps", path)) or
+         try(pathJoin(dir, "node_modules", path)) or
          try(pathJoin(dir, "libs", path)) then
         break
       end
@@ -292,11 +293,16 @@ if package.loaders then
       caller = debug.getinfo(level, "S").source
       level = level + 1
     until caller ~= "=[C]"
+    local module
     if string.sub(caller, 1, 1) == "@" then
-      return loader(pathJoin(cwd, caller:sub(2), ".."), path)
+      module = loader(pathJoin(cwd, caller:sub(2), ".."), path)
     elseif string.sub(caller, 1, 7) == "bundle:" then
-      return loader(pathJoin(caller:sub(8), ".."), path, true)
+      module = loader(pathJoin(caller:sub(8), ".."), path, true)
     end
+    if module and type(module) ~= "string" then
+      return module
+    end
+    return loader(cwd, path)
   end)
   lumen = require('./bin/lumen.lua')
 else
