@@ -54,10 +54,10 @@
     ((compiler .compile) form stmt: true)))
 
 (define-global load (path)
-  (let previous target
-    (set target (language))
+  (let previous target*
+    (set target* (language))
     (let code (compile-file path)
-      (set target previous)
+      (set target* previous)
       ((compiler .run) code))))
 
 (define-global script-file? (path)
@@ -157,7 +157,7 @@ Options:
           (run-file file))
         (step (a val) cmds
           (when (= a 'target)
-            (set target (hd val))
+            (set target* (hd val))
             (break)))
         (step (a val) cmds
           (if (= a 'help) (print (usage))
@@ -166,7 +166,7 @@ Options:
               (print (cat "missing argument for " a))
               (= a 'compile) (do (step x val (cat! input (compile-file x))) (set enter-repl false))
               (= a 'output) (do (write-file (hd val) input) (set input ""))
-              (= a 'target) (set target (hd val))
+              (= a 'target) (set target* (hd val))
               (= a 'eval) (do (step x val (rep x)) (set enter-repl false))))
         (if (some? input) (print input))
         (if (or enter-repl (get args 'repl)) (repl))))))

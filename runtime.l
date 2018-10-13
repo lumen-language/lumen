@@ -1,5 +1,5 @@
 (define-global environment (list (obj)))
-(define-global target (language))
+(define-global target* (language))
 
 (let v nil
   (define-global values (...)

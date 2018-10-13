@@ -1,5 +1,5 @@
 environment = [{}];
-target = "js";
+_G.target = "js";
 var __v = undefined;
 values = function (..._42args) {
   __v = [..._42args];
@@ -834,17 +834,17 @@ setenv("set", {_stash: true, macro: function (..._42args) {
   }, pair(__args)));
 }});
 setenv("at", {_stash: true, macro: function (l, i) {
-  if (target === "lua" && number63(i)) {
+  if (_G.target === "lua" && number63(i)) {
     i = i + 1;
   } else {
-    if (target === "lua") {
+    if (_G.target === "lua") {
       i = ["+", i, 1];
     }
   }
   return ["get", l, i];
 }});
 setenv("wipe", {_stash: true, macro: function (place) {
-  if (target === "lua") {
+  if (_G.target === "lua") {
     return ["set", place, "nil"];
   } else {
     return ["%delete", place];
@@ -1108,7 +1108,7 @@ setenv("apply", {_stash: true, macro: function (f, ..._42args) {
   }
 }});
 setenv("guard", {_stash: true, macro: function (expr) {
-  if (target === "js") {
+  if (_G.target === "js") {
     return [["fn", join(), ["%try", ["list", true, expr]]]];
   } else {
     var ____x148 = ["obj"];
@@ -1179,11 +1179,11 @@ setenv("set-of", {_stash: true, macro: function (..._42args) {
   return join(["obj"], __l1);
 }});
 setenv("language", {_stash: true, macro: function () {
-  return ["quote", target];
+  return ["quote", _G.target];
 }});
 setenv("target", {_stash: true, macro: function (..._42args) {
   var __clauses1 = unstash([..._42args]);
-  return __clauses1[target];
+  return __clauses1[_G.target];
 }});
 setenv("join!", {_stash: true, macro: function (a, ..._42args) {
   var ____r41 = unstash([..._42args]);
@@ -1323,10 +1323,10 @@ compile_file = function (path) {
   return compiler.compile(__form1, {_stash: true, stmt: true});
 };
 load = function (path) {
-  var __previous = target;
-  target = "js";
+  var __previous = _G.target;
+  _G.target = "js";
   var __code = compile_file(path);
-  target = __previous;
+  _G.target = __previous;
   return compiler.run(__code);
 };
 script_file63 = function (path) {
@@ -1483,7 +1483,7 @@ var main = function (argv) {
         var __a = ____id2[0];
         var __val = ____id2[1];
         if (__a === "target") {
-          target = hd(__val);
+          _G.target = hd(__val);
           break;
         }
         ____i4 = ____i4 + 1;
@@ -1518,7 +1518,7 @@ var main = function (argv) {
                   __input = "";
                 } else {
                   if (__a1 === "target") {
-                    target = hd(__val1);
+                    _G.target = hd(__val1);
                   } else {
                     if (__a1 === "eval") {
                       var ____x12 = __val1;

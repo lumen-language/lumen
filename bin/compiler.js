@@ -95,8 +95,8 @@ var stash_function = function (args) {
   }
 };
 var bias = function (k) {
-  if (number63(k) && !( target === "js")) {
-    if (target === "js") {
+  if (number63(k) && !( _G.target === "js")) {
+    if (_G.target === "js") {
       k = k - 1;
     } else {
       k = k + 1;
@@ -360,7 +360,7 @@ indentation = function () {
 };
 var reserved = {js: {["="]: true, ["=="]: true, ["+"]: true, ["-"]: true, ["%"]: true, ["*"]: true, ["/"]: true, ["<"]: true, [">"]: true, ["<="]: true, [">="]: true, ["break"]: true, ["case"]: true, ["catch"]: true, ["class"]: true, ["const"]: true, ["continue"]: true, ["debugger"]: true, ["default"]: true, ["delete"]: true, ["do"]: true, ["else"]: true, ["eval"]: true, ["finally"]: true, ["for"]: true, ["function"]: true, ["if"]: true, ["import"]: true, ["in"]: true, ["instanceof"]: true, ["let"]: true, ["new"]: true, ["return"]: true, ["switch"]: true, ["throw"]: true, ["try"]: true, ["typeof"]: true, ["var"]: true, ["void"]: true, ["with"]: true}, lua: {["="]: true, ["=="]: true, ["+"]: true, ["-"]: true, ["%"]: true, ["*"]: true, ["/"]: true, ["<"]: true, [">"]: true, ["<="]: true, [">="]: true, and: true, end: true, ["in"]: true, load: true, repeat: true, while: true, ["break"]: true, false: true, local: true, ["return"]: true, ["do"]: true, ["for"]: true, nil: true, then: true, ["else"]: true, ["function"]: true, not: true, true: true, elseif: true, ["if"]: true, or: true, until: true}};
 reserved63 = function (x) {
-  return has63(reserved[target], x);
+  return has63(reserved[_G.target], x);
 };
 var valid_code63 = function (n) {
   return number_code63(n) || n > 64 && n < 91 || n > 96 && n < 123 || n === 95;
@@ -515,7 +515,7 @@ var getop = function (op) {
   return find(function (level) {
     var __x66 = level[op];
     if (obj63(__x66)) {
-      return __x66[target];
+      return __x66[_G.target];
     } else {
       if (string63(__x66)) {
         return __x66;
@@ -565,7 +565,7 @@ var escape_newlines = function (s) {
   return __s11;
 };
 compile_atom = function (x, escape_reserved63) {
-  if (x === "nil" && target === "lua") {
+  if (x === "nil" && _G.target === "lua") {
     return x;
   } else {
     if (x === "nil") {
@@ -573,7 +573,7 @@ compile_atom = function (x, escape_reserved63) {
     } else {
       if (x === "...") {
         var __e17 = undefined;
-        if (target === "js") {
+        if (_G.target === "js") {
           __e17 = compile("*args");
         } else {
           __e17 = "";
@@ -625,7 +625,7 @@ var terminator = function (stmt63) {
   if (! stmt63) {
     return "";
   } else {
-    if (target === "js") {
+    if (_G.target === "js") {
       return ";\n";
     } else {
       return "\n";
@@ -662,7 +662,7 @@ compile_method = function (f, args, chain63) {
     } else {
       if (hd63(__x70, accessor_literal63)) {
         var __e18 = undefined;
-        if (target === "lua") {
+        if (_G.target === "lua") {
           __e18 = ":";
         } else {
           __e18 = ".";
@@ -756,7 +756,7 @@ compile_function = function (args, body, ..._42args) {
   }
   var __p = __e22;
   var __e23 = undefined;
-  if (target === "js") {
+  if (_G.target === "js") {
     __e23 = "";
   } else {
     __e23 = "end";
@@ -765,7 +765,7 @@ compile_function = function (args, body, ..._42args) {
   if (__name3) {
     __tr1 = __tr1 + "\n";
   }
-  if (target === "js") {
+  if (_G.target === "js") {
     return "function " + __id13 + __args5 + " {\n" + __body4 + __ind + "}" + __tr1;
   } else {
     return __p + "function " + __id13 + __args5 + "\n" + __body4 + __ind + __tr1;
@@ -1083,10 +1083,10 @@ expand = function (form) {
 var run = eval;
 _37result = undefined;
 _eval = function (form) {
-  var __previous = target;
-  target = "js";
+  var __previous = _G.target;
+  _G.target = "js";
   var __code = compile(expand(["set", "%result", form]));
-  target = __previous;
+  _G.target = __previous;
   run(__code);
   return _37result;
 };
@@ -1100,7 +1100,7 @@ setenv("do", {_stash: true, special: function (..._42args) {
   var ____i20 = 0;
   while (____i20 < _35(____x126)) {
     var __x127 = ____x126[____i20];
-    if (target === "lua" && immediate_call63(__x127) && "\n" === char(__s2, edge(__s2))) {
+    if (_G.target === "lua" && immediate_call63(__x127) && "\n" === char(__s2, edge(__s2))) {
       __s2 = clip(__s2, 0, edge(__s2)) + ";\n";
     }
     __s2 = __s2 + compile(__x127, {_stash: true, stmt: true});
@@ -1129,19 +1129,19 @@ setenv("%if", {_stash: true, special: function (cond, cons, alt) {
   var __alt = __e34;
   var __ind2 = indentation();
   var __s3 = "";
-  if (target === "js") {
+  if (_G.target === "js") {
     __s3 = __s3 + __ind2 + "if (" + __cond1 + ") {\n" + __cons + __ind2 + "}";
   } else {
     __s3 = __s3 + __ind2 + "if " + __cond1 + " then\n" + __cons;
   }
-  if (__alt && target === "js") {
+  if (__alt && _G.target === "js") {
     __s3 = __s3 + " else {\n" + __alt + __ind2 + "}";
   } else {
     if (__alt) {
       __s3 = __s3 + __ind2 + "else\n" + __alt;
     }
   }
-  if (target === "lua") {
+  if (_G.target === "lua") {
     return __s3 + __ind2 + "end\n";
   } else {
     return __s3 + "\n";
@@ -1154,7 +1154,7 @@ setenv("while", {_stash: true, special: function (cond, form) {
   _G.indent_level = _G.indent_level - 1;
   var __body9 = ____x130;
   var __ind3 = indentation();
-  if (target === "js") {
+  if (_G.target === "js") {
     return __ind3 + "while (" + __cond2 + ") {\n" + __body9 + __ind3 + "}\n";
   } else {
     return __ind3 + "while " + __cond2 + " do\n" + __body9 + __ind3 + "end\n";
@@ -1166,7 +1166,7 @@ setenv("%names", {_stash: true, special: function (..._42args) {
     return compile(hd(__args8));
   } else {
     var __e35 = undefined;
-    if (target === "js") {
+    if (_G.target === "js") {
       __e35 = "[";
     } else {
       __e35 = "";
@@ -1182,7 +1182,7 @@ setenv("%names", {_stash: true, special: function (..._42args) {
       ____i21 = ____i21 + 1;
     }
     var __e36 = undefined;
-    if (target === "js") {
+    if (_G.target === "js") {
       __e36 = "]";
     } else {
       __e36 = "";
@@ -1198,7 +1198,7 @@ setenv("%for", {_stash: true, special: function (t, k, form) {
   var ____x134 = compile(form, {_stash: true, stmt: true});
   _G.indent_level = _G.indent_level - 1;
   var __body10 = ____x134;
-  if (target === "lua") {
+  if (_G.target === "lua") {
     return __ind4 + "for " + __k7 + " in " + __t1 + " do\n" + __body10 + __ind4 + "end\n";
   } else {
     return __ind4 + "for (" + __k7 + " of " + __t1 + ") {\n" + __body10 + __ind4 + "}\n";
@@ -1228,7 +1228,7 @@ setenv("%function", {_stash: true, special: function (args, body) {
   return compile_function(args, body);
 }});
 setenv("%global-function", {_stash: true, special: function (name, args, body) {
-  if (target === "lua") {
+  if (_G.target === "lua") {
     var __x139 = compile_function(args, body, {_stash: true, name: name});
     return indentation() + __x139;
   } else {
@@ -1236,7 +1236,7 @@ setenv("%global-function", {_stash: true, special: function (name, args, body) {
   }
 }, stmt: true, tr: true});
 setenv("%local-function", {_stash: true, special: function (name, args, body) {
-  if (target === "lua") {
+  if (_G.target === "lua") {
     var __x142 = compile_function(args, body, {_stash: true, name: name, prefix: "local"});
     return indentation() + __x142;
   } else {
@@ -1261,7 +1261,7 @@ setenv("typeof", {_stash: true, special: function (x) {
 }});
 setenv("throw", {_stash: true, special: function (x) {
   var __e38 = undefined;
-  if (target === "js") {
+  if (_G.target === "js") {
     __e38 = "throw " + compile(x);
   } else {
     __e38 = "error(" + compile(x) + ")";
@@ -1280,7 +1280,7 @@ setenv("%local", {_stash: true, special: function (name, value) {
   }
   var __rh11 = __e39;
   var __e40 = undefined;
-  if (target === "js") {
+  if (_G.target === "js") {
     __e40 = "var ";
   } else {
     __e40 = "local ";
@@ -1303,7 +1303,7 @@ setenv("%set", {_stash: true, special: function (lh, rh) {
 setenv("get", {_stash: true, special: function (t, k) {
   var __t11 = compile(t);
   var __k11 = compile(k, {_stash: true, ["escape-reserved"]: false});
-  if (target === "lua" && char(__t11, 0) === "{" || infix_operator63(t)) {
+  if (_G.target === "lua" && char(__t11, 0) === "{" || infix_operator63(t)) {
     __t11 = "(" + __t11 + ")";
   }
   if (string_literal63(k) && valid_id63(inner(k))) {
@@ -1315,14 +1315,14 @@ setenv("get", {_stash: true, special: function (t, k) {
 setenv("%array", {_stash: true, special: function (..._42args) {
   var __forms1 = unstash([..._42args]);
   var __e42 = undefined;
-  if (target === "lua") {
+  if (_G.target === "lua") {
     __e42 = "{";
   } else {
     __e42 = "[";
   }
   var __open = __e42;
   var __e43 = undefined;
-  if (target === "lua") {
+  if (_G.target === "lua") {
     __e43 = "}";
   } else {
     __e43 = "]";
@@ -1346,7 +1346,7 @@ setenv("%object", {_stash: true, special: function (..._42args) {
   var __s6 = "{";
   var __c8 = "";
   var __e44 = undefined;
-  if (target === "lua") {
+  if (_G.target === "lua") {
     __e44 = " = ";
   } else {
     __e44 = ": ";
@@ -1371,7 +1371,7 @@ setenv("%literal", {_stash: true, special: function (..._42args) {
   return apply(cat, map(unquoted, __args9));
 }});
 setenv("unpack", {_stash: true, special: function (x) {
-  if (target === "lua") {
+  if (_G.target === "lua") {
     return "(unpack or table.unpack)(" + compile(x) + ")";
   } else {
     return "..." + compile(x);

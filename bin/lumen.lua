@@ -1,5 +1,5 @@
 environment = {{}}
-target = "lua"
+_G.target = "lua"
 local __v = nil
 function values(...)
   return ...
@@ -757,17 +757,17 @@ setenv("set", {_stash = true, macro = function (...)
   end, pair(__args)))
 end})
 setenv("at", {_stash = true, macro = function (l, i)
-  if target == "lua" and number63(i) then
+  if _G.target == "lua" and number63(i) then
     i = i + 1
   else
-    if target == "lua" then
+    if _G.target == "lua" then
       i = {"+", i, 1}
     end
   end
   return {"get", l, i}
 end})
 setenv("wipe", {_stash = true, macro = function (place)
-  if target == "lua" then
+  if _G.target == "lua" then
     return {"set", place, "nil"}
   else
     return {"%delete", place}
@@ -1031,7 +1031,7 @@ setenv("apply", {_stash = true, macro = function (f, ...)
   end
 end})
 setenv("guard", {_stash = true, macro = function (expr)
-  if target == "js" then
+  if _G.target == "js" then
     return {{"fn", join(), {"%try", {"list", true, expr}}}}
   else
     local ____x148 = {"obj"}
@@ -1102,11 +1102,11 @@ setenv("set-of", {_stash = true, macro = function (...)
   return join({"obj"}, __l1)
 end})
 setenv("language", {_stash = true, macro = function ()
-  return {"quote", target}
+  return {"quote", _G.target}
 end})
 setenv("target", {_stash = true, macro = function (...)
   local __clauses1 = unstash({...})
-  return __clauses1[target]
+  return __clauses1[_G.target]
 end})
 setenv("join!", {_stash = true, macro = function (a, ...)
   local ____r41 = unstash({...})
@@ -1267,10 +1267,10 @@ function compile_file(path)
   return compiler.compile(__form1, {_stash = true, stmt = true})
 end
 function _load(path)
-  local __previous = target
-  target = "lua"
+  local __previous = _G.target
+  _G.target = "lua"
   local __code = compile_file(path)
-  target = __previous
+  _G.target = __previous
   return compiler.run(__code)
 end
 function script_file63(path)
@@ -1443,7 +1443,7 @@ local function main(argv)
         local __a = ____id2[1]
         local __val = ____id2[2]
         if __a == "target" then
-          target = hd(__val)
+          _G.target = hd(__val)
           break
         end
         ____i4 = ____i4 + 1
@@ -1478,7 +1478,7 @@ local function main(argv)
                   __input = ""
                 else
                   if __a1 == "target" then
-                    target = hd(__val1)
+                    _G.target = hd(__val1)
                   else
                     if __a1 == "eval" then
                       local ____x12 = __val1
