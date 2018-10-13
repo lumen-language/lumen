@@ -882,7 +882,7 @@ setenv("define-macro", {_stash = true, macro = function (name, args, ...)
   local __body9 = cut(____id13, 0)
   local ____x77 = {"setenv", {"quote", __name1}}
   ____x77.macro = join({"fn", __args1}, __body9)
-  return ____x77
+  return join(____x77, keys(__body9))
 end})
 setenv("define-special", {_stash = true, macro = function (name, args, ...)
   local ____r23 = unstash({...})

@@ -108,7 +108,7 @@
            ,@body)))))
 
 (define-macro define-macro (name args rest: body)
-  `(setenv ',name macro: (fn ,args ,@body)))
+  `(setenv ',name macro: (fn ,args ,@body) ,@(keys body)))
 
 (define-macro define-special (name args rest: body)
   `(setenv ',name special: (fn ,args ,@body) ,@(keys body)))
