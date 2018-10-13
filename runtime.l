@@ -137,7 +137,7 @@
         (unless (number? k)
           (set (get l k) v))))))
 
-(define-global keys (x)
+(define-global props (x)
   (with t ()
     (each (k v) x
       (unless (number? k)
@@ -185,7 +185,7 @@
   (cut l 0 (edge l)))
 
 (define-global reverse (l)
-  (with l1 (keys l)
+  (with l1 (props l)
     (let i (edge l)
       (while (>= i 0)
         (add l1 (at l i))

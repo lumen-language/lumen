@@ -167,7 +167,7 @@ function _G.cut(x, from, upto)
   end
   return __l
 end
-function _G.keys(x)
+function _G.props(x)
   local __t = {}
   local ____o4 = x
   local __k2 = nil
@@ -220,7 +220,7 @@ function _G.almost(l)
   return cut(l, 0, edge(l))
 end
 function _G.reverse(l)
-  local __l1 = keys(l)
+  local __l1 = props(l)
   local __i5 = edge(l)
   while __i5 >= 0 do
     add(__l1, l[__i5 + 1])
@@ -906,7 +906,7 @@ setenv("define-macro", {_stash = true, macro = function (name, args, ...)
   local __body9 = cut(____id13, 0)
   local ____x77 = {"setenv", {"quote", __name1}}
   ____x77.macro = join({"fn", __args1}, __body9)
-  return join(____x77, keys(__body9))
+  return join(____x77, props(__body9))
 end})
 setenv("define-special", {_stash = true, macro = function (name, args, ...)
   local ____r23 = unstash({...})
@@ -916,7 +916,7 @@ setenv("define-special", {_stash = true, macro = function (name, args, ...)
   local __body10 = cut(____id14, 0)
   local ____x81 = {"setenv", {"quote", __name2}}
   ____x81.special = join({"fn", __args2}, __body10)
-  return join(____x81, keys(__body10))
+  return join(____x81, props(__body10))
 end})
 setenv("define-symbol", {_stash = true, macro = function (name, expansion)
   local ____x84 = {"setenv", {"quote", name}}

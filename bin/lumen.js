@@ -205,7 +205,7 @@ cut = function (x, from, upto) {
   }
   return __l;
 };
-keys = function (x) {
+props = function (x) {
   var __t = [];
   var ____o4 = x;
   var __k2 = undefined;
@@ -255,7 +255,7 @@ almost = function (l) {
   return cut(l, 0, edge(l));
 };
 reverse = function (l) {
-  var __l1 = keys(l);
+  var __l1 = props(l);
   var __i5 = edge(l);
   while (__i5 >= 0) {
     add(__l1, l[__i5]);
@@ -983,7 +983,7 @@ setenv("define-macro", {_stash: true, macro: function (name, args, ..._42args) {
   var __body9 = cut(____id13, 0);
   var ____x77 = ["setenv", ["quote", __name1]];
   ____x77.macro = join(["fn", __args1], __body9);
-  return join(____x77, keys(__body9));
+  return join(____x77, props(__body9));
 }});
 setenv("define-special", {_stash: true, macro: function (name, args, ..._42args) {
   var ____r23 = unstash([..._42args]);
@@ -993,7 +993,7 @@ setenv("define-special", {_stash: true, macro: function (name, args, ..._42args)
   var __body10 = cut(____id14, 0);
   var ____x81 = ["setenv", ["quote", __name2]];
   ____x81.special = join(["fn", __args2], __body10);
-  return join(____x81, keys(__body10));
+  return join(____x81, props(__body10));
 }});
 setenv("define-symbol", {_stash: true, macro: function (name, expansion) {
   var ____x84 = ["setenv", ["quote", name]];

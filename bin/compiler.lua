@@ -136,6 +136,7 @@ function _G.bind_function(args, body)
     return {__args1, join({"let", {args, rest()}}, body)}
   else
     local __bs1 = {}
+    local __ks = {}
     local __r18 = unique("r")
     local ____o2 = args
     local __k2 = nil
@@ -149,6 +150,8 @@ function _G.bind_function(args, body)
           add(__args1, __x14)
           __bs1 = join(__bs1, {__v2, __x14})
         end
+      else
+        __ks[__k2] = __v2
       end
     end
     if keys63(args) then
@@ -160,7 +163,7 @@ function _G.bind_function(args, body)
         __bs1 = join(__bs1, {__v3, {"destash!", __v3, __r18}})
         __i4 = __i4 + 1
       end
-      __bs1 = join(__bs1, {keys(args), __r18})
+      __bs1 = join(__bs1, {__ks, __r18})
     end
     return {__args1, join({"let", __bs1}, body)}
   end
