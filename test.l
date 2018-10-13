@@ -793,7 +793,8 @@ c"
       (test= 20 b))))
 
 (define-test define-symbol
-  (define-symbol zzz 42)
+  (during-compilation
+    (define-symbol zzz 42))
   (test= zzz 42))
 
 (define-test macros-and-symbols
