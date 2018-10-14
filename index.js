@@ -13,6 +13,10 @@ if (require.main === module) {
 }
 require('module').Module._initPaths();
 _G.require = require;
+
+_G.ustring = (_G.ustring || {})
+_G.ustring.new = x => [...x]
+
 Object.assign(exports, require("./bin/lumen.js"));
 if (require.main === module) {
   exports.main(process.argv.slice(2));

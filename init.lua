@@ -285,7 +285,7 @@ local function loader(dir, path, bundleOnly)
 end
 
 -- Register as a normal lua package loader.
-local lumen
+local lumen, json, ustring, bitops
 if package.loaders then
   table.insert(package.loaders, 1, function (path)
 
@@ -312,12 +312,22 @@ if package.loaders then
     end
     return loader(cwd, path)
   end)
-  lumen = require('./bin/lumen.lua')
+  _G.bit = (bit or bit32 or require("./deps/bindechex.lua"))
+  _G.JSON = JSON or require("./deps/json.lua")
+  _G.ustring = ustring or require("./deps/ustring.lua")
+  lumen = require("./bin/lumen.lua")
 else
   local fullPath = pathJoin(realpath(cwd), "bin", "?.lua")
-  package.path = package.path .. ";;" .. fullPath
-  lumen = require('lumen')
+  local depsPath = pathJoin(realpath(cwd), "deps", "?.lua")
+  package.path = package.path .. ";;" .. fullPath .. ";;" .. depsPath
+  _G.bit = (bit or bit32 or require("bindechex"))
+  _G.JSON = JSON or require("json")
+  _G.ustring = ustring or require("ustring")
+  lumen = require("lumen")
 end
+package.loaded.json = JSON
+package.loaded.ustring = ustring
+package.loaded.bindechex = bit
 package.loaded.reader = lumen.reader
 package.loaded.compiler = lumen.compiler
 package.loaded.system = lumen.system

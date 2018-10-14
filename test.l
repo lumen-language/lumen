@@ -1132,4 +1132,10 @@ c"
   (test= 'b (select 2 (values 'a 'b 'c 'd)))
   (test= '(b c d) (results (select 2 (values 'a 'b 'c 'd)))))
 
+(define-test unicode
+  (let (blns ((JSON .parse) (read-file "deps/blns.json"))
+        strs (map (ustring .new) blns)
+        ns ((JSON .parse) (read-file "deps/blnscount.json")))
+    (test= ns (map # strs))))
+
 (run)
