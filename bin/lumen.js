@@ -34,8 +34,8 @@ pcall = function (f, ..._42args) {
     try {
       return [true, results(f(..._42args))];
     }
-    catch (__e11) {
-      return [false, __e11];
+    catch (__e13) {
+      return [false, __e13];
     }
   })();
   var __ok = ____id[0];
@@ -105,19 +105,25 @@ atom63 = function (x) {
 };
 hd63 = function (l, x) {
   var __id2 = obj63(l);
-  var __e1 = undefined;
+  var __e2 = undefined;
   if (__id2) {
-    var __e2 = undefined;
+    var __e3 = undefined;
     if (function63(x)) {
-      __e2 = x(hd(l));
+      __e3 = x(hd(l));
     } else {
-      __e2 = hd(l) === x;
+      var __e4 = undefined;
+      if (nil63(x)) {
+        __e4 = hd(l);
+      } else {
+        __e4 = hd(l) === x;
+      }
+      __e3 = __e4;
     }
-    __e1 = __e2;
+    __e2 = __e3;
   } else {
-    __e1 = __id2;
+    __e2 = __id2;
   }
-  return __e1;
+  return __e2;
 };
 _G.nan = 0 / 0;
 _G.inf = 1 / 0;
@@ -175,21 +181,21 @@ reduce = function (f, l, r) {
 cut = function (x, from, upto) {
   var __l = [];
   var __j = 0;
-  var __e3 = undefined;
+  var __e5 = undefined;
   if (nil63(from) || from < 0) {
-    __e3 = 0;
+    __e5 = 0;
   } else {
-    __e3 = from;
+    __e5 = from;
   }
-  var __i2 = __e3;
+  var __i2 = __e5;
   var __n1 = _35(x);
-  var __e4 = undefined;
+  var __e6 = undefined;
   if (nil63(upto) || upto > __n1) {
-    __e4 = __n1;
+    __e6 = __n1;
   } else {
-    __e4 = upto;
+    __e6 = upto;
   }
-  var __upto1 = __e4;
+  var __upto1 = __e6;
   while (__i2 < __upto1) {
     __l[__j] = x[__i2];
     __i2 = __i2 + 1;
@@ -350,9 +356,9 @@ pair = function (l) {
   return __l12;
 };
 sort = function (l, f) {
-  var __e5 = undefined;
+  var __e7 = undefined;
   if (f) {
-    __e5 = function (a, b) {
+    __e7 = function (a, b) {
       if (f(a, b)) {
         return -1;
       } else {
@@ -360,7 +366,7 @@ sort = function (l, f) {
       }
     };
   }
-  return l.sort(__e5);
+  return l.sort(__e7);
 };
 map = function (f, x) {
   var __t1 = [];
@@ -637,31 +643,31 @@ escape = function (s) {
   var __i24 = 0;
   while (__i24 < _35(s)) {
     var __c1 = char(s, __i24);
-    var __e6 = undefined;
+    var __e8 = undefined;
     if (__c1 === "\n") {
-      __e6 = "\\n";
+      __e8 = "\\n";
     } else {
-      var __e7 = undefined;
+      var __e9 = undefined;
       if (__c1 === "\r") {
-        __e7 = "\\r";
+        __e9 = "\\r";
       } else {
-        var __e8 = undefined;
+        var __e10 = undefined;
         if (__c1 === "\"") {
-          __e8 = "\\\"";
+          __e10 = "\\\"";
         } else {
-          var __e9 = undefined;
+          var __e11 = undefined;
           if (__c1 === "\\") {
-            __e9 = "\\\\";
+            __e11 = "\\\\";
           } else {
-            __e9 = __c1;
+            __e11 = __c1;
           }
-          __e8 = __e9;
+          __e10 = __e11;
         }
-        __e7 = __e8;
+        __e9 = __e10;
       }
-      __e6 = __e7;
+      __e8 = __e9;
     }
-    var __c11 = __e6;
+    var __c11 = __e8;
     __s1 = __s1 + __c11;
     __i24 = __i24 + 1;
   }
@@ -727,13 +733,13 @@ setenv = function (k, ..._42args) {
   var ____id1 = ____r98;
   var __keys = cut(____id1, 0);
   if (string63(__k11)) {
-    var __e10 = undefined;
+    var __e12 = undefined;
     if (__keys.toplevel) {
-      __e10 = hd(_G.environment);
+      __e12 = hd(_G.environment);
     } else {
-      __e10 = last(_G.environment);
+      __e12 = last(_G.environment);
     }
-    var __frame = __e10;
+    var __frame = __e12;
     var __entry = __frame[__k11] || {};
     var ____o16 = __keys;
     var __k12 = undefined;

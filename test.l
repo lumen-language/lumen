@@ -1109,7 +1109,8 @@ c"
   (test= false (hd? '((%if) 1 2) '(%if)))
   (test= true (hd? '((%if) 1 2) (testify '%if hd?)))
   (test= false (hd? 42 '%if))
-  (test= true (hd? '() nil))
+  (test= nil (hd? '() nil))
+  (test= 'a (hd? '(a b c)))
   (test= true (hd? '(1 2 3) number?))
   (test= false (hd? '(1 2 3) string?)))
 

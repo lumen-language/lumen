@@ -77,6 +77,7 @@
   (and (obj? l)
        (if (function? x)
            (x (hd l))
+           (nil? x) (hd l)
          (= (hd l) x))))
 
 (define-global nan (/ 0 0))
