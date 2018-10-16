@@ -200,7 +200,7 @@ local function expand_function(__x25)
     local ____x27 = ____o3[____i5]
     setenv(____x27, {_stash = true, variable = true})
   end
-  local ____x28 = join({"%function", __args}, macroexpand(__body))
+  local ____x28 = join({"%function", __args}, map(macroexpand, __body))
   drop(_G.environment)
   return ____x28
 end
@@ -217,7 +217,7 @@ local function expand_definition(__x30)
     local ____x32 = ____o4[____i6]
     setenv(____x32, {_stash = true, variable = true})
   end
-  local ____x33 = join({__x31, macroexpand(__name1), __args11}, macroexpand(__body1))
+  local ____x33 = join({__x31, macroexpand(__name1), __args11}, map(macroexpand, __body1))
   drop(_G.environment)
   return ____x33
 end

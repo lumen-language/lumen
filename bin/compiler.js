@@ -200,7 +200,7 @@ var expand_function = function (__x25) {
     var ____x27 = ____o3[____i5];
     setenv(____x27, {_stash: true, variable: true});
   }
-  var ____x28 = join(["%function", __args], macroexpand(__body));
+  var ____x28 = join(["%function", __args], map(macroexpand, __body));
   drop(_G.environment);
   return ____x28;
 };
@@ -217,7 +217,7 @@ var expand_definition = function (__x30) {
     var ____x32 = ____o4[____i6];
     setenv(____x32, {_stash: true, variable: true});
   }
-  var ____x33 = join([__x31, macroexpand(__name1), __args11], macroexpand(__body1));
+  var ____x33 = join([__x31, macroexpand(__name1), __args11], map(macroexpand, __body1));
   drop(_G.environment);
   return ____x33;
 };
