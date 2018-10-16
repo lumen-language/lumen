@@ -121,12 +121,12 @@
 
 (define-macro define (name x rest: body)
   (if (some? body)
-      `(%local-function ,name ,@(bind-function x body))
+      `(%local-function ,name ,@(bind-function x body) ,@(props body))
     `(%local ,name ,x)))
 
 (define-macro define-global (name x rest: body)
   (if (some? body)
-      `(%global-function ,name ,@(bind-function x body))
+      `(%global-function ,name ,@(bind-function x body) ,@(props body))
       (global-id? name)
       `(set ,name ,x)
     `(set (get _G ',(compile name)) ,x)))
@@ -164,7 +164,7 @@
        ,@body)))
 
 (define-macro fn (args rest: body)
-  `(%function ,@(bind-function args body)))
+  `(%function ,@(bind-function args body) ,@(props body)))
 
 (define-macro apply (f rest: args)
   (if (> (# args) 1)
@@ -196,7 +196,7 @@
 (define-macro for (i to rest: body)
   (if (obj? i)
       `(let ,(apply join (map (fn (x) `(,x nil)) i))
-         (%for ,to (%names ,@i) (do ,@body)))
+         (%for ,to (%names ,@i) (do ,@body) ,@(props body)))
     `(let ,i 0
        (while (< ,i ,to)
          ,@body

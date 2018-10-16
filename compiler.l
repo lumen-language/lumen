@@ -415,7 +415,12 @@
         (cat op ao " " a ac)
       (cat ao a ac " " op " " bo b bc))))
 
-(define-global compile-function (args body name: name prefix: prefix global: global?)
+(define-global compile-function (args body
+                                      name: name
+                                      prefix: prefix
+                                      global: global?
+                                      async: async?
+                                      generator: generator?)
   (let (id (if name (compile name) "")
         id (if global? (cat "_G." id) id)
         args1 (if (get args 'rest)
@@ -425,10 +430,12 @@
         body (with-indent (compile body stmt: true))
         ind (indentation)
         p (if prefix (cat prefix " ") "")
-        tr (if (= target* 'js) "" "end"))
+        tr (if (= target* 'js) "" "end")
+        async1 (if async? "async " "")
+        func (if generator? "function* " "function "))
     (if name (cat! tr "\n"))
     (if (= target* 'js)
-        (cat "function " id args " {\n" body ind "}" tr)
+        (cat async1 func id args " {\n" body ind "}" tr)
       (cat p "function " id args "\n" body ind tr))))
 
 (define can-return? (form)
@@ -541,16 +548,17 @@
   (let ((t k rest: body) args)
     (add hoist
          `(%for ,(lower t hoist) ,k
-            ,(lower-body body)))))
+            ,(lower-body body)
+            ,@(props body)))))
 
 (define lower-function (args)
   (let ((a rest: body) args)
-    `(%function ,a ,(lower-body body true))))
+    `(%function ,a ,(lower-body body true) ,@(props body))))
 
 (define lower-definition (kind args hoist stmt? tail?)
   (let ((name args rest: body) args
         name1 (lower name hoist))
-    (add hoist `(,kind ,name1 ,args ,(lower-body body true)))
+    (add hoist `(,kind ,name1 ,args ,(lower-body body true) ,@(props body)))
     (unless (and stmt? (not tail?))
       name1)))
 
@@ -671,14 +679,15 @@
         (set c ", "))
       (cat s (if (= target* 'js) "]" "")))))
 
-(define-special %for (t k form) stmt: true tr: true
+(define-special %for (t k form await: await?) stmt: true tr: true
   (let (t (compile t)
         k (compile k)
         ind (indentation)
-        body (with-indent (compile form stmt: true)))
+        body (with-indent (compile form stmt: true))
+        a (if await? "await " ""))
     (if (= target* 'lua)
         (cat ind "for " k " in " t " do\n" body ind "end\n")
-      (cat ind "for (" k " of " t ") {\n" body ind "}\n"))))
+      (cat ind "for " a "(" k " of " t ") {\n" body ind "}\n"))))
 
 (define-special %try (form) stmt: true tr: true
   (let-unique (e)
@@ -695,20 +704,20 @@
 (define-special break () stmt: true
   (cat (indentation) "break"))
 
-(define-special %function (args body)
-  (compile-function args body))
+(define-special %function (args rest: body)
+  (apply compile-function args body))
 
-(define-special %global-function (name args body) stmt: true tr: true
+(define-special %global-function (name args rest: body) stmt: true tr: true
   (if (= target* 'lua)
-      (let x (compile-function args body name: name global: true)
+      (let x (apply compile-function args body name: name global: true)
         (cat (indentation) x))
-    (compile `(%set ,name (%function ,args ,body)) stmt: true)))
+    (compile `(%set ,name (%function ,args ,@body)) stmt: true)))
 
-(define-special %local-function (name args body) stmt: true tr: true
+(define-special %local-function (name args rest: body) stmt: true tr: true
   (if (= target* 'lua)
-      (let x (compile-function args body name: name prefix: 'local)
+      (let x (apply compile-function args body name: name prefix: 'local)
         (cat (indentation) x))
-    (compile `(%local ,name (%function ,args ,body)) stmt: true)))
+    (compile `(%local ,name (%function ,args ,@body)) stmt: true)))
 
 (define-special return (x) stmt: true
   (let x (if (nil? x)
