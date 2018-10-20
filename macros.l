@@ -1,3 +1,6 @@
+(define-macro do body
+  `(%do ,@body))
+
 (define-macro quote (form)
   (quoted form))
 
@@ -36,10 +39,10 @@
        (%call define-setter ',name (fn ,arglist ,@body) setfn args))))
 
 (define-macro set args
-  `(do ,@(map (fn ((lh rh))
-                (let-place (getter setter) lh
-                  (setter rh)))
-              (pair args))))
+  `(%do ,@(map (fn ((lh rh))
+                 (let-place (getter setter) lh
+                   (setter rh)))
+               (pair args))))
 
 (define-macro at (l i)
   (if (and (= target* 'lua) (number? i))
@@ -79,23 +82,23 @@
          (if ,@(apply join (map cl (pair clauses))))))))
 
 (define-macro when (cond rest: body)
-  `(if ,cond (do ,@body)))
+  `(if ,cond (%do ,@body)))
 
 (define-macro unless (cond rest: body)
-  `(if (not ,cond) (do ,@body)))
+  `(if (not ,cond) (%do ,@body)))
 
 (define-macro obj body
   `(%object ,@(mapo (fn (x) x) body)))
 
 (define-macro let (bs rest: body)
   (if (atom? bs) `(let (,bs ,(hd body)) ,@(tl body))
-      (none? bs) `(do ,@body)
+      (none? bs) `(%do ,@body)
     (let ((lh rh rest: bs2) bs
           (id val rest: bs1) (bind lh rh)
           id1 (unique id))
-      `(do (%local ,id1 ,val)
-           (let-symbol (,id ,id1)
-             (let ,(join bs1 bs2) ,@body))))))
+      `(%do (%local ,id1 ,val)
+            (let-symbol (,id ,id1)
+              (let ,(join bs1 bs2) ,@body))))))
 
 (define-macro with (x v rest: body)
   `(let (,x ,v) ,@body ,x))
@@ -133,9 +136,9 @@
 
 (define-macro with-frame body
   (let-unique (x)
-    `(do (add environment* (obj))
-         (with ,x (do ,@body)
-           (drop environment*)))))
+    `(%do (add environment* (obj))
+          (with ,x (%do ,@body)
+            (drop environment*)))))
 
 (define-macro with-bindings ((names) rest: body)
   (let-unique (x)
@@ -148,13 +151,13 @@
   (with-frame
     (step m definitions
       (eval `(define-macro ,@m)))
-    `(do ,@(macroexpand body))))
+    `(%do ,@(macroexpand body))))
 
 (define-macro let-symbol (expansions rest: body)
   (with-frame
     (step (name exp) (pair expansions)
       (eval `(define-symbol ,name ,exp)))
-    `(do ,@(macroexpand body))))
+    `(%do ,@(macroexpand body))))
 
 (define-macro let-unique (names rest: body)
   (let bs (map (fn (n)
@@ -196,7 +199,7 @@
 (define-macro for (i to rest: body)
   (if (obj? i)
       `(let ,(apply join (map (fn (x) `(,x nil)) i))
-         (%for ,to (%names ,@i) (do ,@body) ,@(props body)))
+         (%for ,to (%names ,@i) (%do ,@body) ,@(props body)))
     `(let ,i 0
        (while (< ,i ,to)
          ,@body
@@ -234,9 +237,9 @@
 
 (define-macro with-indent (form)
   (let-unique (x)
-    `(do (inc indent-level*)
-         (with ,x ,form
-           (dec indent-level*)))))
+    `(%do (inc indent-level*)
+          (with ,x ,form
+            (dec indent-level*)))))
 
 (define-macro undefined? (x)
   `(target lua: (= ,x nil)
@@ -250,10 +253,10 @@
      (target lua: (return exports))))
 
 (define-macro when-compiling body
-  (eval `(do ,@body)))
+  (eval `(%do ,@body)))
 
 (define-macro during-compilation body
-  (with form `(do ,@body (do))
+  (with form `(%do ,@body (%do))
     (eval form)))
 
 (define-setter hd (v l)

@@ -459,14 +459,14 @@
   (either
     (let (hoist () e (lower form hoist true tail?))
       (if (and (some? hoist) (is? e))
-          `(do ,@hoist ,e)
+          `(%do ,@hoist ,e)
           (is? e) e
-          (> (# hoist) 1) `(do ,@hoist)
+          (> (# hoist) 1) `(%do ,@hoist)
         (hd hoist)))
-    '(do)))
+    '(%do)))
 
 (define lower-body (body tail?)
-  (lower-statement `(do ,@body) tail?))
+  (lower-statement `(%do ,@body) tail?))
 
 (define literal? (form)
   (or (atom? form)
@@ -521,10 +521,10 @@
         b1 (lower b hoist1))
     (if (some? hoist1)
         (let-unique (id)
-          (lower `(do (%local ,id ,a)
-                      ,(if (= x 'and)
-                           `(%if ,id ,b ,id)
-                         `(%if ,id ,id ,b)))
+          (lower `(%do (%local ,id ,a)
+                       ,(if (= x 'and)
+                            `(%if ,id ,b ,id)
+                          `(%if ,id ,id ,b)))
                  hoist))
       `(,x ,(lower a hoist) ,b1))))
 
@@ -540,9 +540,9 @@
           `(while ,c
             ,(lower-body body))
         `(while true
-           (do ,@pre
-               (%if (not ,c) (break))
-               ,(lower-body body)))))))
+           (%do ,@pre
+                (%if (not ,c) (break))
+                ,(lower-body body)))))))
 
 (define lower-for (args hoist)
   (let ((t k rest: body) args)
@@ -594,7 +594,7 @@
       (lower-pairwise? form) (lower (pairwise-form form) hoist stmt? tail?)
       (lower-infix? form) (lower (infix-form form) hoist stmt? tail?)
     (let ((x rest: args) form)
-      (if (= x 'do) (lower-do args hoist stmt? tail?)
+      (if (= x '%do) (lower-do args hoist stmt? tail?)
           (= x '%call) (lower args hoist stmt? tail?)
           (= x '%set) (lower-set args hoist stmt? tail?)
           (= x '%if) (lower-if args hoist stmt? tail?)
@@ -635,6 +635,19 @@
   (and (obj? x) (obj? (hd x)) (= (hd (hd x)) '%function)))
 
 (define-special do forms stmt: true tr: true
+  (with s ""
+    (step x forms
+      (when (and (= target* 'lua)
+                 (immediate-call? x)
+                 (= "\n" (char s (edge s))))
+        (set s (cat (clip s 0 (edge s)) ";\n")))
+      (cat! s (compile x stmt: true))
+      (unless (atom? x)
+        (if (or (= (hd x) 'return)
+                (= (hd x) 'break))
+            (break))))))
+
+(define-special %do forms stmt: true tr: true
   (with s ""
     (step x forms
       (when (and (= target* 'lua)
