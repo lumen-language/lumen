@@ -537,12 +537,12 @@
         c (lower c pre))
     (add hoist
       (if (none? pre)
-          `(while ,c
-            ,(lower-body body))
-        `(while true
-           (%do ,@pre
-                (%if (not ,c) (break))
-                ,(lower-body body)))))))
+          `(%while ,c
+             ,(lower-body body))
+        `(%while true
+            (%do ,@pre
+                 (%if (not ,c) (break))
+                 ,(lower-body body)))))))
 
 (define lower-for (args hoist)
   (let ((t k rest: body) args)
@@ -599,7 +599,7 @@
           (= x '%set) (lower-set args hoist stmt? tail?)
           (= x '%if) (lower-if args hoist stmt? tail?)
           (= x '%try) (lower-try args hoist tail?)
-          (= x 'while) (lower-while args hoist)
+          (= x '%while) (lower-while args hoist)
           (= x '%for) (lower-for args hoist)
           (= x '%function) (lower-function args)
           (or (= x '%local-function)
@@ -676,7 +676,7 @@
         (cat s ind "end\n")
       (cat s "\n"))))
 
-(define-special while (cond form) stmt: true tr: true
+(define-special %while (cond form) stmt: true tr: true
   (let (cond (compile cond)
         body (with-indent (compile form stmt: true))
         ind (indentation))

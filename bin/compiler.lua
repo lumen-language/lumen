@@ -956,9 +956,9 @@ local function lower_while(args, hoist)
   local __c5 = lower(__c4, __pre)
   local __e37 = nil
   if none63(__pre) then
-    __e37 = {"while", __c5, lower_body(__body5)}
+    __e37 = {"%while", __c5, lower_body(__body5)}
   else
-    __e37 = {"while", true, join({"%do"}, __pre, {{"%if", {"not", __c5}, {"break"}}, lower_body(__body5)})}
+    __e37 = {"%while", true, join({"%do"}, __pre, {{"%if", {"not", __c5}, {"break"}}, lower_body(__body5)})}
   end
   return add(hoist, __e37)
 end
@@ -1070,7 +1070,7 @@ function _G.lower(form, hoist, stmt63, tail63)
                     if __x122 == "%try" then
                       return lower_try(__args7, hoist, tail63)
                     else
-                      if __x122 == "while" then
+                      if __x122 == "%while" then
                         return lower_while(__args7, hoist)
                       else
                         if __x122 == "%for" then
@@ -1206,7 +1206,7 @@ setenv("%if", {_stash = true, special = function (cond, cons, alt)
     return __s4 .. "\n"
   end
 end, stmt = true, tr = true})
-setenv("while", {_stash = true, special = function (cond, form)
+setenv("%while", {_stash = true, special = function (cond, form)
   local __cond2 = compile(cond)
   _G.indent_level = _G.indent_level + 1
   local ____x134 = compile(form, {_stash = true, stmt = true})

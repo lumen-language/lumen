@@ -1,11 +1,14 @@
-(define-macro do body
-  `(%do ,@body))
-
 (define-macro quote (form)
   (quoted form))
 
 (define-macro quasiquote (form)
   (quasiexpand form 1))
+
+(define-macro do body
+  `(%do ,@body))
+
+(define-macro while (test rest: body)
+  `(%while ,test (%do ,@body) ,@(props body)))
 
 (define-global get-place (place setfn)
   (let place (macroexpand place)
