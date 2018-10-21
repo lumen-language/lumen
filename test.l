@@ -831,10 +831,10 @@ c"
 
 (define-test let-unique
   (let-unique (ham chap)
-    (test= (target lua: '__ham js: '__ham2) ham)
-    (test= (target lua: '__chap js: '__chap1) chap)
+    (test= '__ham2 ham)
+    (test= '__chap1 chap)
     (let-unique (ham)
-      (test= (target lua: '__ham1 js: '__ham3) ham))))
+      (test= '__ham3 ham))))
 
 (define-test literals
   (test= true true)
@@ -1138,5 +1138,17 @@ c"
         strs (map (ustring .new) blns)
         ns ((JSON .parse) (read-file "deps/blnscount.json")))
     (test= ns (map # strs))))
+
+(define-test compose
+  (test= "print(1)" ((compose compile lower macroexpand) '(print 1)))
+  (test= "6" ((compose tostring +) 1 2 3)))
+
+(define-test complement
+  (test= true ((complement string?) 1))
+  (test= true ((complement (complement string?)) "foo"))
+  (test= true (((compose complement complement) string?) "foo")))
+
+(define-test expansion
+  (test= '(let x 1 x) (macroexpand '((expansion) (let x 1 x)))))
 
 (run)

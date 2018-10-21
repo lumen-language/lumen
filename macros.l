@@ -113,6 +113,9 @@
          (let (,x ,y)
            ,@body)))))
 
+(define-macro define-transformer (name form rest: body)
+  `(setenv ',name transformer: (fn (,form) ,@body) ,@(props body)))
+
 (define-macro define-macro (name args rest: body)
   `(setenv ',name macro: (fn ,args ,@body) ,@(props body)))
 
@@ -261,6 +264,19 @@
 (define-macro during-compilation body
   (with form `(%do ,@body (%do))
     (eval form)))
+
+(define-transformer compose ((compose rest: fns) rest: body)
+  (if (none? fns) (macroexpand `(do ,@body))
+      (one? fns) (macroexpand `(,@fns ,@body))
+    (macroexpand `((,compose ,@(almost fns)) (,(last fns) ,@body)))))
+
+(define-transformer complement ((complement form) rest: body)
+  (if (hd? form 'complement)
+      (macroexpand `(,(at form 1) ,@body))
+    (macroexpand `(no (,form ,@body)))))
+
+(define-transformer expansion ((expansion) form)
+  form)
 
 (define-setter hd (v l)
   `(set (at ,l 0) ,v))

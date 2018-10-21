@@ -17,6 +17,12 @@ function _G.getenv(k, p)
     end
   end
 end
+local function transformer_function(k)
+  return getenv(k, "transformer")
+end
+local function transformer63(k)
+  return is63(transformer_function(k))
+end
 local function macro_function(k)
   return getenv(k, "macro")
 end
@@ -137,7 +143,7 @@ function _G.bind_function(args, body)
   else
     local __bs1 = {}
     local __ks = {}
-    local __r18 = unique("r")
+    local __r20 = unique("r")
     local ____o2 = args
     local __k2 = nil
     for __k2 in pairs(____o2) do
@@ -155,15 +161,15 @@ function _G.bind_function(args, body)
       end
     end
     if keys63(args) then
-      __bs1 = join(__bs1, {__r18, rest()})
+      __bs1 = join(__bs1, {__r20, rest()})
       local __n3 = _35(__args1)
       local __i4 = 0
       while __i4 < __n3 do
         local __v3 = __args1[__i4 + 1]
-        __bs1 = join(__bs1, {__v3, {"destash!", __v3, __r18}})
+        __bs1 = join(__bs1, {__v3, {"destash!", __v3, __r20}})
         __i4 = __i4 + 1
       end
-      __bs1 = join(__bs1, {__ks, __r18})
+      __bs1 = join(__bs1, {__ks, __r20})
     end
     return {__args1, join({"let", __bs1}, body)}
   end
@@ -230,6 +236,12 @@ function _G.expand1(__x35)
   local __body2 = cut(____id4, 1)
   return apply(macro_function(__name2), __body2)
 end
+local function expand_transformer(form)
+  return transform1(form)
+end
+function _G.transform1(form)
+  return transformer_function(hd(hd(form)))(form)
+end
 function _G.macroexpand(form)
   if symbol63(form) then
     return macroexpand(symbol_expansion(form))
@@ -253,7 +265,11 @@ function _G.macroexpand(form)
               if macro63(__x36) then
                 return expand_macro(form)
               else
-                return map(macroexpand, form)
+                if hd63(__x36, transformer63) then
+                  return expand_transformer(form)
+                else
+                  return map(macroexpand, form)
+                end
               end
             end
           end
@@ -727,10 +743,10 @@ local function compile_infix(form)
   end
 end
 function _G.compile_function(args, body, ...)
-  local ____r63 = unstash({...})
-  local __args4 = destash33(args, ____r63)
-  local __body3 = destash33(body, ____r63)
-  local ____id12 = ____r63
+  local ____r67 = unstash({...})
+  local __args4 = destash33(args, ____r67)
+  local __body3 = destash33(body, ____r67)
+  local ____id12 = ____r67
   local __name3 = ____id12.name
   local __prefix = ____id12.prefix
   local __global63 = ____id12.global
@@ -804,9 +820,9 @@ local function can_return63(form)
   return is63(form) and (atom63(form) or not( hd(form) == "return") and not statement63(hd(form)))
 end
 function _G.compile(form, ...)
-  local ____r65 = unstash({...})
-  local __form = destash33(form, ____r65)
-  local ____id15 = ____r65
+  local ____r69 = unstash({...})
+  local __form = destash33(form, ____r69)
+  local ____id15 = ____r69
   local __stmt1 = ____id15.stmt
   local __esc63 = ____id15["escape-reserved"]
   if nil63(__form) then
@@ -1250,11 +1266,11 @@ setenv("%names", {_stash = true, special = function (...)
   end
 end})
 setenv("%for", {_stash = true, special = function (t, k, form, ...)
-  local ____r93 = unstash({...})
-  local __t1 = destash33(t, ____r93)
-  local __k7 = destash33(k, ____r93)
-  local __form3 = destash33(form, ____r93)
-  local ____id28 = ____r93
+  local ____r97 = unstash({...})
+  local __t1 = destash33(t, ____r97)
+  local __k7 = destash33(k, ____r97)
+  local __form3 = destash33(form, ____r97)
+  local ____id28 = ____r97
   local __await63 = ____id28.await
   local __t2 = compile(__t1)
   local __k8 = compile(__k7)
@@ -1297,17 +1313,17 @@ setenv("break", {_stash = true, special = function ()
   return indentation() .. "break"
 end, stmt = true})
 setenv("%function", {_stash = true, special = function (args, ...)
-  local ____r97 = unstash({...})
-  local __args9 = destash33(args, ____r97)
-  local ____id29 = ____r97
+  local ____r101 = unstash({...})
+  local __args9 = destash33(args, ____r101)
+  local ____id29 = ____r101
   local __body12 = cut(____id29, 0)
   return apply(compile_function, join({__args9}, __body12))
 end})
 setenv("%global-function", {_stash = true, special = function (name, args, ...)
-  local ____r98 = unstash({...})
-  local __name5 = destash33(name, ____r98)
-  local __args10 = destash33(args, ____r98)
-  local ____id30 = ____r98
+  local ____r102 = unstash({...})
+  local __name5 = destash33(name, ____r102)
+  local __args10 = destash33(args, ____r102)
+  local ____id30 = ____r102
   local __body13 = cut(____id30, 0)
   if _G.target == "lua" then
     local ____x148 = {__args10}
@@ -1320,10 +1336,10 @@ setenv("%global-function", {_stash = true, special = function (name, args, ...)
   end
 end, stmt = true, tr = true})
 setenv("%local-function", {_stash = true, special = function (name, args, ...)
-  local ____r99 = unstash({...})
-  local __name6 = destash33(name, ____r99)
-  local __args111 = destash33(args, ____r99)
-  local ____id31 = ____r99
+  local ____r103 = unstash({...})
+  local __name6 = destash33(name, ____r103)
+  local __args111 = destash33(args, ____r103)
+  local ____id31 = ____r103
   local __body14 = cut(____id31, 0)
   if _G.target == "lua" then
     local ____x153 = {__args111}
