@@ -34,20 +34,21 @@
     (let ((ok v) (guard (results (f ...))))
       (values ok (unpack v)))))
 
+(target lua:
+  (set (get _G "null") (or null (get JSON "null") (error "null not defined"))))
+
 (define-global nil? (x)
-  (target
-    js: (or (= x nil) (= x null))
-    lua: (= x nil)))
+  (or (= x nil) (= x null)))
 
 (define-global is? (x) (not (nil? x)))
 
 (define-global no (x) (or (nil? x) (= x false)))
 (define-global yes (x) (not (no x)))
-(define-global either (x y) (if (is? x) x y))
+(define-global either (x y) (if (= x nil) y x))
 
 (define-global has? (l k)
   (target js: ((get l 'hasOwnProperty) k)
-          lua: (is? (get l k))))
+          lua: (not (= nil (get l k)))))
 
 (define-global # (x)
   (target js: (or (get x 'length) 0) lua: (%literal "#" x)))
@@ -77,7 +78,7 @@
   (and (obj? l)
        (if (function? x)
            (x (hd l))
-           (nil? x) (hd l)
+           (= nil x) (hd l)
          (= (hd l) x))))
 
 (define-global nan (/ 0 0))
@@ -127,9 +128,9 @@
 (define-global cut (x from upto)
   (with l ()
     (let (j 0
-          i (if (or (nil? from) (< from 0)) 0 from)
+          i (if (or (= nil from) (< from 0)) 0 from)
           n (# x)
-          upto (if (or (nil? upto) (> upto n)) n upto))
+          upto (if (or (= nil upto) (> upto n)) n upto))
       (while (< i upto)
         (set (at l j) (at x i))
         (inc i)
@@ -246,12 +247,12 @@
   (with t ()
     (step v x
       (let y (f v)
-        (if (is? y)
+        (unless (= y nil)
           (add t y))))
     (each (k v) x
       (unless (number? k)
         (let y (f v)
-          (when (is? y)
+          (unless (= y nil)
             (set (get t k) y)))))))
 
 (define-global keep (v x)
@@ -310,7 +311,7 @@
       (let n (# sep)
         (while true
           (let i (search s sep)
-            (if (nil? i) (break)
+            (if (= nil i) (break)
               (do (add l (clip s 0 i))
                   (set s (clip s (+ i n)))))))
         (add l s)))))
@@ -380,7 +381,8 @@
 (target js:
   (define-global tostring (x)
     (if (string? x) x
-        (nil? x) "nil"
+        (= x nil) "nil"
+        (= x null) "null"
         (nan? x) "nan"
         (= x inf) "inf"
         (= x -inf) "-inf"
@@ -401,25 +403,32 @@
 
 (define-global str (x stack)
   (if (string? x) (escape x)
+      (= x null) "null"
       (atom? x) (tostring x)
       (function? x) "function"
       (and stack (in? x stack)) "circular"
       (target js: false lua: (not (= (type x) 'table)))
       (escape (tostring x))
     (let (s "(" sp ""
-          xs () ks ()
+          xs () ks () n -1
           l (or stack ()))
       (add l x)
       (each (k v) x
         (if (number? k)
-            (set (get xs k) (str v l))
+            (set (get xs k) (str v l)
+                 n (max n (target lua: (- k 1) js: k)))
           (do (target lua:
                 (unless (string? k)
                   (set k (str k l))))
               (add ks (cat k ":"))
               (add ks (str v l)))))
+      (inc n)
       (drop l)
-      (each v (join xs ks)
+      (for i n
+        (let v (either (at xs i) "nil")
+          (cat! s sp v)
+          (set sp " ")))
+      (step v ks
         (cat! s sp v)
         (set sp " "))
       (cat s  ")"))))

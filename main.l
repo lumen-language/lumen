@@ -93,7 +93,8 @@
          (and ok (= (hd v) str)))))
 
 (define-global pp-to-string (x stack)
-  (if (nil? x) "nil"
+  (if (= x nil) "nil"
+      (= x null) "null"
       (nan? x) "nan"
       (= x inf) "inf"
       (= x -inf) "-inf"

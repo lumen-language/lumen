@@ -55,10 +55,10 @@ yes = function (x) {
   return ! no(x);
 };
 either = function (x, y) {
-  if (is63(x)) {
-    return x;
-  } else {
+  if (x === undefined) {
     return y;
+  } else {
+    return x;
   }
 };
 has63 = function (l, k) {
@@ -112,7 +112,7 @@ hd63 = function (l, x) {
       __e3 = x(hd(l));
     } else {
       var __e4 = undefined;
-      if (nil63(x)) {
+      if (undefined === x) {
         __e4 = hd(l);
       } else {
         __e4 = hd(l) === x;
@@ -182,7 +182,7 @@ cut = function (x, from, upto) {
   var __l = [];
   var __j = 0;
   var __e5 = undefined;
-  if (nil63(from) || from < 0) {
+  if (undefined === from || from < 0) {
     __e5 = 0;
   } else {
     __e5 = from;
@@ -190,7 +190,7 @@ cut = function (x, from, upto) {
   var __i2 = __e5;
   var __n1 = _35(x);
   var __e6 = undefined;
-  if (nil63(upto) || upto > __n1) {
+  if (undefined === upto || upto > __n1) {
     __e6 = __n1;
   } else {
     __e6 = upto;
@@ -375,7 +375,7 @@ map = function (f, x) {
   while (____i12 < _35(____x8)) {
     var __v9 = ____x8[____i12];
     var __y3 = f(__v9);
-    if (is63(__y3)) {
+    if (!( __y3 === undefined)) {
       add(__t1, __y3);
     }
     ____i12 = ____i12 + 1;
@@ -386,7 +386,7 @@ map = function (f, x) {
     var __v10 = ____o8[__k5];
     if (! number63(__k5)) {
       var __y4 = f(__v10);
-      if (is63(__y4)) {
+      if (!( __y4 === undefined)) {
         __t1[__k5] = __y4;
       }
     }
@@ -486,7 +486,7 @@ split = function (s, sep) {
     var __n15 = _35(sep);
     while (true) {
       var __i20 = search(s, sep);
-      if (nil63(__i20)) {
+      if (undefined === __i20) {
         break;
       } else {
         add(__l3, clip(s, 0, __i20));
@@ -611,26 +611,30 @@ tostring = function (x) {
   if (string63(x)) {
     return x;
   } else {
-    if (nil63(x)) {
+    if (x === undefined) {
       return "nil";
     } else {
-      if (nan63(x)) {
-        return "nan";
+      if (x === null) {
+        return "null";
       } else {
-        if (x === inf) {
-          return "inf";
+        if (nan63(x)) {
+          return "nan";
         } else {
-          if (x === _inf) {
-            return "-inf";
+          if (x === inf) {
+            return "inf";
           } else {
-            if (boolean63(x)) {
-              if (x) {
-                return "true";
-              } else {
-                return "false";
-              }
+            if (x === _inf) {
+              return "-inf";
             } else {
-              return x.toString();
+              if (boolean63(x)) {
+                if (x) {
+                  return "true";
+                } else {
+                  return "false";
+                }
+              } else {
+                return x.toString();
+              }
             }
           }
         }
@@ -677,44 +681,59 @@ str = function (x, stack) {
   if (string63(x)) {
     return escape(x);
   } else {
-    if (atom63(x)) {
-      return tostring(x);
+    if (x === null) {
+      return "null";
     } else {
-      if (function63(x)) {
-        return "function";
+      if (atom63(x)) {
+        return tostring(x);
       } else {
-        if (stack && in63(x, stack)) {
-          return "circular";
+        if (function63(x)) {
+          return "function";
         } else {
-          if (false) {
-            return escape(tostring(x));
+          if (stack && in63(x, stack)) {
+            return "circular";
           } else {
-            var __s11 = "(";
-            var __sp = "";
-            var __xs5 = [];
-            var __ks = [];
-            var __l4 = stack || [];
-            add(__l4, x);
-            var ____o14 = x;
-            var __k10 = undefined;
-            for (__k10 of pairs(____o14)) {
-              var __v15 = ____o14[__k10];
-              if (number63(__k10)) {
-                __xs5[__k10] = str(__v15, __l4);
-              } else {
-                add(__ks, __k10 + ":");
-                add(__ks, str(__v15, __l4));
+            if (false) {
+              return escape(tostring(x));
+            } else {
+              var __s11 = "(";
+              var __sp = "";
+              var __xs5 = [];
+              var __ks = [];
+              var __n19 = -1;
+              var __l4 = stack || [];
+              add(__l4, x);
+              var ____o14 = x;
+              var __k10 = undefined;
+              for (__k10 of pairs(____o14)) {
+                var __v15 = ____o14[__k10];
+                if (number63(__k10)) {
+                  __xs5[__k10] = str(__v15, __l4);
+                  __n19 = max(__n19, __k10);
+                } else {
+                  add(__ks, __k10 + ":");
+                  add(__ks, str(__v15, __l4));
+                }
               }
+              __n19 = __n19 + 1;
+              drop(__l4);
+              var __i26 = 0;
+              while (__i26 < __n19) {
+                var __v16 = either(__xs5[__i26], "nil");
+                __s11 = __s11 + __sp + __v16;
+                __sp = " ";
+                __i26 = __i26 + 1;
+              }
+              var ____x21 = __ks;
+              var ____i27 = 0;
+              while (____i27 < _35(____x21)) {
+                var __v17 = ____x21[____i27];
+                __s11 = __s11 + __sp + __v17;
+                __sp = " ";
+                ____i27 = ____i27 + 1;
+              }
+              return __s11 + ")";
             }
-            drop(__l4);
-            var ____o15 = join(__xs5, __ks);
-            var ____i26 = undefined;
-            for (____i26 of pairs(____o15)) {
-              var __v16 = ____o15[____i26];
-              __s11 = __s11 + __sp + __v16;
-              __sp = " ";
-            }
-            return __s11 + ")";
           }
         }
       }
@@ -741,11 +760,11 @@ setenv = function (k, ..._42args) {
     }
     var __frame = __e12;
     var __entry = __frame[__k11] || {};
-    var ____o16 = __keys;
+    var ____o15 = __keys;
     var __k12 = undefined;
-    for (__k12 of pairs(____o16)) {
-      var __v17 = ____o16[__k12];
-      __entry[__k12] = __v17;
+    for (__k12 of pairs(____o15)) {
+      var __v18 = ____o15[__k12];
+      __entry[__k12] = __v18;
     }
     __frame[__k11] = __entry;
     return __frame[__k11];
@@ -913,7 +932,7 @@ setenv("case", {_stash: true, macro: function (expr, ..._42args) {
     var ____id5 = __x43;
     var __a = ____id5[0];
     var __b = ____id5[1];
-    if (nil63(__b)) {
+    if (undefined === __b) {
       return [__a];
     } else {
       if (string63(__a) || number63(__a)) {
@@ -1152,7 +1171,7 @@ setenv("guard", {_stash: true, macro: function (expr) {
   } else {
     var ____x161 = ["obj"];
     ____x161.stack = [["get", "debug", ["quote", "traceback"]]];
-    ____x161.message = ["if", ["string?", "m"], ["clip", "m", ["+", ["or", ["search", "m", "\": \""], -2], 2]], ["nil?", "m"], "\"\"", ["str", "m"]];
+    ____x161.message = ["if", ["string?", "m"], ["clip", "m", ["+", ["or", ["search", "m", "\": \""], -2], 2]], ["=", "nil", "m"], "\"\"", ["str", "m"]];
     return ["list", ["xpcall", ["fn", join(), expr], ["fn", ["m"], ["if", ["obj?", "m"], "m", ____x161]]]];
   }
 }});
@@ -1457,70 +1476,74 @@ readable_string63 = function (str) {
   return __e;
 };
 pp_to_string = function (x, stack) {
-  if (nil63(x)) {
+  if (x === undefined) {
     return "nil";
   } else {
-    if (nan63(x)) {
-      return "nan";
+    if (x === null) {
+      return "null";
     } else {
-      if (x === inf) {
-        return "inf";
+      if (nan63(x)) {
+        return "nan";
       } else {
-        if (x === _inf) {
-          return "-inf";
+        if (x === inf) {
+          return "inf";
         } else {
-          if (boolean63(x)) {
-            if (x) {
-              return "true";
-            } else {
-              return "false";
-            }
+          if (x === _inf) {
+            return "-inf";
           } else {
-            if (string63(x)) {
-              if (readable_string63(x)) {
-                return x;
+            if (boolean63(x)) {
+              if (x) {
+                return "true";
               } else {
-                return escape(x);
+                return "false";
               }
             } else {
-              if (function63(x)) {
-                return "function";
-              } else {
-                if (atom63(x)) {
-                  return tostring(x);
+              if (string63(x)) {
+                if (readable_string63(x)) {
+                  return x;
                 } else {
-                  if (stack && in63(x, stack)) {
-                    return "circular";
+                  return escape(x);
+                }
+              } else {
+                if (function63(x)) {
+                  return "function";
+                } else {
+                  if (atom63(x)) {
+                    return tostring(x);
                   } else {
-                    if (false) {
-                      return escape(tostring(x));
+                    if (stack && in63(x, stack)) {
+                      return "circular";
                     } else {
-                      var __s2 = "(";
-                      var __sp = "";
-                      var __xs = [];
-                      var __ks = [];
-                      var __l = stack || [];
-                      add(__l, x);
-                      var ____o = x;
-                      var __k = undefined;
-                      for (__k of pairs(____o)) {
-                        var __v2 = ____o[__k];
-                        if (number63(__k)) {
-                          __xs[__k] = pp_to_string(__v2, __l);
-                        } else {
-                          add(__ks, __k + ":");
-                          add(__ks, pp_to_string(__v2, __l));
+                      if (false) {
+                        return escape(tostring(x));
+                      } else {
+                        var __s2 = "(";
+                        var __sp = "";
+                        var __xs = [];
+                        var __ks = [];
+                        var __l = stack || [];
+                        add(__l, x);
+                        var ____o = x;
+                        var __k = undefined;
+                        for (__k of pairs(____o)) {
+                          var __v2 = ____o[__k];
+                          if (number63(__k)) {
+                            __xs[__k] = pp_to_string(__v2, __l);
+                          } else {
+                            add(__ks, __k + ":");
+                            add(__ks, pp_to_string(__v2, __l));
+                          }
                         }
+                        drop(__l);
+                        var ____o1 = join(__xs, __ks);
+                        var ____i2 = undefined;
+                        for (____i2 of pairs(____o1)) {
+                          var __v3 = ____o1[____i2];
+                          __s2 = __s2 + __sp + __v3;
+                          __sp = " ";
+                        }
+                        return __s2 + ")";
                       }
-                      drop(__l);
-                      var ____o1 = join(__xs, __ks);
-                      var ____i2 = undefined;
-                      for (____i2 of pairs(____o1)) {
-                        var __v3 = ____o1[____i2];
-                        __s2 = __s2 + __sp + __v3;
-                        __sp = " ";
-                      }
-                      return __s2 + ")";
                     }
                   }
                 }

@@ -1175,4 +1175,8 @@ c"
 (define-test expansion
   (test= '(let x 1 x) (macroexpand '((expansion) (let x 1 x)))))
 
+(define-test null
+  (test= (list 1 null 2) (map (fn (x) x) (list 1 nil null 2)))
+  (test= (list 1 null null 2) ((JSON .parse) ((JSON .stringify) (list 1 nil null 2)))))
+
 (export main)

@@ -1,9 +1,9 @@
-getenv = function (k, p) {
+getenv = function (k, p, _else) {
   if (string63(k)) {
     var __i = edge(_G.environment);
     while (__i >= 0) {
       var __b = _G.environment[__i][k];
-      if (is63(__b)) {
+      if (!( __b === undefined)) {
         var __e8 = undefined;
         if (p) {
           __e8 = __b[p];
@@ -16,24 +16,25 @@ getenv = function (k, p) {
       }
     }
   }
+  return _else;
 };
 var transformer_function = function (k) {
   return getenv(k, "transformer");
 };
 var transformer63 = function (k) {
-  return is63(transformer_function(k));
+  return function63(transformer_function(k));
 };
 var macro_function = function (k) {
   return getenv(k, "macro");
 };
 var macro63 = function (k) {
-  return is63(macro_function(k));
+  return function63(macro_function(k));
 };
 var special63 = function (k) {
-  return is63(getenv(k, "special"));
+  return function63(getenv(k, "special"));
 };
 var special_form63 = function (form) {
-  return ! atom63(form) && special63(hd(form));
+  return hd63(form, special63);
 };
 var statement63 = function (k) {
   return special63(k) && getenv(k, "stmt");
@@ -42,10 +43,10 @@ var symbol_expansion = function (k) {
   return getenv(k, "symbol");
 };
 var symbol63 = function (k) {
-  return is63(symbol_expansion(k));
+  return !( undefined === symbol_expansion(k));
 };
 var variable63 = function (k) {
-  return is63(getenv(k, "variable"));
+  return !( undefined === getenv(k, "variable"));
 };
 bound63 = function (x) {
   return macro63(x) || special63(x) || symbol63(x) || variable63(x);
@@ -356,10 +357,10 @@ expand_if = function (__x45) {
   var __a = ____id5[0];
   var __b1 = ____id5[1];
   var __c = cut(____id5, 2);
-  if (is63(__b1)) {
+  if (!( undefined === __b1)) {
     return [join(["%if", __a, __b1], expand_if(__c))];
   } else {
-    if (is63(__a)) {
+    if (!( undefined === __a)) {
       return [__a];
     }
   }
@@ -463,7 +464,7 @@ mapo = function (f, t) {
   for (__k4 of pairs(____o7)) {
     var __v6 = ____o7[__k4];
     var __x50 = f(__v6);
-    if (is63(__x50)) {
+    if (!( __x50 === undefined)) {
       add(__o6, literal(__k4));
       add(__o6, __x50);
     }
@@ -540,7 +541,7 @@ var getop = function (op) {
   }, infix);
 };
 var infix63 = function (x) {
-  return is63(getop(x));
+  return !( undefined === getop(x));
 };
 infix_operator63 = function (x) {
   return obj63(x) && infix63(hd(x));
@@ -624,7 +625,11 @@ compile_atom = function (x, escape_reserved63) {
                       if (number63(x)) {
                         return x + "";
                       } else {
-                        return error("Cannot compile atom: " + str(x));
+                        if (x === null) {
+                          return "null";
+                        } else {
+                          return error("Cannot compile atom: " + str(x));
+                        }
                       }
                     }
                   }
@@ -812,7 +817,7 @@ compile_function = function (args, body, ..._42args) {
   }
 };
 var can_return63 = function (form) {
-  return is63(form) && (atom63(form) || !( hd(form) === "return") && ! statement63(hd(form)));
+  return !( undefined === form) && (atom63(form) || !( hd(form) === "return") && ! statement63(hd(form)));
 };
 compile = function (form, ..._42args) {
   var ____r68 = unstash([..._42args]);
@@ -820,7 +825,7 @@ compile = function (form, ..._42args) {
   var ____id15 = ____r68;
   var __stmt1 = ____id15.stmt;
   var __esc63 = ____id15["escape-reserved"];
-  if (nil63(__form)) {
+  if (undefined === __form) {
     return "";
   } else {
     if (special_form63(__form)) {
@@ -855,11 +860,11 @@ var lower_statement = function (form, tail63) {
   var __hoist = [];
   var __e = lower(form, __hoist, true, tail63);
   var __e30 = undefined;
-  if (some63(__hoist) && is63(__e)) {
+  if (some63(__hoist) && !( undefined === __e)) {
     __e30 = join(["%do"], __hoist, [__e]);
   } else {
     var __e31 = undefined;
-    if (is63(__e)) {
+    if (!( undefined === __e)) {
       __e31 = __e;
     } else {
       var __e32 = undefined;
@@ -922,7 +927,7 @@ var lower_if = function (args, hoist, stmt63, tail63) {
   var ___else = ____id17[2];
   if (stmt63) {
     var __e34 = undefined;
-    if (is63(___else)) {
+    if (!( undefined === ___else)) {
       __e34 = [lower_body([___else], tail63)];
     }
     return add(hoist, join(["%if", lower(__cond, hoist), lower_body([__then], tail63)], __e34));
@@ -930,7 +935,7 @@ var lower_if = function (args, hoist, stmt63, tail63) {
     var __e3 = unique("e");
     add(hoist, ["%local", __e3, "nil"]);
     var __e33 = undefined;
-    if (is63(___else)) {
+    if (!( undefined === ___else)) {
       __e33 = [lower(["%set", __e3, ___else])];
     }
     add(hoist, join(["%if", lower(__cond, hoist), lower(["%set", __e3, __then])], __e33));
@@ -1054,7 +1059,7 @@ lower = function (form, hoist, stmt63, tail63) {
     if (empty63(form)) {
       return ["%array"];
     } else {
-      if (nil63(hoist)) {
+      if (undefined === hoist) {
         return lower_statement(form);
       } else {
         if (lower_pairwise63(form)) {
@@ -1338,7 +1343,7 @@ setenv("%local-function", {_stash: true, special: function (name, args, ..._42ar
 }, stmt: true, tr: true});
 setenv("return", {_stash: true, special: function (x) {
   var __e41 = undefined;
-  if (nil63(x)) {
+  if (undefined === x) {
     __e41 = "return";
   } else {
     __e41 = "return " + compile(x);
@@ -1366,7 +1371,7 @@ setenv("%local", {_stash: true, special: function (name, value) {
   var __id31 = compile(name);
   var __value1 = compile(value);
   var __e43 = undefined;
-  if (is63(value)) {
+  if (!( undefined === value)) {
     __e43 = " = " + __value1;
   } else {
     __e43 = "";
@@ -1385,7 +1390,7 @@ setenv("%local", {_stash: true, special: function (name, value) {
 setenv("%set", {_stash: true, special: function (lh, rh) {
   var __lh11 = compile(lh);
   var __e45 = undefined;
-  if (nil63(rh)) {
+  if (undefined === rh) {
     __e45 = "nil";
   } else {
     __e45 = rh;

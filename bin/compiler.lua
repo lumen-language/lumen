@@ -1,9 +1,9 @@
-function _G.getenv(k, p)
+function _G.getenv(k, p, _else)
   if string63(k) then
     local __i = edge(_G.environment)
     while __i >= 0 do
       local __b = _G.environment[__i + 1][k]
-      if is63(__b) then
+      if not( __b == nil) then
         local __e9 = nil
         if p then
           __e9 = __b[p]
@@ -16,24 +16,25 @@ function _G.getenv(k, p)
       end
     end
   end
+  return _else
 end
 local function transformer_function(k)
   return getenv(k, "transformer")
 end
 local function transformer63(k)
-  return is63(transformer_function(k))
+  return function63(transformer_function(k))
 end
 local function macro_function(k)
   return getenv(k, "macro")
 end
 local function macro63(k)
-  return is63(macro_function(k))
+  return function63(macro_function(k))
 end
 local function special63(k)
-  return is63(getenv(k, "special"))
+  return function63(getenv(k, "special"))
 end
 local function special_form63(form)
-  return not atom63(form) and special63(hd(form))
+  return hd63(form, special63)
 end
 local function statement63(k)
   return special63(k) and getenv(k, "stmt")
@@ -42,10 +43,10 @@ local function symbol_expansion(k)
   return getenv(k, "symbol")
 end
 local function symbol63(k)
-  return is63(symbol_expansion(k))
+  return not( nil == symbol_expansion(k))
 end
 local function variable63(k)
-  return is63(getenv(k, "variable"))
+  return not( nil == getenv(k, "variable"))
 end
 function _G.bound63(x)
   return macro63(x) or special63(x) or symbol63(x) or variable63(x)
@@ -356,10 +357,10 @@ function _G.expand_if(__x45)
   local __a = ____id5[1]
   local __b1 = ____id5[2]
   local __c = cut(____id5, 2)
-  if is63(__b1) then
+  if not( nil == __b1) then
     return {join({"%if", __a, __b1}, expand_if(__c))}
   else
-    if is63(__a) then
+    if not( nil == __a) then
       return {__a}
     end
   end
@@ -463,7 +464,7 @@ function _G.mapo(f, t)
   for __k4 in pairs(____o7) do
     local __v6 = ____o7[__k4]
     local __x50 = f(__v6)
-    if is63(__x50) then
+    if not( __x50 == nil) then
       add(__o6, literal(__k4))
       add(__o6, __x50)
     end
@@ -542,7 +543,7 @@ local function getop(op)
   end, infix)
 end
 local function infix63(x)
-  return is63(getop(x))
+  return not( nil == getop(x))
 end
 function _G.infix_operator63(x)
   return obj63(x) and infix63(hd(x))
@@ -626,7 +627,11 @@ function _G.compile_atom(x, escape_reserved63)
                       if number63(x) then
                         return x .. ""
                       else
-                        return error("Cannot compile atom: " .. str(x))
+                        if x == null then
+                          return "null"
+                        else
+                          return error("Cannot compile atom: " .. str(x))
+                        end
                       end
                     end
                   end
@@ -814,7 +819,7 @@ function _G.compile_function(args, body, ...)
   end
 end
 local function can_return63(form)
-  return is63(form) and (atom63(form) or not( hd(form) == "return") and not statement63(hd(form)))
+  return not( nil == form) and (atom63(form) or not( hd(form) == "return") and not statement63(hd(form)))
 end
 function _G.compile(form, ...)
   local ____r68 = unstash({...})
@@ -822,7 +827,7 @@ function _G.compile(form, ...)
   local ____id15 = ____r68
   local __stmt1 = ____id15.stmt
   local __esc63 = ____id15["escape-reserved"]
-  if nil63(__form) then
+  if nil == __form then
     return ""
   else
     if special_form63(__form) then
@@ -857,11 +862,11 @@ local function lower_statement(form, tail63)
   local __hoist = {}
   local __e = lower(form, __hoist, true, tail63)
   local __e31 = nil
-  if some63(__hoist) and is63(__e) then
+  if some63(__hoist) and not( nil == __e) then
     __e31 = join({"%do"}, __hoist, {__e})
   else
     local __e32 = nil
-    if is63(__e) then
+    if not( nil == __e) then
       __e32 = __e
     else
       local __e33 = nil
@@ -924,7 +929,7 @@ local function lower_if(args, hoist, stmt63, tail63)
   local ___else = ____id17[3]
   if stmt63 then
     local __e35 = nil
-    if is63(___else) then
+    if not( nil == ___else) then
       __e35 = {lower_body({___else}, tail63)}
     end
     return add(hoist, join({"%if", lower(__cond, hoist), lower_body({___then}, tail63)}, __e35))
@@ -932,7 +937,7 @@ local function lower_if(args, hoist, stmt63, tail63)
     local __e3 = unique("e")
     add(hoist, {"%local", __e3, "nil"})
     local __e34 = nil
-    if is63(___else) then
+    if not( nil == ___else) then
       __e34 = {lower({"%set", __e3, ___else})}
     end
     add(hoist, join({"%if", lower(__cond, hoist), lower({"%set", __e3, ___then})}, __e34))
@@ -1056,7 +1061,7 @@ function _G.lower(form, hoist, stmt63, tail63)
     if empty63(form) then
       return {"%array"}
     else
-      if nil63(hoist) then
+      if nil == hoist then
         return lower_statement(form)
       else
         if lower_pairwise63(form) then
@@ -1350,7 +1355,7 @@ setenv("%local-function", {_stash = true, special = function (name, args, ...)
 end, stmt = true, tr = true})
 setenv("return", {_stash = true, special = function (x)
   local __e42 = nil
-  if nil63(x) then
+  if nil == x then
     __e42 = "return"
   else
     __e42 = "return " .. compile(x)
@@ -1378,7 +1383,7 @@ setenv("%local", {_stash = true, special = function (name, value)
   local __id32 = compile(name)
   local __value1 = compile(value)
   local __e44 = nil
-  if is63(value) then
+  if not( nil == value) then
     __e44 = " = " .. __value1
   else
     __e44 = ""
@@ -1397,7 +1402,7 @@ end, stmt = true})
 setenv("%set", {_stash = true, special = function (lh, rh)
   local __lh11 = compile(lh)
   local __e46 = nil
-  if nil63(rh) then
+  if nil == rh then
     __e46 = "nil"
   else
     __e46 = rh

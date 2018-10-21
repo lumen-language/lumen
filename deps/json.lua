@@ -611,6 +611,11 @@ local function optionalmetatables(...)
 end
 
 function json.decode (str, pos, nullval, ...)
+    if type(nullval) == "function" then
+      nullval = nullval()
+    elseif nullval == nil then
+      nullval = json.null
+    end
   local objectmeta, arraymeta = optionalmetatables(...)
   return scanvalue (str, pos, nullval, objectmeta, arraymeta)
 end
@@ -706,6 +711,11 @@ function json.use_lpeg ()
   local DecodeValue = ExpectedValue * g.Cp ()
 
   function json.decode (str, pos, nullval, ...)
+    if type(nullval) == "function" then
+      nullval = nullval()
+    elseif nullval == nil then
+      nullval = json.null
+    end
     local state = {}
     state.objectmeta, state.arraymeta = optionalmetatables(...)
     local obj, retpos = pegmatch (DecodeValue, str, pos, nullval, state)

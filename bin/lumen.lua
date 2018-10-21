@@ -7,8 +7,9 @@ end
 function _G.results(x, ...)
   return {x, ...}
 end
+_G.null = null or JSON.null or error("null not defined")
 function _G.nil63(x)
-  return x == nil
+  return x == nil or x == null
 end
 function _G.is63(x)
   return not nil63(x)
@@ -20,14 +21,14 @@ function _G.yes(x)
   return not no(x)
 end
 function _G.either(x, y)
-  if is63(x) then
-    return x
-  else
+  if x == nil then
     return y
+  else
+    return x
   end
 end
 function _G.has63(l, k)
-  return is63(l[k])
+  return not( nil == l[k])
 end
 function _G._35(x)
   return #x
@@ -74,7 +75,7 @@ function _G.hd63(l, x)
       __e3 = x(hd(l))
     else
       local __e4 = nil
-      if nil63(x) then
+      if nil == x then
         __e4 = hd(l)
       else
         __e4 = hd(l) == x
@@ -144,7 +145,7 @@ function _G.cut(x, from, upto)
   local __l = {}
   local __j = 0
   local __e5 = nil
-  if nil63(from) or from < 0 then
+  if nil == from or from < 0 then
     __e5 = 0
   else
     __e5 = from
@@ -152,7 +153,7 @@ function _G.cut(x, from, upto)
   local __i2 = __e5
   local __n1 = _35(x)
   local __e6 = nil
-  if nil63(upto) or upto > __n1 then
+  if nil == upto or upto > __n1 then
     __e6 = __n1
   else
     __e6 = upto
@@ -332,7 +333,7 @@ function _G.map(f, x)
   while ____i12 < _35(____x6) do
     local __v8 = ____x6[____i12 + 1]
     local __y3 = f(__v8)
-    if is63(__y3) then
+    if not( __y3 == nil) then
       add(__t1, __y3)
     end
     ____i12 = ____i12 + 1
@@ -343,7 +344,7 @@ function _G.map(f, x)
     local __v9 = ____o8[__k5]
     if not number63(__k5) then
       local __y4 = f(__v9)
-      if is63(__y4) then
+      if not( __y4 == nil) then
         __t1[__k5] = __y4
       end
     end
@@ -446,7 +447,7 @@ function _G.split(s, sep)
     local __n15 = _35(sep)
     while true do
       local __i20 = search(s, sep)
-      if nil63(__i20) then
+      if nil == __i20 then
         break
       else
         add(__l3, clip(s, 0, __i20))
@@ -603,47 +604,62 @@ function _G.str(x, stack)
   if string63(x) then
     return escape(x)
   else
-    if atom63(x) then
-      return tostring(x)
+    if x == null then
+      return "null"
     else
-      if function63(x) then
-        return "function"
+      if atom63(x) then
+        return tostring(x)
       else
-        if stack and in63(x, stack) then
-          return "circular"
+        if function63(x) then
+          return "function"
         else
-          if not( type(x) == "table") then
-            return escape(tostring(x))
+          if stack and in63(x, stack) then
+            return "circular"
           else
-            local __s11 = "("
-            local __sp = ""
-            local __xs5 = {}
-            local __ks = {}
-            local __l4 = stack or {}
-            add(__l4, x)
-            local ____o14 = x
-            local __k10 = nil
-            for __k10 in pairs(____o14) do
-              local __v14 = ____o14[__k10]
-              if number63(__k10) then
-                __xs5[__k10] = str(__v14, __l4)
-              else
-                if not string63(__k10) then
-                  __k10 = str(__k10, __l4)
+            if not( type(x) == "table") then
+              return escape(tostring(x))
+            else
+              local __s11 = "("
+              local __sp = ""
+              local __xs5 = {}
+              local __ks = {}
+              local __n18 = -1
+              local __l4 = stack or {}
+              add(__l4, x)
+              local ____o14 = x
+              local __k10 = nil
+              for __k10 in pairs(____o14) do
+                local __v14 = ____o14[__k10]
+                if number63(__k10) then
+                  __xs5[__k10] = str(__v14, __l4)
+                  __n18 = max(__n18, __k10 - 1)
+                else
+                  if not string63(__k10) then
+                    __k10 = str(__k10, __l4)
+                  end
+                  add(__ks, __k10 .. ":")
+                  add(__ks, str(__v14, __l4))
                 end
-                add(__ks, __k10 .. ":")
-                add(__ks, str(__v14, __l4))
               end
+              __n18 = __n18 + 1
+              drop(__l4)
+              local __i26 = 0
+              while __i26 < __n18 do
+                local __v15 = either(__xs5[__i26 + 1], "nil")
+                __s11 = __s11 .. __sp .. __v15
+                __sp = " "
+                __i26 = __i26 + 1
+              end
+              local ____x19 = __ks
+              local ____i27 = 0
+              while ____i27 < _35(____x19) do
+                local __v16 = ____x19[____i27 + 1]
+                __s11 = __s11 .. __sp .. __v16
+                __sp = " "
+                ____i27 = ____i27 + 1
+              end
+              return __s11 .. ")"
             end
-            drop(__l4)
-            local ____o15 = join(__xs5, __ks)
-            local ____i26 = nil
-            for ____i26 in pairs(____o15) do
-              local __v15 = ____o15[____i26]
-              __s11 = __s11 .. __sp .. __v15
-              __sp = " "
-            end
-            return __s11 .. ")"
           end
         end
       end
@@ -670,11 +686,11 @@ function _G.setenv(k, ...)
     end
     local __frame = __e13
     local __entry = __frame[__k11] or {}
-    local ____o16 = __keys
+    local ____o15 = __keys
     local __k12 = nil
-    for __k12 in pairs(____o16) do
-      local __v16 = ____o16[__k12]
-      __entry[__k12] = __v16
+    for __k12 in pairs(____o15) do
+      local __v17 = ____o15[__k12]
+      __entry[__k12] = __v17
     end
     __frame[__k11] = __entry
     return __frame[__k11]
@@ -836,7 +852,7 @@ setenv("case", {_stash = true, macro = function (expr, ...)
     local ____id5 = __x43
     local __a = ____id5[1]
     local __b = ____id5[2]
-    if nil63(__b) then
+    if nil == __b then
       return {__a}
     else
       if string63(__a) or number63(__a) then
@@ -1075,7 +1091,7 @@ setenv("guard", {_stash = true, macro = function (expr)
   else
     local ____x161 = {"obj"}
     ____x161.stack = {{"get", "debug", {"quote", "traceback"}}}
-    ____x161.message = {"if", {"string?", "m"}, {"clip", "m", {"+", {"or", {"search", "m", "\": \""}, -2}, 2}}, {"nil?", "m"}, "\"\"", {"str", "m"}}
+    ____x161.message = {"if", {"string?", "m"}, {"clip", "m", {"+", {"or", {"search", "m", "\": \""}, -2}, 2}}, {"=", "nil", "m"}, "\"\"", {"str", "m"}}
     return {"list", {"xpcall", {"fn", join(), expr}, {"fn", {"m"}, {"if", {"obj?", "m"}, "m", ____x161}}}}
   end
 end})
@@ -1266,7 +1282,7 @@ local function eval_print(form)
         __e = clip(m, (search(m, ": ") or -2) + 2)
       else
         local __e1 = nil
-        if nil63(m) then
+        if nil == m then
           __e1 = ""
         else
           __e1 = str(m)
@@ -1395,7 +1411,7 @@ function _G.readable_string63(str)
           __e5 = clip(m, (search(m, ": ") or -2) + 2)
         else
           local __e6 = nil
-          if nil63(m) then
+          if nil == m then
             __e6 = ""
           else
             __e6 = str(m)
@@ -1414,73 +1430,77 @@ function _G.readable_string63(str)
   return __e4
 end
 function _G.pp_to_string(x, stack)
-  if nil63(x) then
+  if x == nil then
     return "nil"
   else
-    if nan63(x) then
-      return "nan"
+    if x == null then
+      return "null"
     else
-      if x == inf then
-        return "inf"
+      if nan63(x) then
+        return "nan"
       else
-        if x == _inf then
-          return "-inf"
+        if x == inf then
+          return "inf"
         else
-          if boolean63(x) then
-            if x then
-              return "true"
-            else
-              return "false"
-            end
+          if x == _inf then
+            return "-inf"
           else
-            if string63(x) then
-              if readable_string63(x) then
-                return x
+            if boolean63(x) then
+              if x then
+                return "true"
               else
-                return escape(x)
+                return "false"
               end
             else
-              if function63(x) then
-                return "function"
-              else
-                if atom63(x) then
-                  return tostring(x)
+              if string63(x) then
+                if readable_string63(x) then
+                  return x
                 else
-                  if stack and in63(x, stack) then
-                    return "circular"
+                  return escape(x)
+                end
+              else
+                if function63(x) then
+                  return "function"
+                else
+                  if atom63(x) then
+                    return tostring(x)
                   else
-                    if not( type(x) == "table") then
-                      return escape(tostring(x))
+                    if stack and in63(x, stack) then
+                      return "circular"
                     else
-                      local __s3 = "("
-                      local __sp = ""
-                      local __xs = {}
-                      local __ks = {}
-                      local __l = stack or {}
-                      add(__l, x)
-                      local ____o = x
-                      local __k = nil
-                      for __k in pairs(____o) do
-                        local __v2 = ____o[__k]
-                        if number63(__k) then
-                          __xs[__k] = pp_to_string(__v2, __l)
-                        else
-                          if not string63(__k) then
-                            __k = pp_to_string(__k, __l)
+                      if not( type(x) == "table") then
+                        return escape(tostring(x))
+                      else
+                        local __s3 = "("
+                        local __sp = ""
+                        local __xs = {}
+                        local __ks = {}
+                        local __l = stack or {}
+                        add(__l, x)
+                        local ____o = x
+                        local __k = nil
+                        for __k in pairs(____o) do
+                          local __v2 = ____o[__k]
+                          if number63(__k) then
+                            __xs[__k] = pp_to_string(__v2, __l)
+                          else
+                            if not string63(__k) then
+                              __k = pp_to_string(__k, __l)
+                            end
+                            add(__ks, __k .. ":")
+                            add(__ks, pp_to_string(__v2, __l))
                           end
-                          add(__ks, __k .. ":")
-                          add(__ks, pp_to_string(__v2, __l))
                         end
+                        drop(__l)
+                        local ____o1 = join(__xs, __ks)
+                        local ____i2 = nil
+                        for ____i2 in pairs(____o1) do
+                          local __v3 = ____o1[____i2]
+                          __s3 = __s3 .. __sp .. __v3
+                          __sp = " "
+                        end
+                        return __s3 .. ")"
                       end
-                      drop(__l)
-                      local ____o1 = join(__xs, __ks)
-                      local ____i2 = nil
-                      for ____i2 in pairs(____o1) do
-                        local __v3 = ____o1[____i2]
-                        __s3 = __s3 .. __sp .. __v3
-                        __sp = " "
-                      end
-                      return __s3 .. ")"
                     end
                   end
                 end

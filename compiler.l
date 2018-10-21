@@ -1,29 +1,30 @@
-(define-global getenv (k p)
+(define-global getenv (k p else)
   (when (string? k)
     (let i (edge environment*)
       (while (>= i 0)
         (let b (get (at environment* i) k)
-          (if (is? b)
+          (if (not (= b nil))
               (return (if p (get b p) b))
-            (dec i)))))))
+            (dec i))))))
+  else)
 
 (define transformer-function (k)
   (getenv k 'transformer))
 
 (define transformer? (k)
-  (is? (transformer-function k)))
+  (function? (transformer-function k)))
 
 (define macro-function (k)
   (getenv k 'macro))
 
 (define macro? (k)
-  (is? (macro-function k)))
+  (function? (macro-function k)))
 
 (define special? (k)
-  (is? (getenv k 'special)))
+  (function? (getenv k 'special)))
 
 (define special-form? (form)
-  (and (not (atom? form)) (special? (hd form))))
+  (hd? form special?))
 
 (define statement? (k)
   (and (special? k) (getenv k 'stmt)))
@@ -32,10 +33,10 @@
   (getenv k 'symbol))
 
 (define symbol? (k)
-  (is? (symbol-expansion k)))
+  (not (= nil (symbol-expansion k))))
 
 (define variable? (k)
-  (is? (getenv k 'variable)))
+  (not (= nil (getenv k 'variable))))
 
 (define-global bound? (x)
   (or (macro? x)
@@ -210,8 +211,8 @@
     (map (fn (x) (quasiexpand x depth)) form)))
 
 (define-global expand-if ((a b rest: c))
-  (if (is? b) `((%if ,a ,b ,@(expand-if c)))
-      (is? a) (list a)))
+  (if (not (= nil b)) `((%if ,a ,b ,@(expand-if c)))
+      (not (= nil a)) (list a)))
 
 (define-global indent-level* 0)
 
@@ -290,7 +291,7 @@
   (with o ()
     (each (k v) t
       (let x (f v)
-        (when (is? x)
+        (unless (= x nil)
           (add o (literal k))
           (add o x))))))
 
@@ -324,7 +325,7 @@
         infix))
 
 (define infix? (x)
-  (is? (getop x)))
+  (not (= nil (getop x))))
 
 (define-global infix-operator? (x)
   (and (obj? x) (infix? (hd x))))
@@ -356,6 +357,7 @@
       (= x inf) "inf"
       (= x -inf) "-inf"
       (number? x) (cat x "")
+      (= x null) "null"
     (error (cat "Cannot compile atom: " (str x)))))
 
 (define terminator (stmt?)
@@ -449,13 +451,13 @@
       (cat p "function " id args "\n" body ind tr))))
 
 (define can-return? (form)
-  (and (is? form)
+  (and (not (= nil form))
        (or (atom? form)
            (and (not (= (hd form) 'return))
                 (not (statement? (hd form)))))))
 
 (define-global compile (form stmt: stmt escape-reserved: esc?)
-  (if (nil? form) ""
+  (if (= nil form) ""
       (special-form? form)
       (compile-special form stmt)
     (let (tr (terminator stmt)
@@ -468,9 +470,9 @@
 (define lower-statement (form tail?)
   (either
     (let (hoist () e (lower form hoist true tail?))
-      (if (and (some? hoist) (is? e))
+      (if (and (some? hoist) (not (= nil e)))
           `(%do ,@hoist ,e)
-          (is? e) e
+          (not (= nil e)) e
           (> (# hoist) 1) `(%do ,@hoist)
         (hd hoist)))
     '(%do)))
@@ -515,13 +517,13 @@
         (add hoist
              `(%if ,(lower cond hoist)
                    ,(lower-body (list then) tail?)
-                   ,@(if (is? else) (list (lower-body (list else) tail?)))))
+                   ,@(if (not (= nil else)) (list (lower-body (list else) tail?)))))
       (let-unique (e)
         (add hoist `(%local ,e nil))
         (add hoist
              `(%if ,(lower cond hoist)
                    ,(lower `(%set ,e ,then))
-                   ,@(if (is? else)
+                   ,@(if (not (= nil else))
                          (list (lower `(%set ,e ,else))))))
         e))))
 
@@ -600,7 +602,7 @@
 (define-global lower (form hoist stmt? tail?)
   (if (atom? form) form
       (empty? form) '(%array)
-      (nil? hoist) (lower-statement form)
+      (= nil hoist) (lower-statement form)
       (lower-pairwise? form) (lower (pairwise-form form) hoist stmt? tail?)
       (lower-infix? form) (lower (infix-form form) hoist stmt? tail?)
     (let ((x rest: args) form)
@@ -743,7 +745,7 @@
     (compile `(%local ,name (%function ,args ,@body)) stmt: true)))
 
 (define-special return (x) stmt: true
-  (let x (if (nil? x)
+  (let x (if (= nil x)
              "return"
            (cat "return " (compile x)))
     (cat (indentation) x)))
@@ -763,14 +765,14 @@
 (define-special %local (name value) stmt: true
   (let (id (compile name)
         value1 (compile value)
-        rh (if (is? value) (cat " = " value1) "")
+        rh (if (not (= nil value)) (cat " = " value1) "")
         keyword (if (= target* 'js) "var " "local ")
         ind (indentation))
     (cat ind keyword id rh)))
 
 (define-special %set (lh rh) stmt: true
   (let (lh (compile lh)
-        rh (compile (if (nil? rh) 'nil rh)))
+        rh (compile (if (= nil rh) "nil" rh)))
     (cat (indentation) lh " = " rh)))
 
 (define-special get (t k)

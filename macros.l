@@ -77,7 +77,7 @@
   (let-unique (x)
     (let (eq (fn (_) `(= ',_ ,x))
           cl (fn ((a b))
-               (if (nil? b) (list a)
+               (if (= nil b) (list a)
                    (or (string? a) (number? a)) (list (eq a) b)
                    (one? a) (list (eq (hd a)) b)
                    (> (# a) 1) (list `(or ,@(map eq a)) b))))
@@ -189,7 +189,7 @@
                (if (obj? m) m
                  (obj stack: ((get debug 'traceback))
                       message: (if (string? m) (clip m (+ (or (search m ": ") -2) 2))
-                                   (nil? m) ""
+                                   (= nil m) ""
                                  (str m)))))))))
 
 (define-macro each (x t rest: body)
