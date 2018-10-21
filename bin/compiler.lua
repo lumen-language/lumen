@@ -237,9 +237,6 @@ function _G.expand1(__x35)
   return apply(macro_function(__name2), __body2)
 end
 local function expand_transformer(form)
-  return transform1(form)
-end
-function _G.transform1(form)
   return transformer_function(hd(hd(form)))(form)
 end
 function _G.macroexpand(form)
@@ -743,10 +740,10 @@ local function compile_infix(form)
   end
 end
 function _G.compile_function(args, body, ...)
-  local ____r67 = unstash({...})
-  local __args4 = destash33(args, ____r67)
-  local __body3 = destash33(body, ____r67)
-  local ____id12 = ____r67
+  local ____r66 = unstash({...})
+  local __args4 = destash33(args, ____r66)
+  local __body3 = destash33(body, ____r66)
+  local ____id12 = ____r66
   local __name3 = ____id12.name
   local __prefix = ____id12.prefix
   local __global63 = ____id12.global
@@ -820,9 +817,9 @@ local function can_return63(form)
   return is63(form) and (atom63(form) or not( hd(form) == "return") and not statement63(hd(form)))
 end
 function _G.compile(form, ...)
-  local ____r69 = unstash({...})
-  local __form = destash33(form, ____r69)
-  local ____id15 = ____r69
+  local ____r68 = unstash({...})
+  local __form = destash33(form, ____r68)
+  local ____id15 = ____r68
   local __stmt1 = ____id15.stmt
   local __esc63 = ____id15["escape-reserved"]
   if nil63(__form) then
@@ -1266,11 +1263,11 @@ setenv("%names", {_stash = true, special = function (...)
   end
 end})
 setenv("%for", {_stash = true, special = function (t, k, form, ...)
-  local ____r97 = unstash({...})
-  local __t1 = destash33(t, ____r97)
-  local __k7 = destash33(k, ____r97)
-  local __form3 = destash33(form, ____r97)
-  local ____id28 = ____r97
+  local ____r96 = unstash({...})
+  local __t1 = destash33(t, ____r96)
+  local __k7 = destash33(k, ____r96)
+  local __form3 = destash33(form, ____r96)
+  local ____id28 = ____r96
   local __await63 = ____id28.await
   local __t2 = compile(__t1)
   local __k8 = compile(__k7)
@@ -1313,17 +1310,17 @@ setenv("break", {_stash = true, special = function ()
   return indentation() .. "break"
 end, stmt = true})
 setenv("%function", {_stash = true, special = function (args, ...)
-  local ____r101 = unstash({...})
-  local __args9 = destash33(args, ____r101)
-  local ____id29 = ____r101
+  local ____r100 = unstash({...})
+  local __args9 = destash33(args, ____r100)
+  local ____id29 = ____r100
   local __body12 = cut(____id29, 0)
   return apply(compile_function, join({__args9}, __body12))
 end})
 setenv("%global-function", {_stash = true, special = function (name, args, ...)
-  local ____r102 = unstash({...})
-  local __name5 = destash33(name, ____r102)
-  local __args10 = destash33(args, ____r102)
-  local ____id30 = ____r102
+  local ____r101 = unstash({...})
+  local __name5 = destash33(name, ____r101)
+  local __args10 = destash33(args, ____r101)
+  local ____id30 = ____r101
   local __body13 = cut(____id30, 0)
   if _G.target == "lua" then
     local ____x148 = {__args10}
@@ -1336,10 +1333,10 @@ setenv("%global-function", {_stash = true, special = function (name, args, ...)
   end
 end, stmt = true, tr = true})
 setenv("%local-function", {_stash = true, special = function (name, args, ...)
-  local ____r103 = unstash({...})
-  local __name6 = destash33(name, ____r103)
-  local __args111 = destash33(args, ____r103)
-  local ____id31 = ____r103
+  local ____r102 = unstash({...})
+  local __name6 = destash33(name, ____r102)
+  local __args111 = destash33(args, ____r102)
+  local ____id31 = ____r102
   local __body14 = cut(____id31, 0)
   if _G.target == "lua" then
     local ____x153 = {__args111}

@@ -237,9 +237,6 @@ expand1 = function (__x35) {
   return apply(macro_function(__name2), __body2);
 };
 var expand_transformer = function (form) {
-  return transform1(form);
-};
-transform1 = function (form) {
   return transformer_function(hd(hd(form)))(form);
 };
 macroexpand = function (form) {
@@ -741,10 +738,10 @@ var compile_infix = function (form) {
   }
 };
 compile_function = function (args, body, ..._42args) {
-  var ____r67 = unstash([..._42args]);
-  var __args4 = destash33(args, ____r67);
-  var __body3 = destash33(body, ____r67);
-  var ____id12 = ____r67;
+  var ____r66 = unstash([..._42args]);
+  var __args4 = destash33(args, ____r66);
+  var __body3 = destash33(body, ____r66);
+  var ____id12 = ____r66;
   var __name3 = ____id12.name;
   var __prefix = ____id12.prefix;
   var __global63 = ____id12.global;
@@ -818,9 +815,9 @@ var can_return63 = function (form) {
   return is63(form) && (atom63(form) || !( hd(form) === "return") && ! statement63(hd(form)));
 };
 compile = function (form, ..._42args) {
-  var ____r69 = unstash([..._42args]);
-  var __form = destash33(form, ____r69);
-  var ____id15 = ____r69;
+  var ____r68 = unstash([..._42args]);
+  var __form = destash33(form, ____r68);
+  var ____id15 = ____r68;
   var __stmt1 = ____id15.stmt;
   var __esc63 = ____id15["escape-reserved"];
   if (nil63(__form)) {
@@ -1254,11 +1251,11 @@ setenv("%names", {_stash: true, special: function (..._42args) {
   }
 }});
 setenv("%for", {_stash: true, special: function (t, k, form, ..._42args) {
-  var ____r96 = unstash([..._42args]);
-  var __t1 = destash33(t, ____r96);
-  var __k7 = destash33(k, ____r96);
-  var __form3 = destash33(form, ____r96);
-  var ____id27 = ____r96;
+  var ____r95 = unstash([..._42args]);
+  var __t1 = destash33(t, ____r95);
+  var __k7 = destash33(k, ____r95);
+  var __form3 = destash33(form, ____r95);
+  var ____id27 = ____r95;
   var __await63 = ____id27.await;
   var __t2 = compile(__t1);
   var __k8 = compile(__k7);
@@ -1301,17 +1298,17 @@ setenv("break", {_stash: true, special: function () {
   return indentation() + "break";
 }, stmt: true});
 setenv("%function", {_stash: true, special: function (args, ..._42args) {
-  var ____r100 = unstash([..._42args]);
-  var __args9 = destash33(args, ____r100);
-  var ____id28 = ____r100;
+  var ____r99 = unstash([..._42args]);
+  var __args9 = destash33(args, ____r99);
+  var ____id28 = ____r99;
   var __body12 = cut(____id28, 0);
   return apply(compile_function, join([__args9], __body12));
 }});
 setenv("%global-function", {_stash: true, special: function (name, args, ..._42args) {
-  var ____r101 = unstash([..._42args]);
-  var __name5 = destash33(name, ____r101);
-  var __args10 = destash33(args, ____r101);
-  var ____id29 = ____r101;
+  var ____r100 = unstash([..._42args]);
+  var __name5 = destash33(name, ____r100);
+  var __args10 = destash33(args, ____r100);
+  var ____id29 = ____r100;
   var __body13 = cut(____id29, 0);
   if (_G.target === "lua") {
     var ____x147 = [__args10];
@@ -1324,10 +1321,10 @@ setenv("%global-function", {_stash: true, special: function (name, args, ..._42a
   }
 }, stmt: true, tr: true});
 setenv("%local-function", {_stash: true, special: function (name, args, ..._42args) {
-  var ____r102 = unstash([..._42args]);
-  var __name6 = destash33(name, ____r102);
-  var __args111 = destash33(args, ____r102);
-  var ____id30 = ____r102;
+  var ____r101 = unstash([..._42args]);
+  var __name6 = destash33(name, ____r101);
+  var __args111 = destash33(args, ____r101);
+  var ____id30 = ____r101;
   var __body14 = cut(____id30, 0);
   if (_G.target === "lua") {
     var ____x152 = [__args111];

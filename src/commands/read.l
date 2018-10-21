@@ -1,20 +1,20 @@
 #!/usr/bin/env bin/lumen
 
-(define-global lumen-read-usage "
+(define usage () "
 Read a Lisp file.
 
 Usage:
   lumen-read <filename>...
 ")
 
-(define-global lumen-read (argv)
+(define main (argv)
   (let (args (parse-arguments
                (obj h: 'help)
                argv)
         files (keep string? args))
     (if (none? files)
-        (print lumen-read-usage)
+        (print (usage))
       (step x files
         (print (pp-to-string (read-from-file x)))))))
 
-(lumen-read)
+(export usage main)

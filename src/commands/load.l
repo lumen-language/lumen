@@ -1,19 +1,19 @@
 #!/usr/bin/env bin/lumen
 
-(define-global lumen-load-usage "
+(define usage () "
 Load a Lisp file.
 
 Usage:
   lumen load <filename>
 ")
 
-(define-global lumen-load (argv)
-  (set argv (or argv (arguments) ()))
+(define main (argv)
+  (set argv (or argv (get-argv) ()))
   (if (hd argv)
       (let filename (hd argv)
         (set-argv (tl argv))
-        (load filename))
-    (print lumen-load-usage)))
+        (run-script filename))
+    (print (usage))))
 
-(lumen-load)
+(export usage main)
 

@@ -21,18 +21,42 @@
   (define-macro test= (a b)
     (let-unique (x y)
       `(let (,x ,a ,y ,b)
+         (when verbose?
+           (print (cat "  " (pp-to-string '(test= ,a ,b)))))
          (test (equal? ,x ,y)
                (cat "failed: expected " (str ,x) ", was " (str ,y))))))
 
   (define-macro define-test (name rest: body)
-    `(add tests (list ',name (fn () ,@body)))))
+    `(add tests (list ',name (fn (verbose?) ,@body)))))
 
-(define-global run ()
-  (each ((name f)) tests
-    (let result (f)
-      (when (string? result)
-        (print (cat " " name " " result)))))
-  (print (cat " " passed " passed, " failed " failed")))
+(define main (argv)
+  (let (args (parse-arguments
+               (obj l: 'list
+                    v: 'verbose)
+               argv)
+        names (keep string? args)
+        names (unless (none? names) names)
+        cmds (keep obj? args)
+        verbose? false)
+    (step (a val) cmds
+      (if (= a 'list)
+          (do (step (name) tests
+                (print name))
+              (return tests))
+          (= a 'verbose)
+          (set verbose? true)))
+    (set passed 0 failed 0)
+    (step (name f) tests
+      (when (or (nil? names) (in? name names))
+        (when verbose? (print (cat "(" name)))
+        (let result (f verbose?)
+          (when (string? result)
+            (if verbose?
+                (print (cat " error: " (escape result)))
+              (print (cat " " name " " result)))))
+        (when verbose? (print (cat " passed: " passed " failed: " failed ")")))))
+    (unless verbose?
+      (print (cat " " passed " passed, " failed " failed")))))
 
 (define-test reader
   (let read (reader .read-string)
@@ -1151,4 +1175,4 @@ c"
 (define-test expansion
   (test= '(let x 1 x) (macroexpand '((expansion) (let x 1 x)))))
 
-(run)
+(export main)

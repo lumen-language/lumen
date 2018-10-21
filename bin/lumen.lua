@@ -1357,6 +1357,16 @@ function _G.run_file(path)
     return compiler.run(read_file(path))
   end
 end
+function _G.run_script(file, argv)
+  set_argv(argv)
+  local ____id1 = run_file(file)
+  local __main = ____id1.main
+  if nil63(__main) then
+    return error("main not exported for script file " .. str(file))
+  else
+    return __main(argv)
+  end
+end
 function _G.read_from_string(str, start, _end)
   local __s2 = reader.stream(str)
   __s2.pos = either(start, __s2.pos)
@@ -1371,10 +1381,10 @@ function _G.read_from_string(str, start, _end)
   end
 end
 function _G.readable_string63(str)
-  local __id4 = string63(str)
+  local __id5 = string63(str)
   local __e4 = nil
-  if __id4 then
-    local ____id1 = {xpcall(function ()
+  if __id5 then
+    local ____id2 = {xpcall(function ()
       return read_from_string(str)
     end, function (m)
       if obj63(m) then
@@ -1395,11 +1405,11 @@ function _G.readable_string63(str)
         return {stack = debug.traceback(), message = __e5}
       end
     end)}
-    local __ok1 = ____id1[1]
-    local __v1 = ____id1[2]
+    local __ok1 = ____id2[1]
+    local __v1 = ____id2[2]
     __e4 = __ok1 and hd(__v1) == str
   else
-    __e4 = __id4
+    __e4 = __id5
   end
   return __e4
 end
@@ -1486,96 +1496,95 @@ local function usage()
   return "\nUsage:\n  lumen <file> [<args>...]\n  lumen [options] [<object-files>...]\n\n  <file>          Program read from script file\n  <object-files>  Loaded before compiling <input>\n\nOptions:\n  -c <input>...   Compile input files\n  -o <output>     Write compiler output to <output>\n  -t <target>     Set target language (default: lua)\n  -e <expr>...    Expressions to evaluate\n"
 end
 local function main(argv)
-  local __arg = hd(argv)
-  if script_file63(__arg) then
-    set_argv(tl(argv))
-    return _load(__arg)
-  end
-  local __args = parse_arguments({c = "compile", o = "output", t = "target", e = "eval", h = "help", r = "repl"}, argv)
-  if script_file63(hd(__args)) then
-    return _load(hd(__args))
+  if script_file63(hd(argv)) then
+    return run_script(hd(argv), tl(argv))
   else
-    if __args.help then
-      return print(usage())
+    local __args = parse_arguments({c = "compile", o = "output", t = "target", e = "eval", h = "help", r = "repl"}, argv)
+    if script_file63(hd(__args)) then
+      return run_script(hd(__args), tl(__args))
     else
-      local __pre = keep(string63, __args)
-      local __cmds = keep(obj63, __args)
-      local __input = ""
-      local __enter_repl = true
-      local ____x7 = __pre
-      local ____i3 = 0
-      while ____i3 < _35(____x7) do
-        local __file = ____x7[____i3 + 1]
-        run_file(__file)
-        ____i3 = ____i3 + 1
-      end
-      local ____x8 = __cmds
-      local ____i4 = 0
-      while ____i4 < _35(____x8) do
-        local ____id2 = ____x8[____i4 + 1]
-        local __a = ____id2[1]
-        local __val = ____id2[2]
-        if __a == "target" then
-          _G.target = hd(__val)
-          break
+      if __args.help then
+        return print(usage())
+      else
+        local __pre = keep(string63, __args)
+        local __cmds = keep(obj63, __args)
+        local __input = ""
+        local __enter_repl = true
+        local ____x7 = __pre
+        local ____i3 = 0
+        while ____i3 < _35(____x7) do
+          local __file = ____x7[____i3 + 1]
+          run_file(__file)
+          ____i3 = ____i3 + 1
         end
-        ____i4 = ____i4 + 1
-      end
-      local ____x9 = __cmds
-      local ____i5 = 0
-      while ____i5 < _35(____x9) do
-        local ____id3 = ____x9[____i5 + 1]
-        local __a1 = ____id3[1]
-        local __val1 = ____id3[2]
-        if __a1 == "help" then
-          print(usage())
-        else
-          if __a1 == "repl" then
-            __enter_repl = true
+        local ____x8 = __cmds
+        local ____i4 = 0
+        while ____i4 < _35(____x8) do
+          local ____id3 = ____x8[____i4 + 1]
+          local __a = ____id3[1]
+          local __val = ____id3[2]
+          if __a == "target" then
+            _G.target = hd(__val)
+            break
+          end
+          ____i4 = ____i4 + 1
+        end
+        local ____x9 = __cmds
+        local ____i5 = 0
+        while ____i5 < _35(____x9) do
+          local ____id4 = ____x9[____i5 + 1]
+          local __a1 = ____id4[1]
+          local __val1 = ____id4[2]
+          if __a1 == "help" then
+            print(usage())
           else
-            if boolean63(__val1) or none63(__val1) then
-              print("missing argument for " .. __a1)
+            if __a1 == "repl" then
+              __enter_repl = true
             else
-              if __a1 == "compile" then
-                local ____x10 = __val1
-                local ____i6 = 0
-                while ____i6 < _35(____x10) do
-                  local __x11 = ____x10[____i6 + 1]
-                  __input = __input .. compile_file(__x11)
-                  ____i6 = ____i6 + 1
-                end
-                __enter_repl = false
+              if boolean63(__val1) or none63(__val1) then
+                print("missing argument for " .. __a1)
               else
-                if __a1 == "output" then
-                  write_file(hd(__val1), __input)
-                  __input = ""
+                if __a1 == "compile" then
+                  local ____x10 = __val1
+                  local ____i6 = 0
+                  while ____i6 < _35(____x10) do
+                    local __x11 = ____x10[____i6 + 1]
+                    __input = __input .. compile_file(__x11)
+                    ____i6 = ____i6 + 1
+                  end
+                  __enter_repl = false
                 else
-                  if __a1 == "target" then
-                    _G.target = hd(__val1)
+                  if __a1 == "output" then
+                    write_file(hd(__val1), __input)
+                    __input = ""
                   else
-                    if __a1 == "eval" then
-                      local ____x12 = __val1
-                      local ____i7 = 0
-                      while ____i7 < _35(____x12) do
-                        local __x13 = ____x12[____i7 + 1]
-                        rep(__x13)
-                        ____i7 = ____i7 + 1
+                    if __a1 == "target" then
+                      _G.target = hd(__val1)
+                    else
+                      if __a1 == "eval" then
+                        local ____x12 = __val1
+                        local ____i7 = 0
+                        while ____i7 < _35(____x12) do
+                          local __x13 = ____x12[____i7 + 1]
+                          rep(__x13)
+                          ____i7 = ____i7 + 1
+                        end
+                        __enter_repl = false
                       end
-                      __enter_repl = false
                     end
                   end
                 end
               end
             end
           end
+          ____i5 = ____i5 + 1
         end
-        ____i5 = ____i5 + 1
-      end
-      if some63(__input) then
-        print(__input)
-      end
-      if __enter_repl or __args.repl then
-        return repl()
+        if some63(__input) then
+          print(__input)
+        end
+        if __enter_repl or __args.repl then
+          return repl()
+        end
       end
     end
   end
@@ -1590,5 +1599,6 @@ local __exports = __e7
 __exports.reader = reader
 __exports.compiler = compiler
 __exports.system = system
+__exports.usage = usage
 __exports.main = main
 return __exports

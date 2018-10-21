@@ -1413,6 +1413,16 @@ run_file = function (path) {
     return compiler.run(read_file(path));
   }
 };
+run_script = function (file, argv) {
+  set_argv(argv);
+  var ____id1 = run_file(file);
+  var __main = ____id1.main;
+  if (nil63(__main)) {
+    return error("main not exported for script file " + str(file));
+  } else {
+    return __main(argv);
+  }
+};
 read_from_string = function (str, start, end) {
   var __s1 = reader.stream(str);
   __s1.pos = either(start, __s1.pos);
@@ -1427,10 +1437,10 @@ read_from_string = function (str, start, end) {
   }
 };
 readable_string63 = function (str) {
-  var __id4 = string63(str);
+  var __id5 = string63(str);
   var __e = undefined;
-  if (__id4) {
-    var ____id1 = (function () {
+  if (__id5) {
+    var ____id2 = (function () {
       try {
         return [true, read_from_string(str)];
       }
@@ -1438,11 +1448,11 @@ readable_string63 = function (str) {
         return [false, __e3];
       }
     })();
-    var __ok1 = ____id1[0];
-    var __v1 = ____id1[1];
+    var __ok1 = ____id2[0];
+    var __v1 = ____id2[1];
     __e = __ok1 && hd(__v1) === str;
   } else {
-    __e = __id4;
+    __e = __id5;
   }
   return __e;
 };
@@ -1526,96 +1536,95 @@ var usage = function () {
   return "\nUsage:\n  lumen <file> [<args>...]\n  lumen [options] [<object-files>...]\n\n  <file>          Program read from script file\n  <object-files>  Loaded before compiling <input>\n\nOptions:\n  -c <input>...   Compile input files\n  -o <output>     Write compiler output to <output>\n  -t <target>     Set target language (default: lua)\n  -e <expr>...    Expressions to evaluate\n";
 };
 var main = function (argv) {
-  var __arg = hd(argv);
-  if (script_file63(__arg)) {
-    set_argv(tl(argv));
-    return load(__arg);
-  }
-  var __args = parse_arguments({c: "compile", o: "output", t: "target", e: "eval", h: "help", r: "repl"}, argv);
-  if (script_file63(hd(__args))) {
-    return load(hd(__args));
+  if (script_file63(hd(argv))) {
+    return run_script(hd(argv), tl(argv));
   } else {
-    if (__args.help) {
-      return print(usage());
+    var __args = parse_arguments({c: "compile", o: "output", t: "target", e: "eval", h: "help", r: "repl"}, argv);
+    if (script_file63(hd(__args))) {
+      return run_script(hd(__args), tl(__args));
     } else {
-      var __pre = keep(string63, __args);
-      var __cmds = keep(obj63, __args);
-      var __input = "";
-      var __enter_repl = true;
-      var ____x7 = __pre;
-      var ____i3 = 0;
-      while (____i3 < _35(____x7)) {
-        var __file = ____x7[____i3];
-        run_file(__file);
-        ____i3 = ____i3 + 1;
-      }
-      var ____x8 = __cmds;
-      var ____i4 = 0;
-      while (____i4 < _35(____x8)) {
-        var ____id2 = ____x8[____i4];
-        var __a = ____id2[0];
-        var __val = ____id2[1];
-        if (__a === "target") {
-          _G.target = hd(__val);
-          break;
+      if (__args.help) {
+        return print(usage());
+      } else {
+        var __pre = keep(string63, __args);
+        var __cmds = keep(obj63, __args);
+        var __input = "";
+        var __enter_repl = true;
+        var ____x7 = __pre;
+        var ____i3 = 0;
+        while (____i3 < _35(____x7)) {
+          var __file = ____x7[____i3];
+          run_file(__file);
+          ____i3 = ____i3 + 1;
         }
-        ____i4 = ____i4 + 1;
-      }
-      var ____x9 = __cmds;
-      var ____i5 = 0;
-      while (____i5 < _35(____x9)) {
-        var ____id3 = ____x9[____i5];
-        var __a1 = ____id3[0];
-        var __val1 = ____id3[1];
-        if (__a1 === "help") {
-          print(usage());
-        } else {
-          if (__a1 === "repl") {
-            __enter_repl = true;
+        var ____x8 = __cmds;
+        var ____i4 = 0;
+        while (____i4 < _35(____x8)) {
+          var ____id3 = ____x8[____i4];
+          var __a = ____id3[0];
+          var __val = ____id3[1];
+          if (__a === "target") {
+            _G.target = hd(__val);
+            break;
+          }
+          ____i4 = ____i4 + 1;
+        }
+        var ____x9 = __cmds;
+        var ____i5 = 0;
+        while (____i5 < _35(____x9)) {
+          var ____id4 = ____x9[____i5];
+          var __a1 = ____id4[0];
+          var __val1 = ____id4[1];
+          if (__a1 === "help") {
+            print(usage());
           } else {
-            if (boolean63(__val1) || none63(__val1)) {
-              print("missing argument for " + __a1);
+            if (__a1 === "repl") {
+              __enter_repl = true;
             } else {
-              if (__a1 === "compile") {
-                var ____x10 = __val1;
-                var ____i6 = 0;
-                while (____i6 < _35(____x10)) {
-                  var __x11 = ____x10[____i6];
-                  __input = __input + compile_file(__x11);
-                  ____i6 = ____i6 + 1;
-                }
-                __enter_repl = false;
+              if (boolean63(__val1) || none63(__val1)) {
+                print("missing argument for " + __a1);
               } else {
-                if (__a1 === "output") {
-                  write_file(hd(__val1), __input);
-                  __input = "";
+                if (__a1 === "compile") {
+                  var ____x10 = __val1;
+                  var ____i6 = 0;
+                  while (____i6 < _35(____x10)) {
+                    var __x11 = ____x10[____i6];
+                    __input = __input + compile_file(__x11);
+                    ____i6 = ____i6 + 1;
+                  }
+                  __enter_repl = false;
                 } else {
-                  if (__a1 === "target") {
-                    _G.target = hd(__val1);
+                  if (__a1 === "output") {
+                    write_file(hd(__val1), __input);
+                    __input = "";
                   } else {
-                    if (__a1 === "eval") {
-                      var ____x12 = __val1;
-                      var ____i7 = 0;
-                      while (____i7 < _35(____x12)) {
-                        var __x13 = ____x12[____i7];
-                        rep(__x13);
-                        ____i7 = ____i7 + 1;
+                    if (__a1 === "target") {
+                      _G.target = hd(__val1);
+                    } else {
+                      if (__a1 === "eval") {
+                        var ____x12 = __val1;
+                        var ____i7 = 0;
+                        while (____i7 < _35(____x12)) {
+                          var __x13 = ____x12[____i7];
+                          rep(__x13);
+                          ____i7 = ____i7 + 1;
+                        }
+                        __enter_repl = false;
                       }
-                      __enter_repl = false;
                     }
                   }
                 }
               }
             }
           }
+          ____i5 = ____i5 + 1;
         }
-        ____i5 = ____i5 + 1;
-      }
-      if (some63(__input)) {
-        print(__input);
-      }
-      if (__enter_repl || __args.repl) {
-        return repl();
+        if (some63(__input)) {
+          print(__input);
+        }
+        if (__enter_repl || __args.repl) {
+          return repl();
+        }
       }
     }
   }
@@ -1630,5 +1639,6 @@ var __exports = __e1;
 __exports.reader = reader;
 __exports.compiler = compiler;
 __exports.system = system;
+__exports.usage = usage;
 __exports.main = main;
 __exports;

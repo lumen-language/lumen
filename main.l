@@ -71,6 +71,13 @@
       (load path)
     ((compiler .run) (read-file path))))
 
+(define-global run-script (file argv)
+  (set-argv argv)
+  (let ((main: main) (run-file file))
+    (if (nil? main)
+        (error (cat "main not exported for script file " (str file)))
+      (main argv))))
+
 (define-global read-from-string (str start end)
   (let s ((reader .stream) str)
     (set (get s 'pos) (either start (get s 'pos))
@@ -115,8 +122,7 @@
         (set sp " "))
       (cat s  ")"))))
 
-(define usage ()
-  "
+(define usage () "
 Usage:
   lumen <file> [<args>...]
   lumen [options] [<object-files>...]
@@ -132,42 +138,40 @@ Options:
 ")
 
 (define main (argv)
-  (let arg (hd argv)
-    (when (script-file? arg)
-      (set-argv (tl argv))
-      (return (load arg))))
-  (let args (parse-arguments
-              (obj c: 'compile
-                   o: 'output
-                   t: 'target
-                   e: 'eval
-                   h: 'help
-                   r: 'repl)
-              argv)
-    (if (script-file? (hd args))
-        (load (hd args))
-        (get args 'help)
-        (print (usage))
-      (let (pre (keep string? args)
-            cmds (keep obj? args)
-            input ""
-            enter-repl true)
-        (step file pre
-          (run-file file))
-        (step (a val) cmds
-          (when (= a 'target)
-            (set target* (hd val))
-            (break)))
-        (step (a val) cmds
-          (if (= a 'help) (print (usage))
-              (= a 'repl) (set enter-repl true)
-              (or (boolean? val) (none? val))
-              (print (cat "missing argument for " a))
-              (= a 'compile) (do (step x val (cat! input (compile-file x))) (set enter-repl false))
-              (= a 'output) (do (write-file (hd val) input) (set input ""))
-              (= a 'target) (set target* (hd val))
-              (= a 'eval) (do (step x val (rep x)) (set enter-repl false))))
-        (if (some? input) (print input))
-        (if (or enter-repl (get args 'repl)) (repl))))))
+  (if (script-file? (hd argv))
+      (run-script (hd argv) (tl argv))
+    (let args (parse-arguments
+                (obj c: 'compile
+                     o: 'output
+                     t: 'target
+                     e: 'eval
+                     h: 'help
+                     r: 'repl)
+                argv)
+      (if (script-file? (hd args))
+          (run-script (hd args) (tl args))
+          (get args 'help)
+          (print (usage))
+        (let (pre (keep string? args)
+              cmds (keep obj? args)
+              input ""
+              enter-repl true)
+          (step file pre
+            (run-file file))
+          (step (a val) cmds
+            (when (= a 'target)
+              (set target* (hd val))
+              (break)))
+          (step (a val) cmds
+            (if (= a 'help) (print (usage))
+                (= a 'repl) (set enter-repl true)
+                (or (boolean? val) (none? val))
+                (print (cat "missing argument for " a))
+                (= a 'compile) (do (step x val (cat! input (compile-file x))) (set enter-repl false))
+                (= a 'output) (do (write-file (hd val) input) (set input ""))
+                (= a 'target) (set target* (hd val))
+                (= a 'eval) (do (step x val (rep x)) (set enter-repl false))))
+          (if (some? input) (print input))
+          (if (or enter-repl (get args 'repl)) (repl)))))))
 
-(export reader compiler system main)
+(export reader compiler system usage main)
