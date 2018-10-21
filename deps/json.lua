@@ -85,7 +85,8 @@ pcall (function()
 end)
 
 json.null = setmetatable ({}, {
-  __tojson = function () return "null" end
+  __tojson = function () return "null" end,
+  __tostring = function () return "null" end
 })
 
 local function isarray (tbl)
