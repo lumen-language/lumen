@@ -85,6 +85,19 @@
                 `(if (undefined? ,lh) (set ,lh ,rh)))
               (pair args))))
 
+(def only (f)
+  (fn (x ...) (if (not (= x nil)) (f x ...))))
+
+(def avg (ns) (/ (apply + ns) (# ns)))
+
+(def round (n)
+  (target js: ((get Math 'round) n)
+          lua: (error "todo")))
+
+(def med (ns test)
+  (init test >)
+  (at (sort (cut ns) test)
+      (round (/ (# ns) 2))))
 
 (def stream (...)
   (((require 'reader) .stream) ...))
@@ -102,29 +115,45 @@
 (def mvfile (src dst)
   (shell (cat "mv " (escape src) " " (escape dst))))
 
+(def table->json (v)
+  ((JSON .stringify) (tablist v)))
+
+(def json->table (v)
+  (listtab ((JSON .parse) v)))
+
 (def writefile (val file)
   (let tmpfile (cat file ".tmp")
-    (write-file tmpfile (str! val))
+    (write-file tmpfile val)
     (mvfile tmpfile file))
   val)
 
 (def load-table (file)
-  (read-table (stream (read-file file))))
-
-(def read-table (i eof)
-  (let e (read i eof)
-    (unless (= e eof) e)))
-
-(def load-tables (file)
-  (let (i (stream (read-file file))
-        eof (obj))
-    (with r ()
-      (while true
-        (let h (read i eof)
-          (if (= h eof) (break) (add r h)))))))
+  ; (read-table (stream (read-file file))))
+  (json->table (read-file file)))
 
 (def save-table (h file)
-  (writefile h file))
+  (writefile (table->json h) file))
+
+; (def read-table (i eof)
+;   (let e (read i eof)
+;     (unless (= e eof) e)))
+
+; (def load-tables (file)
+;   (let (i (stream (read-file file))
+;         eof (obj))
+;     (with r ()
+;       (while true
+;         (let h (read i eof)
+;           (if (= h eof) (break) (add r h)))))))
+
+(def load-tables (file)
+  (map json->table (keep some? (split (read-file file) "\n"))))
+
+(def save-tables (l file)
+  (let s ""
+    (step h l
+      (cat! s (table->json h) "\n"))
+    (writefile s file)))
 
 (def listtab (l)
   (with r (obj)
@@ -189,11 +218,13 @@
           (set (get x k) v))))))
 
 (def temload (tem file)
-  (temread tem (stream (read-file file))))
+  ; (temread tem (stream (read-file file))))
+  (templatize tem (load-table file)))
 
 (def temloadall (tem file)
-  (map (fn (pairs) (templatize tem pairs))
-       (readfile file)))
+  ; (map (fn (pairs) (templatize tem pairs))
+  ;      (readfile file)))
+  (map (fn (x) (templatize tem x)) (load-tables file)))
 
 (def seconds ()
   (target js: (trunc (/ ((Date .now)) 1000))

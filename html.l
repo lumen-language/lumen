@@ -25,7 +25,14 @@
 
 (mac br2 () `(br 2))
 
+(mac pr body `(<span> ,@body))
 (mac prbold body `(<b> ,@body))
+
+(mac w/tag (name a rest: body)
+  `(,name (unpack (accum ,a ,@body))))
+
+(mac w/span (a rest: body)
+  `(w/tag <span> ,a ,@body))
 
 (def blank-url () "ext/s.gif")
 
@@ -33,21 +40,17 @@
 (def vspace (n)    (<img> src: (blank-url) height: n width: 0))
 (def vhspace (h w) (<img> src: (blank-url) height: h width: w))
 
-(during-compilation
-  (define-special px (n)
-    (cat (compile n) "px")))
-
-(def style (k v)
-  (cat k ": " (compile v)))
+(def style (k v suf)
+  (%object k (str! v (if suf " " "") suf)))
 
 (mac new-hspace (n)
   `(<span> style: (style "padding-left" ,n)))
 
 (def spacerow (h)
-  (<tr> style: (style "height" (px h))))
+  (<tr> style: (style "height" h "px")))
 
 (mac sptab body
-  `(<table> style: "border-spacing: 7px 0px;" ,@body))
+  `(<table> style: (style "border-spacing" "7px 0px") ,@body))
 
 (mac widtable (w rest: body)
   `(<table> width: ,w (tr (td ,@body))))

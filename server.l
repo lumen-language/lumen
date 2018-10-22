@@ -9,7 +9,9 @@
 (during-compilation
   (load "app.l")
   (load "browser.l")
-  (load "blog.l"))
+  (load "blog.l")
+  (load "prompt.l")
+  )
 
 (set app (or (get _G 'app) (express)))
 (set (get _G 'app) app)
@@ -21,9 +23,9 @@
   (ReactDOM (.render-to-string (whitepage (_G (.render))))))
 
 (define-global serve-root (req res next)
-  (print req)
+  ; (print req)
   (let op (clip (at (req .params) 0) 1)
-    (print op)
+    ; (print op)
     ; (res (.send (render-page)))
     ; (res (.send (sym (arg req 'fnid))))
     (unless (respond op req res next)
@@ -56,7 +58,8 @@
 
 ((app .use) ((express .static) __dirname redirect: false))
 
-(set reloadtime* 500)
+(init reloadtime* 500)
+(init reloaded* "")
 
 (def protect (during after throw: throw?)
   (let ((ok v) (guard (during)))
@@ -69,11 +72,14 @@
 (define-global reload-every (ms)
   (setTimeout 
     (fn ()
-      (print 'reloading)
-      ((compose errsafe load) "browser.l")
-      ((compose errsafe load) "server.l")
+      ; ((compose errsafe load) "browser.l")
+      (let data (shell "cat *.l")
+        (unless (= data reloaded*)
+          (print 'reloading)
+          ((compose errsafe load) "server.l")
+          (set reloaded* data)))
       (reload-every reloadtime*))
-    (or ms 500)))
+    reloadtime*))
 
 (define main ()
   (reload-every)

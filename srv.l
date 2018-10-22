@@ -15,14 +15,19 @@
       opcounts* (obj))
 
 (def save-optime (name elapsed)
-  (init (get opcounts* name) 0)
-  (inc (get opcounts* name)))
+  (init (get opcounts* name) 0
+        (get optimes* name) (list))
+  (print (str! `(op ,name ,elapsed)))
+  (inc (get opcounts* name))
+  (add (get optimes* name) elapsed))
 
 (mac defop-raw (name parms rest: body)
-  `(set (get srvops* ',name)
-        (fn ,parms
-          (with x (do ,@body)
-            (save-optime ',name 0)))))
+  (let-unique (t1)
+    `(set (get srvops* ',name)
+          (fn ,parms
+            (let ,t1 (msec)
+              (with x (do ,@body)
+                (save-optime ',name (- (msec) ,t1))))))))
 
 (mac defopr-raw (name parms rest: body)
   `(set (get redirector* ',name) true
@@ -40,21 +45,28 @@
 
 (init unknown-msg* "Unknown." max-age* (obj) static-max-age* nil)
 
+(mac time body
+  (let-unique (t1 t2)
+    `(let ,t1 (msec)
+       (with x (do ,@body)
+         (let ,t2 (msec)
+           (print (cat "time: " (str (- ,t2 ,t1)) " msec.")))))))
+
 (def server-render (x)
   (if (obj? x)
       ((ReactDOM .render-to-string) x)
     (either x "")))
 
 (def respond (op req res next)
-  (print srvops*)
+  ; (print srvops*)
   (let-when f (get srvops* op)
     (if (get redirector* op)
-        ((res .location) (f req res next))
-      ((res .send) (server-render (f req res next))))
+        ((res .location) (time (f req res next)))
+      ((res .send) (time (server-render (time (f req res next))))))
     (return true))
   (when (((require 'system) .file-exists?) op)
-    ((res .send-file) (cat __dirname "/" op))
-    return true))
+    (time ((res .send-file) (cat __dirname "/" op)))
+    (return true)))
 
 (init fns* (obj))
 
@@ -76,6 +88,7 @@
       dead-msg*))
 
 (defop-raw y (req res next)
+  ; (error (str! (arg req "fnid") (get fns* (arg req "fnid"))))
   (aif (get fns* (sym (arg req "fnid")))
        (it req res next)
      "deadlink"))

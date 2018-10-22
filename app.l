@@ -27,18 +27,20 @@
 
 (init cookie->user* (obj) user->cookie* (obj) logins* (obj))
 
-(def cooks (req k)
+(def get-cookie (req res k)
   (let p (listtab (map (fn (x) (split x "=")) (split (req .headers .cookie) "; ")))
     (if k (get p k) p)))
 
-(def cookie (req k)
-  (cooks req k))
+(def set-cookie (req res k v)
+  ((res .cookie) k v))
 
-(def get-user (req) 
-  (let-when u (aand 
-                ; (alref (cooks req) "user")
-                (cookie req "user")
-                (get cookie->user* it))
+(def cookie (req res k)
+  (let-when c (get-cookie req res k)
+    (or (get cookie->user* c)
+        (do (set-cookie req res "user" "") nil))))
+
+(def get-user (req res)
+  (let-when u (cookie req res "user")
     (set (get logins* u) (get req 'ip))
     u))
 
@@ -79,7 +81,7 @@
        (when-umatch ,user ,req ,@body))))
 
 
-(defop admin req (admin-gate (get-user req)))
+(defop admin (req res) (admin-gate (get-user req res)))
 
 (def admin-gate (u)
   (if (admin u)
@@ -112,12 +114,13 @@
                           (admin-page user))))))
       (pwfields "create (server) account"))))
 
-(def cook-user (user req res)
+(def cook-user (req res user)
+  (logout-user user)
   (let id (new-user-cookie)
     (set (get cookie->user*   id) user
          (get user->cookie* user) id)
     (save-table cookie->user* cookfile*)
-    ((res .cookie) "user" id)
+    (set-cookie req res "user" id)
     id))
 
 ; Unique-ids are only unique per server invocation.
@@ -184,9 +187,6 @@
 ; classic example of something that should just "return" a val
 ; via a continuation rather than going to a new page.
 
-(mac w/span (a rest: body)
-  `(<span> (unpack (accum ,a ,@body))))
-
 (def login-page (switch msg afterward)
   (init msg nil
         afterward hello-page)
@@ -209,26 +209,26 @@
             (obj? afterward))))
 
 (def login-handler (req res switch afterward)
-  (logout-user (get-user req))
-  (aif (good-login (arg req "u") (arg req "p") (get req 'ip) req res)
-       (login it (get req 'ip) (get user->cookie* it) afterward)
+  (logout-user (get-user req res))
+  (aif (good-login req res (arg req "u") (arg req "p") (get req 'ip))
+       (login req res it (get req 'ip) (get user->cookie* it) afterward)
        (failed-login switch "Bad login." afterward)))
 
 (def create-handler (req res switch afterward)
-  (logout-user (get-user req))
+  (logout-user (get-user req res))
   (let (user (arg req "u") pw (arg req "p"))
     (aif (bad-newacct user pw)
          (failed-login switch it afterward)
          (do (create-acct user pw)
-             (login user (get req 'ip) (cook-user user req res) afterward)))))
+             (login req res user (get req 'ip) (cook-user req res user) afterward)))))
 
-(def login (user ip cookie afterward)
+(def login (req res user ip cookie afterward)
   (set (get logins* user) ip)
-    (if (obj? afterward)
-        (let (f url) afterward
-          (f user ip)
-          url)
-        (afterward user ip)))
+  (if (obj? afterward)
+      (let ((f url) afterward)
+        (f req res user ip)
+        url)
+      (afterward user ip)))
 
 (def failed-login (switch msg afterward)
   (if (obj? afterward)
@@ -249,12 +249,12 @@
 
 (init good-logins* (queue) bad-logins* (queue))
 
-(def good-login (user pw ip req res)
+(def good-login (req res user pw ip)
   ; (error (pp-to-string (list 'good-login user pw ip (get hpasswords* user) (bcrypt pw (get hpasswords* user)))))
   (let record (list (seconds) ip user)
     (if (and user pw (bcrypt pw (get hpasswords* user)))
         (do ;(unless (get user->cookie* user)
-              (cook-user user req res)
+              (cook-user req res user)
             (print (str! '(enq-limit record good-logins*)))
             user)
         (do (print (str! '(enq-limit record bad-logins*)))
@@ -263,7 +263,7 @@
 
 
 (defop logout (req res)
-  (aif (get-user req)
+  (aif (get-user req res)
        (do (logout-user it)
            "Logged out.")
       "You were not logged in."))
@@ -272,12 +272,26 @@
 ;   (<span> ...))
 
 (defop whoami (req res)
-  (aif (get-user req)
+  (aif (get-user req res)
        ; (prs it 'at (get req 'ip) (str! req))
        ; (prs it 'at (get req 'ip) (req .headers .cookie))
        (<span> it " " 'at " " (get req 'ip))
        (<span> "You are not logged in."
             (w/link (login-page 'both) "Log in")
             ".")))
+
+(defop optimes (req res)
+  (tab
+    (tr (td "op") (tdr "avg") (tdr "med") (tdr "req") (tdr "total"))
+    (spacerow 10)
+    (accum a
+      (each (name q) optimes*
+        (let (ms ((only avg) q)
+              n (get opcounts* name))
+          (a (tr (td name)
+                 (tdr ((only round) ms))
+                 (tdr ((only med) q))
+                 (tdr n)
+                 (tdr (and n (round (/ (* n ms) 1000)))))))))))
 
 
