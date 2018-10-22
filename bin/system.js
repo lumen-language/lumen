@@ -1,3 +1,4 @@
+var __dirname = "/code/ref/lumen-language/2018-10-21/lumen3";
 var fs = require("fs");
 var child_process = require("child_process");
 var read_file = function (path) {
@@ -111,8 +112,23 @@ var reload = function (module) {
   delete require.cache[require.resolve(module)];
   return require(module);
 };
-var run = function (command) {
-  return child_process.execSync(command).toString();
+shell = function (command) {
+  var __s = child_process.execSync(command).toString();
+  if (char(__s, edge(__s)) === "\n") {
+    __s = clip(__s, 0, edge(__s));
+  }
+  if (char(__s, edge(__s)) === "\r") {
+    __s = clip(__s, 0, edge(__s));
+  }
+  return __s;
+};
+rand_bytes = function (n) {
+  var __n = 2 * (n || 16);
+  var __s1 = "";
+  while (_35(__s1) < __n) {
+    __s1 = __s1 + shell("cat /dev/urandom | xxd -l 64 -c 64 -ps");
+  }
+  return clip(__s1, 0, __n);
 };
 var __e2 = undefined;
 if (typeof(exports) === "undefined") {
@@ -136,5 +152,5 @@ __exports.getArgv = get_argv;
 __exports.setArgv = set_argv;
 __exports.arguments = arguments;
 __exports.reload = reload;
-__exports.run = run;
+__exports.shell = shell;
 __exports;

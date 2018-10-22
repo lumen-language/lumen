@@ -1,3 +1,4 @@
+local __dirname = "/code/ref/lumen-language/2018-10-21/lumen3"
 local function call_with_file(f, path, mode)
   local ____id = {io.open(path, mode)}
   local __h = ____id[1]
@@ -144,11 +145,26 @@ local function reload(module)
   package.loaded[module] = nil
   return require(module)
 end
-local function run(command)
+function _G.shell(command)
   local __f2 = io.popen(command)
   local __x5 = __f2.read(__f2, "*all")
   __f2.close(__f2)
-  return __x5
+  local __s = __x5
+  if char(__s, edge(__s)) == "\n" then
+    __s = clip(__s, 0, edge(__s))
+  end
+  if char(__s, edge(__s)) == "\r" then
+    __s = clip(__s, 0, edge(__s))
+  end
+  return __s
+end
+function _G.rand_bytes(n)
+  local __n = 2 * (n or 16)
+  local __s1 = ""
+  while _35(__s1) < __n do
+    __s1 = __s1 .. shell("cat /dev/urandom | xxd -l 64 -c 64 -ps")
+  end
+  return clip(__s1, 0, __n)
 end
 local __e5 = nil
 if exports == nil then
@@ -172,5 +188,5 @@ __exports.getArgv = get_argv
 __exports.setArgv = set_argv
 __exports.arguments = arguments
 __exports.reload = reload
-__exports.run = run
+__exports.shell = shell
 return __exports
