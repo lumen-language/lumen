@@ -149,6 +149,11 @@
 (define expand-transformer (form)
   ((transformer-function (hd (hd form))) form))
 
+(define-global jsx? (form)
+  (and (string? form)
+       (= (char form 0) "<")
+       (= (char form (edge form)) ">")))
+
 (define-global macroexpand (form)
   (if (symbol? form)
       (macroexpand (symbol-expansion form))
@@ -160,6 +165,7 @@
           (= x '%local-function) (expand-definition form)
           (macro? x) (expand-macro form)
           (hd? x transformer?) (expand-transformer form)
+          (jsx? x) (macroexpand `((jsx ,(inner x)) ,@(tl form)))
         (map macroexpand form)))))
 
 (define quasiquote-list (form depth)

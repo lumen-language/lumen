@@ -45,6 +45,7 @@
 (define-global no (x) (or (nil? x) (= x false)))
 (define-global yes (x) (not (no x)))
 (define-global either (x y) (if (= x nil) y x))
+(define-global complement (f) (fn (...) (no (f ...))))
 
 (define-global has? (l k)
   (target js: ((get l 'hasOwnProperty) k)
@@ -145,6 +146,12 @@
       (unless (number? k)
         (set (get t k) v)))))
 
+(define-global vals (x)
+  (with t ()
+    (each (k v) x
+      (when (number? k)
+        (set (get t k) v)))))
+
 (define-global edge (x)
   (- (# x) 1))
 
@@ -214,20 +221,45 @@
       (let y (f x)
         (if y (return y))))))
 
-(define-global first (x l pos)
+(define-global len (x)
+  (if (string? x) (# x)
+      (obj? x)
+      (with n -1
+        (each (k v) x
+          (when (number? k)
+            (target lua: (dec k))
+            (set n (max n k))))
+        (inc n))
+    0))
+
+(define-global first (x l pos reverse?)
   (let (f (testify x)
         i (either pos 0)
-        n -1)
-    (each (k v) l
-      (when (number? k)
-        (target lua: (dec k))
-        (set n (max n k))))
-    (inc n)
+        n (len l)
+        ref (if (string? l) char))
     (while (< i n)
-      (let v (at l i)
-        (let-when y (f v)
-          (return i)))
+      (let i (if reverse? (- n i 1) i)
+        (let v (if ref (ref l i) (at l i))
+          (let-when y (f v)
+            (return i))))
       (inc i))))
+
+(define whitespace (set-of " " "\t" "\r" "\n"))
+
+(define-global whitespace? (c)
+  (get whitespace c))
+
+(when-compiling
+  (load "macros.l")
+  nil)
+
+(define-global trim (s where test)
+  (let (where (or where 'both)
+        test (or test whitespace?)
+        f (complement (testify test))
+        p1 (if (in where 'front 'both) (first f s) 0)
+        p2 (if (in where 'end 'both) (+ (first f s nil true) 1)))
+    (if (string? s) (clip s p1 p2) (cut s p1 p2))))
 
 (define-global in? (x t)
   (find (testify x) t))

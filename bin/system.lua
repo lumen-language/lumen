@@ -158,7 +158,7 @@ function _G.shell(command)
   end
   return __s
 end
-function _G.rand_bytes(n)
+function _G.rand_string(n)
   local __n = 2 * (n or 16)
   local __s1 = ""
   while _35(__s1) < __n do

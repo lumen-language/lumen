@@ -1,4 +1,4 @@
-.PHONY: all rebuild bundle clean test
+.PHONY: all browser rebuild bundle clean test
 
 LUMEN_LUA  ?= lua
 LUMEN_NODE ?= node
@@ -23,6 +23,12 @@ rebuild:
 	@make clean
 	@LUMEN_HOST=node make -B
 	@make test
+
+browser:
+	@echo ext/browser.js
+	@$(LUMEN) -t js -c browser.l -o ext/browser.js
+	@echo browserify ext/lumen.js
+	@browserify --entry index.js -o ext/lumen.js
 
 bundle:
 	@npx luvit-luvi . -o bin/lumen-language
@@ -62,7 +68,7 @@ bin/%.lua : %.l
 	@echo $@
 	@$(LUMEN) -c $< -o $@ -t lua
 
-test: all
+test: all browser
 	@echo js:
 	@LUMEN_HOST=$(LUMEN_NODE) ./test.l
 	@echo lua:

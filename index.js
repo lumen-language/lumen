@@ -7,17 +7,26 @@ var _G = (typeof _G !== "undefined") ? _G
 _G._G = _G;
 
 const path = require('path');
-process.env.NODE_PATH = (process.env.NODE_PATH || "") + path.delimiter + path.join(__dirname, 'bin');
-if (require.main === module) {
-  module.paths = require('module').Module._nodeModulePaths(path.resolve('repl'));
+if (typeof window === "undefined") {
+  process.env.NODE_PATH = (process.env.NODE_PATH || "") + path.delimiter + path.join(__dirname, 'bin');
+  if (require.main === module) {
+    module.paths = require('module').Module._nodeModulePaths(path.resolve('repl'));
+  }
+  require('module').Module._initPaths();
 }
-require('module').Module._initPaths();
 _G.require = require;
 
 _G.ustring = (_G.ustring || {})
 _G.ustring.new = x => [...x]
 
 Object.assign(exports, require("./bin/lumen.js"));
+if (typeof window !== "undefined") {
+  _G.lumen = exports;
+} else {
+  require("./server.js");
+  // _G.React = require("./ext/react.js")
+  // _G.ReactDOM = require("./ext/react-dom-server.js")
+}
 if (require.main === module) {
   exports.main(process.argv.slice(2));
 }

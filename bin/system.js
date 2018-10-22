@@ -122,7 +122,7 @@ shell = function (command) {
   }
   return __s;
 };
-rand_bytes = function (n) {
+rand_string = function (n) {
   var __n = 2 * (n || 16);
   var __s1 = "";
   while (_35(__s1) < __n) {

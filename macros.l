@@ -278,5 +278,21 @@
 (define-transformer expansion ((expansion) form)
   form)
 
+(define-transformer jsx ((jsx name) rest: body)
+  (macroexpand `((React .create-element) ',name (%object ,@(mapo (fn (x) x) (props body))) ,@(vals body))))
+
 (define-setter hd (v l)
   `(set (at ,l 0) ,v))
+
+(define-macro mac (name args rest: body)
+  `(during-compilation
+     (define-macro ,name ,args ,@body)))
+
+(define-macro def (name args rest: body)
+  `(during-compilation
+     (define-global ,name ,args ,@body)))
+
+(define-macro in (x rest: vals)
+  (if (none? vals) '(do)
+      (one? vals) `(= ,x ,(hd vals))
+    `(or ,@(map (fn (v) `(= ,x ,v)) vals))))

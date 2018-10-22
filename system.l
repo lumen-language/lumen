@@ -124,12 +124,23 @@
           js: (get (get require 'cache) ((get require 'resolve) module))))
   (require module))
 
-(define run (command)
-  (target
-    js: ((get ((get child_process 'execSync) command) 'toString))
-    lua: (let f ((get io 'popen) command)
-           (with x ((get f 'read) f '*all)
-             ((get f 'close) f)))))
+(define-global shell (command)
+  (with s (target
+            js: ((get ((get child_process 'execSync) command) 'toString))
+            lua: (let f ((get io 'popen) command)
+                   (with x ((get f 'read) f '*all)
+                     ((get f 'close) f))))
+    (when (= (char s (edge s)) "\n")
+      (set s (clip s 0 (edge s))))
+    (when (= (char s (edge s)) "\r")
+      (set s (clip s 0 (edge s))))))
+
+(define-global rand-string (n)
+  (let n (* 2 (or n 16))
+    (let s ""
+      (while (< (# s) n)
+        (cat! s (shell "cat /dev/urandom | xxd -l 64 -c 64 -ps")))
+      (clip s 0 n))))
 
 (export read-file
         write-file
@@ -146,4 +157,4 @@
         set-argv
         arguments
         reload
-        run)
+        shell)

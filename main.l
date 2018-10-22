@@ -2,12 +2,15 @@
 (define compiler (require "./compiler"))
 (define system (require "./system"))
 
+(define-global error-message (v)
+  (target
+    js: (get v 'stack)
+    lua: (cat "error: " (get v 'message) "\n" (get v 'stack))))
+
 (define eval-print (form)
   (let ((ok v) (guard ((compiler .eval) `(results ,form))))
     (if (not ok)
-        (target
-          js: (print (get v 'stack))
-          lua: (print (cat "error: " (get v 'message) "\n" (get v 'stack))))
+        (print (error-message v))
       (step x v
         (when (or (is? x) (> (# v) 1))
           (print (str x)))))))
@@ -41,10 +44,15 @@
 (define-global write-file (path data)
   ((system .write-file) path data))
 
+(define-global file-truedir (path)
+  (if ((system .file-exists?) path)
+      (shell (cat "cd \"$(dirname " (escape path) ")\" && pwd"))
+      path))
+
 (define-global read-from-file (path)
   (let (s ((reader .stream) ((system .read-file) path))
         body ((reader .read-all) s))
-    `(do ,@body)))
+    `(do (%local __dirname ,(escape (file-truedir path))) ,@body)))
 
 (define-global expand-file (path)
   ((compiler .expand) (read-from-file path)))
