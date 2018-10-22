@@ -11,6 +11,7 @@
   (load "browser.l")
   (load "blog.l")
   (load "prompt.l")
+  (load "news.l")
   )
 
 (set app (or (get _G 'app) (express)))

@@ -1,5 +1,8 @@
 (set t true)
 
+(def isnt (a b)
+  (not (= a b)))
+
 (def str! (...)
   (with s ""
     (step x (list ...)

@@ -171,6 +171,21 @@
       (or (no pw) (< (# pw) 4))
       "Passwords should be at least 4 characters long.  Please choose another."))
 
+(def alphadig (c)
+  (or (and (>= c "a") (<= c "z"))
+      (and (>= c "A") (<= c "Z"))
+      (and (>= c "0") (<= c "9"))))
+
+(def goodname (str min max)
+  (init min 1 max nil)
+  (and (string? str)
+       (>= (# str) min)
+       (no (find (fn (c) (no (or (alphadig c) (in c "-" "_"))))
+              str))
+       (not (= (char str 0) "-"))
+       (or (no max) (<= (# str) max))
+       str))
+
 (def hello-page (user ip)
   (whitepage (<span> "hello " user " at " ip)))
 
@@ -409,7 +424,7 @@
     sym     (or ((compose sym car tokens) str) fail)
     syms    (map sym (tokens str))
     sexpr   (errsafe (readall str))
-    users   (rem [no (goodname _)] (tokens str))
+    users   (rem (fn (_) (no (goodname _))) (tokens str))
     toks    (tokens str)
     bigtoks (tokens str)
     lines   (lines str)

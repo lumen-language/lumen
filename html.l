@@ -1,3 +1,13 @@
+(def gray (n) (color n n n))
+
+(init white (gray 255)
+      black (gray 0)
+      linkblue (color 0 0 190)
+      orange (color 255 102 0)
+      darkred (color 180 0 0)
+      darkblue (color 0 0 120))
+
+
 (mac tag-if (test spec rest: body)
   `(if ,test
        (,spec ,@body)
@@ -12,8 +22,16 @@
 (mac tab body `(<table> (<tbody> ,@(vals body)) ,@(props body)))
 (mac tr body `(<tr> ,@body))
 (mac td body `(<td> ,@body))
-(mac tdr body `(<td> align: 'right ,@body))
 (mac trtd body `(tr (td ,@body)))
+(mac tdr body `(<td> align: 'right ,@body))
+(mac tdcolor (col rest: body) `(<td> bgcolor: ,col ,@body))
+
+(mac fontcolor (col rest: body)
+  (let-unique (g)
+    `(let ,g ,col
+       (if ,g
+           (<font> style: (obj color: (hexrep ,g)) ,@body)
+         (do ,@body)))))
 
 (mac row args
   `(tr ,@(map (fn (x) `(td ,x)) args)))
@@ -125,7 +143,7 @@
   `(<span> ,@body (br2) "zz"))
 
 (mac spanclass (name rest: body)
-  `(<span> class: ',name ,@body))
+  `(<span> className: ',name ,@body))
 
 (def pagemessage (text)
   (when (and (string? text) (some? text))
