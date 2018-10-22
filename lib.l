@@ -1,3 +1,5 @@
+(set t true)
+
 (def str! (...)
   (with s ""
     (step x (list ...)
@@ -58,6 +60,13 @@
 ; (def keep (test seq)
 ;   (rem (complement (testify test)) seq))
 
+(def count (test l)
+  (with n 0
+    (let f (testify test)
+      (step x l
+        (let-when y (f x)
+          (inc n))))))
+
 (mac accum (f rest: body)
   (let-unique (r)
     `(with r ()
@@ -90,9 +99,30 @@
 
 (def avg (ns) (/ (apply + ns) (# ns)))
 
+(def even (n) (= (% n 2) 0))
+(def odd (n) (= (% n 2) 1))
+
+; ; The problem with returning a list instead of multiple values is that
+; ; you can't act as if the fn didn't return multiple vals in cases where
+; ; you only want the first.  Not a big problem.
+
 (def round (n)
-  (target js: ((get Math 'round) n)
-          lua: (error "todo")))
+  (let (base (trunc n) rem (abs (- n base)))
+    (if (> rem 0.5) (if (> n 0) (+ base 1) (- base 1))
+        (< rem 0.5) base
+        (odd base)  (if (> n 0) (+ base 1) (- base 1))
+                    base)))
+
+(def roundup (n)
+  (let (base (trunc n) rem (abs (- n base)))
+    (if (>= rem 0.5) 
+        (if (> n 0) (+ base 1) (- base 1))
+        base)))
+
+; (def round (n)
+;   (target js: ((get Math 'round) n)
+;           lua: (error "todo")))
+
 
 (def med (ns test)
   (init test >)
@@ -102,8 +132,10 @@
 (def stream (...)
   (((require 'reader) .stream) ...))
 
-(def read (...)
-  (((require 'reader) .read) ...))
+(def read (x ...)
+  (if (string? x)
+      (read (stream x) ...)
+    (((require 'reader) .read) x ...)))
 
 (def readfile (name)
   (readall (stream (read-file name))))

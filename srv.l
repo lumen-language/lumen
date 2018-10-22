@@ -4,10 +4,10 @@
 (def sym (x)
   (pp-to-string x))
 
-(def arg (req k)
-  (either (get (get req 'query) k)
-          (get (get req 'body) k)))
-
+(def arg ((method: method body: body query: query) k)
+  (let l (if (= method 'POST) body query)
+    (print (str! `(arg ,method ,k ,l ,(get l k))))
+    (if k (get l k) l)))
 
 (init srvops* (obj)
       redirector* (obj)
@@ -53,8 +53,11 @@
            (print (cat "time: " (str (- ,t2 ,t1)) " msec.")))))))
 
 (def server-render (x)
-  (if (obj? x)
+  (print (pp-to-string x))
+  (if ((React .is-valid-element) x)
       ((ReactDOM .render-to-string) x)
+      (obj? x)
+      (server-render (<span> (unpack x)))
     (either x "")))
 
 (def respond (op req res next)
@@ -83,22 +86,22 @@
 (init dead-msg* "\nUnknown or expired link.")
 
 (defop-raw x (req res next)
-  (aif (get fns* (sym (arg req "fnid")))
+  (aif (get fns* (arg req "fnid"))
        (it req res next)
       dead-msg*))
 
-(defop-raw y (req res next)
+(defopr-raw y (req res next)
   ; (error (str! (arg req "fnid") (get fns* (arg req "fnid"))))
-  (aif (get fns* (sym (arg req "fnid")))
+  (aif (get fns* (arg req "fnid"))
        (it req res next)
      "deadlink"))
 
 (defop-raw a (req res next)
-  (aif (get fns* (sym (arg req "fnid")))
+  (aif (get fns* (arg req "fnid"))
        (do (it req res next) nil)))
 
 (defopr r (req res next)
-  (aif (get fns* (sym (arg req "fnid")))
+  (aif (get fns* (arg req "fnid"))
        (it req res next)
       "deadlink"))
 
@@ -153,7 +156,7 @@
      (do ,@body)))
 
 (def fnid-field (id)
-  (<input> type: 'hidden name: 'fnid value: id))
+  (<input> type: 'hidden name: 'fnid value: id key: id))
 
 (def fnform (f bodyfn redir)
   (<form> method: 'post action: (if (not (= redir nil)) rfnurl2* fnurl*)
@@ -164,6 +167,19 @@
   `(<form> method: 'post action: fnurl*
      (fnid-field (fnid ,f))
      ,@body))
+
+; Like aform except creates a fnid that will last for lasts seconds
+; (unless the server is restarted).
+
+(mac taform (lasts f rest: body)
+  `(aform ,f ,@body))
+  ; (w/uniq (gl gf gi ga)
+  ;   `(withs (,gl ,lasts
+  ;            ,gf (fn (,ga) (prn) (,f ,ga)))
+  ;      (tag (form method 'post action fnurl*)
+  ;        (fnid-field (if ,gl (timed-fnid ,gl ,gf) (fnid ,gf)))
+  ;        ,@body))))
+
 
 ; only unique per server invocation
 

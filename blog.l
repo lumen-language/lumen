@@ -82,7 +82,16 @@
 
 (def edit-page (user p)
   (whitepage
-    (str! user p)))
+    (vars-form user
+               `((string title ,(get p 'title) ,t ,t) (text text ,(get p 'text) ,t ,t))
+               (fn (name val)
+                 (print (str! `(set ,user ,name ,val ,p)))
+                 (set (get p name) val))
+               (fn ()
+                 (print (str! `(save-post ,user ,p)))
+                 (save-post p)
+                 (post-page user p)))))
+    ; (str! user p)))
 
 (defop archive (req res)
   (blogpage
