@@ -333,3 +333,10 @@
 (def ensure-dir (path)
   (unless (dir-exists path)
     (shell (cat "mkdir -p " (escape path)))))
+
+(def date (secs)
+  (init secs (seconds))
+  (shell (cat "date -ur " (escape (str! secs)) " +%Y%m%d-%H%M%S")))
+
+(def datestring (secs)
+  (hd (split (date secs) "-")))

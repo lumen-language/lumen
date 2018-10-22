@@ -1,6 +1,17 @@
 (during-compilation
   (load "lib.l"))
 
+(init arcdir* "arc/" logdir* "arc/logs/" staticdir* "static/")
+
+(init quitsrv* nil breaksrv* nil) 
+
+(def ensure-srvdirs ()
+  (map ensure-dir (list arcdir* logdir* staticdir*)))
+
+(ensure-srvdirs)
+
+(init srv-noisy* nil)
+
 (def sym (x)
   (pp-to-string x))
 
@@ -60,15 +71,35 @@
       (server-render (<span> (unpack x)))
     (either x "")))
 
+(def log-request (type op args cooks ip t0 t1)
+  (srvlog 'srv ip type op
+          ; (let arg1 (hd args)
+          ;   (if (hd? arg1 "fnid") "" arg1))
+          args
+          cooks))
+
+(def log-req (op req res)
+  (let (type (get req 'method)
+        ip (get req 'ip)
+        cooks (get-cookie req res)
+        args (arg req))
+    (log-request type op args cooks ip)))
+
+; (def get-cookie (req res k)
+;   (let p (listtab (map (fn (x) (split x "=")) (split (req .headers .cookie) "; ")))
+;     (if k (get p k) p)))
+
 (def respond (op req res next)
   ; (print srvops*)
   (let-when f (get srvops* op)
     (if (get redirector* op)
         ((res .location) (time (f req res next)))
       ((res .send) (time (server-render (time (f req res next))))))
+    (log-req op req res)
     (return true))
   (when (((require 'system) .file-exists?) op)
     (time ((res .send-file) (cat __dirname "/" op)))
+    ; (log-req op req res)
     (return true)))
 
 (init fns* (obj))
@@ -190,4 +221,24 @@
     (if (get unique-ids* id)
         (unique-id len)
         (set (get unique-ids* id) id))))
+
+(mac w/appendfile (o name rest: body)
+  (let-unique (s)
+    `(let (,s "" ,o (fn (x) (cat! ,s x)))
+       ,@body
+       (writefile (cat (or (errsafe (read-file ,name)) "") ,s) ,name))))
+
+(def srvlog (type ...)
+  (w/appendfile o (logfile-name type)
+    (o (cat (tostring (seconds)) " " (inner (pp-to-string (list ...))) "\n"))))
+
+; (def memodate ()
+;   (let now (seconds)
+;     (if (or (no lastasked) (> (- now lastasked) 60))
+;         (= lastasked now lastval (datestring))
+;         lastval)))
+
+
+(def logfile-name (type)
+  (cat logdir* type "-" (datestring)))
 
