@@ -117,10 +117,14 @@ read_table[""] = function (s)
   local __str1 = ""
   while true do
     local __c3 = peek_char(s)
-    if __c3 and (not whitespace[__c3] and not delimiters[__c3]) then
-      __str1 = __str1 .. read_char(s)
+    if __c3 == "\\" then
+      __str1 = __str1 .. read_char(s) .. read_char(s)
     else
-      break
+      if __c3 and (not whitespace[__c3] and not delimiters[__c3]) then
+        __str1 = __str1 .. read_char(s)
+      else
+        break
+      end
     end
   end
   if __str1 == "true" then

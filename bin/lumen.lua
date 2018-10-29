@@ -528,7 +528,7 @@ function _G._62(...)
     return a > b
   end, __xs1)
 end
-function _G._61(...)
+function _G._6161(...)
   local __xs2 = unstash({...})
   return pairwise(function (a, b)
     return a == b
@@ -1281,6 +1281,15 @@ setenv("hd", {_stash = true, expander = function (setfn, ...)
   return define_setter("hd", function (v, l)
     return {"set", {"at", l, 0}, v}
   end, __setfn1, __args6)
+end})
+setenv("ref", {_stash = true, expander = function (setfn, ...)
+  local ____r61 = unstash({...})
+  local __setfn3 = destash33(setfn, ____r61)
+  local ____id48 = ____r61
+  local __args8 = cut(____id48, 0)
+  return define_setter("ref", function (v, l, k)
+    return {"set", l, {"set-ref", l, k, v}}
+  end, __setfn3, __args8)
 end})
 local reader = require("./reader")
 local compiler = require("./compiler")

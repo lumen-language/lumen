@@ -117,10 +117,14 @@ read_table[""] = function (s) {
   var __str1 = "";
   while (true) {
     var __c3 = peek_char(s);
-    if (__c3 && (! whitespace[__c3] && ! delimiters[__c3])) {
-      __str1 = __str1 + read_char(s);
+    if (__c3 === "\\") {
+      __str1 = __str1 + read_char(s) + read_char(s);
     } else {
-      break;
+      if (__c3 && (! whitespace[__c3] && ! delimiters[__c3])) {
+        __str1 = __str1 + read_char(s);
+      } else {
+        break;
+      }
     }
   }
   if (__str1 === "true") {

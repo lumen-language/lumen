@@ -568,7 +568,7 @@ _62 = function (..._42args) {
     return a > b;
   }, __xs1);
 };
-_61 = function (..._42args) {
+_6161 = function (..._42args) {
   var __xs2 = unstash([..._42args]);
   return pairwise(function (a, b) {
     return a === b;
@@ -1358,6 +1358,15 @@ setenv("hd", {_stash: true, expander: function (setfn, ..._42args) {
   return define_setter("hd", function (v, l) {
     return ["set", ["at", l, 0], v];
   }, __setfn1, __args6);
+}});
+setenv("ref", {_stash: true, expander: function (setfn, ..._42args) {
+  var ____r61 = unstash([..._42args]);
+  var __setfn3 = destash33(setfn, ____r61);
+  var ____id48 = ____r61;
+  var __args8 = cut(____id48, 0);
+  return define_setter("ref", function (v, l, k) {
+    return ["set", l, ["set-ref", l, k, v]];
+  }, __setfn3, __args8);
 }});
 var reader = require("./reader");
 var compiler = require("./compiler");
