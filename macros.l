@@ -7,6 +7,8 @@
 (define-macro do body
   `(%do ,@body))
 
+(define-macro = args `(== ,@args))
+
 (define-macro while (test rest: body)
   `(%while ,test (%do ,@body) ,@(props body)))
 
@@ -248,8 +250,8 @@
             (dec indent-level*)))))
 
 (define-macro undefined? (x)
-  `(target lua: (= ,x nil)
-           js: (= (typeof ,x) "undefined")))
+  `(target lua: (== ,x nil)
+           js: (== (typeof ,x) "undefined")))
 
 (define-macro export names
   `(with exports (if (undefined? exports) (obj) exports)
@@ -286,3 +288,6 @@
 
 (define-setter hd (v l)
   `(set (at ,l 0) ,v))
+
+(define-setter ref (v l k)
+  `(set ,l (set-ref ,l ,k ,v)))

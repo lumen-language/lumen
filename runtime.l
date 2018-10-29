@@ -34,10 +34,12 @@
     (let ((ok v) (guard (results (f ...))))
       (values ok (unpack v)))))
 
+(target lua: (define-global null ()))
+
 (define-global nil? (x)
   (target
-    js: (or (= x nil) (= x null))
-    lua: (= x nil)))
+    js: (or (== x nil) (== x null))
+    lua: (== x nil)))
 
 (define-global is? (x) (not (nil? x)))
 
@@ -352,7 +354,7 @@
 
 (define-global < xs (pairwise (fn (a b) (< a b)) xs))
 (define-global > xs (pairwise (fn (a b) (> a b)) xs))
-(define-global = xs (pairwise (fn (a b) (= a b)) xs))
+(define-global == xs (pairwise (fn (a b) (== a b)) xs))
 (define-global <= xs (pairwise (fn (a b) (<= a b)) xs))
 (define-global >= xs (pairwise (fn (a b) (>= a b)) xs))
 

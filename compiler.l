@@ -83,16 +83,23 @@
             (hd? lh 'or)
             (hd? lh '&optional))
     (let ((_ var val) lh)
-      (bind var `(%if (= ,rh nil) ,(or val 'nil) ,rh)))))
+      (bind var `(%if (== ,rh nil) ,(or val 'nil) ,rh)))))
+
+(define-global bind-dotted (args)
+  (if (and (>= (# args) 2)
+           (= (at args (- (# args) 2)) "."))
+      (join (cut args 0 (- (# args) 2)) (obj rest: (last args)))
+    args))
 
 (define-global bind-destructuring (lh rh)
-  (let-unique (id)
-    (with bs (list id rh)
-      (each (k v) lh
-        (let x (if (= k 'rest)
-                   `(cut ,id ,(# lh))
-                 `(get ,id ',(bias k)))
-          (join! bs (bind v x)))))))
+  (let lh (bind-dotted lh)
+    (let-unique (id)
+      (with bs (list id rh)
+        (each (k v) lh
+          (let x (if (= k 'rest)
+                     `(cut ,id ,(# lh))
+                   `(get ,id ',(bias k)))
+            (join! bs (bind v x))))))))
 
 (define-global bind (lh rh)
   (if (atom? lh) `(,lh ,rh)
@@ -100,7 +107,7 @@
         (bind-destructuring lh rh))))
 
 (define-global bind-function (args body)
-  (let args1 ()
+  (let (args (bind-dotted args) args1 ())
     (define rest ()
       (set (get args1 'rest) true)
       `(unstash (list ,"...")))
@@ -159,15 +166,67 @@
 (define expand-transformer (form)
   ((transformer-function (hd (hd form))) form))
 
+(define-global identifier? (x)
+  (and (string? x)
+       (not (string-literal? x))
+       (not (id-literal? x))
+       (not (accessor-literal? x))))
+
 (define-global expand-compose (form)
-  (when (string? form)
+  (when (identifier? form)
     (when (>= (# form) 3)
       (let-when i (search form ":")
         (let parts (split form ":")
           (unless (find none? parts)
-            `(compose ,@parts)))))))
+            `(compose ,@(map expand-atom (map read-string parts)))))))))
+
+(define-global andf (f ...)
+  (if (none? (list ...))
+      (fn (...) (f ...))
+    (let g (andf ...)
+      (fn (...) (and (f ...) (g ...))))))
+
+(define-global expand-and (form)
+  (when (identifier? form)
+    (when (>= (# form) 3)
+      (let-when i (search form "&")
+        (let parts (split form "&")
+          (unless (find none? parts)
+            `(andf ,@(map expand-atom (map read-string parts)))))))))
+
+(define-global ref (l k)
+  (unless (nil? l)
+    (if (function? l)
+        (l k)
+        ; (number? k)
+        ; (at l k)
+      (get l k))))
+
+(define-global set-ref (l k v)
+  (if (nil? l) v
+      (function? l) (do (set-ref (l) k v) l)
+      ; (number? k)
+      ; (do (set (at l k) v) l)
+    (do (set (get l k) v) l)))
+
+(define-global expand-ref (form)
+  (when (identifier? form)
+    (if (and (= (char form 0) "!")
+             (not (= (char form 1) "!"))
+             (>= (# form) 2))
+        `[do ,(cat "_" form)]
+      (when (>= (# form) 3)
+        (let-when i (search form "!")
+          (let parts (split form "!")
+            (unless (find none? parts)
+              (with x (expand-atom (read-string (hd parts)))
+                (step k (map expand-atom (map read-string (tl parts)))
+                  (set x `(ref ,x ,(quoted k))))))))))))
 
 (define-global expand-atom-functions* ())
+; (add expand-atom-functions* expand-compose)
+; (add expand-atom-functions* expand-ref)
+; (add expand-atom-functions* expand-and)
 
 (define-global expand-atom (form)
   (step f expand-atom-functions*
@@ -176,10 +235,14 @@
         (return x))))
   form)
 
-(define-global macroexpand (form)
+(define-global macroexpand-atom (form)
   (if (symbol? form)
       (macroexpand (symbol-expansion form))
-      (atom? form) (expand-atom form)
+    (let expr (expand-atom form)
+      (if (= expr form) expr (macroexpand expr)))))
+
+(define-global macroexpand (form)
+  (if (atom? form) (macroexpand-atom form)
       (none? form) (map macroexpand form)
     (let (x (macroexpand (hd form))
           args (tl form)
@@ -332,7 +395,7 @@
     (cat: (js: + lua: ..))
     (+: + -: -)
     (<: < >: > <=: <= >=: >=)
-    (=: (js: === lua: ==))
+    (==: (js: === lua: ==))
     (and: (js: && lua: and))
     (or: (js: || lua: or))))
 
@@ -617,7 +680,7 @@
   a)
 
 (define lower-pairwise? (form)
-  (and (> (# form) 3) (in? (hd form) '(< <= = >= >))))
+  (and (> (# form) 3) (in? (hd form) '(< <= == >= >))))
 
 (define pairwise-form ((x a rest: bs))
   (with e '(and)
