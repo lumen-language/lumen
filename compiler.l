@@ -655,19 +655,6 @@
 (define-global immediate-call? (x)
   (and (obj? x) (obj? (hd x)) (= (hd (hd x)) '%function)))
 
-(define-special do forms stmt: true tr: true
-  (with s ""
-    (step x forms
-      (when (and (= target* 'lua)
-                 (immediate-call? x)
-                 (= "\n" (char s (edge s))))
-        (set s (cat (clip s 0 (edge s)) ";\n")))
-      (cat! s (compile x stmt: true))
-      (unless (atom? x)
-        (if (or (= (hd x) 'return)
-                (= (hd x) 'break))
-            (break))))))
-
 (define-special %do forms stmt: true tr: true
   (with s ""
     (step x forms
