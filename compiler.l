@@ -159,18 +159,39 @@
 (define expand-transformer (form)
   ((transformer-function (hd (hd form))) form))
 
+(define-global expand-compose (form)
+  (when (string? form)
+    (when (>= (# form) 3)
+      (let-when i (search form ":")
+        (let parts (split form ":")
+          (unless (find none? parts)
+            `(compose ,@parts)))))))
+
+(define-global expand-atom-functions* ())
+
+(define-global expand-atom (form)
+  (step f expand-atom-functions*
+    (let x (f form)
+      (unless (= x nil)
+        (return x))))
+  form)
+
 (define-global macroexpand (form)
   (if (symbol? form)
       (macroexpand (symbol-expansion form))
-      (atom? form) form
-    (let x (hd form)
-      (if (= x '%local) (expand-local form)
+      (atom? form) (expand-atom form)
+      (none? form) (map macroexpand form)
+    (let (x (macroexpand (hd form))
+          args (tl form)
+          form `(,x ,@args))
+      (if (= x nil) (macroexpand args)
+          (= x '%local) (expand-local form)
           (= x '%function) (expand-function form)
           (= x '%global-function) (expand-definition form)
           (= x '%local-function) (expand-definition form)
           (macro? x) (expand-macro form)
           (hd? x transformer?) (expand-transformer form)
-        (map macroexpand form)))))
+        `(,x ,@(map macroexpand args))))))
 
 (define quasiquote-list (form depth)
   (let xs (list '(list))

@@ -265,13 +265,6 @@
   (with form `(%do ,@body (%do))
     (eval form)))
 
-(define-macro compose args
-  (let f (or (drop args) `(%function (x) x))
-    `(%function (...)
-       ,(with r `(,f ...)
-          (step f (reverse args)
-            (set r `(,f ,r)))))))
-
 (define-transformer compose ((compose rest: fns) rest: body)
   (if (none? fns) (macroexpand `(do ,@body))
       (one? fns) (macroexpand `(,@fns ,@body))

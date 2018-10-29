@@ -26,11 +26,6 @@ function _G.either(x, y)
     return y
   end
 end
-function _G.complement(f)
-  return function (...)
-    return no(f(...))
-  end
-end
 function _G.has63(l, k)
   return is63(l[k])
 end
@@ -91,6 +86,23 @@ function _G.hd63(l, x)
     __e2 = __id1
   end
   return __e2
+end
+function _G.complement(f)
+  return function (...)
+    return no(f(...))
+  end
+end
+function _G.compose(f, ...)
+  if none63({...}) then
+    return function (...)
+      return f(...)
+    end
+  else
+    local __g = compose(...)
+    return function (...)
+      return f(__g(...))
+    end
+  end
 end
 _G.nan = 0 / 0
 _G.inf = 1 / 0
@@ -241,13 +253,13 @@ function _G.reverse(l)
 end
 function _G.join(...)
   local __ls = unstash({...})
-  local __r45 = {}
-  local ____x3 = __ls
+  local __r48 = {}
+  local ____x4 = __ls
   local ____i6 = 0
-  while ____i6 < _35(____x3) do
-    local __l11 = ____x3[____i6 + 1]
+  while ____i6 < _35(____x4) do
+    local __l11 = ____x4[____i6 + 1]
     if __l11 then
-      local __n4 = _35(__r45)
+      local __n4 = _35(__r48)
       local ____o5 = __l11
       local __k3 = nil
       for __k3 in pairs(____o5) do
@@ -255,12 +267,12 @@ function _G.join(...)
         if number63(__k3) then
           __k3 = __k3 + __n4
         end
-        __r45[__k3] = __v5
+        __r48[__k3] = __v5
       end
     end
     ____i6 = ____i6 + 1
   end
-  return __r45
+  return __r48
 end
 function _G.testify(x, test)
   if function63(x) then
@@ -282,8 +294,8 @@ function _G.find(x, t)
   local ____o6 = t
   local ____i8 = nil
   for ____i8 in pairs(____o6) do
-    local __x4 = ____o6[____i8]
-    local __y = __f(__x4)
+    local __x5 = ____o6[____i8]
+    local __y = __f(__x5)
     if __y then
       return __y
     end
@@ -332,10 +344,10 @@ function _G.sort(l, f)
 end
 function _G.map(f, x)
   local __t1 = {}
-  local ____x6 = x
+  local ____x7 = x
   local ____i12 = 0
-  while ____i12 < _35(____x6) do
-    local __v8 = ____x6[____i12 + 1]
+  while ____i12 < _35(____x7) do
+    local __v8 = ____x7[____i12 + 1]
     local __y3 = f(__v8)
     if is63(__y3) then
       add(__t1, __y3)
@@ -378,7 +390,7 @@ function _G.empty63(t)
   local ____o10 = t
   local ____i15 = nil
   for ____i15 in pairs(____o10) do
-    local __x7 = ____o10[____i15]
+    local __x8 = ____o10[____i15]
     return false
   end
   return true
@@ -662,9 +674,9 @@ function _G.call(f, ...)
   return f(...)
 end
 function _G.setenv(k, ...)
-  local ____r91 = unstash({...})
-  local __k11 = destash33(k, ____r91)
-  local ____id = ____r91
+  local ____r94 = unstash({...})
+  local __k11 = destash33(k, ____r94)
+  local ____id = ____r94
   local __keys = cut(____id, 0)
   if string63(__k11) then
     local __e13 = nil
@@ -1212,21 +1224,8 @@ setenv("during-compilation", {_stash = true, macro = function (...)
   eval(__form2)
   return __form2
 end})
-setenv("compose", {_stash = true, macro = function (...)
-  local __args5 = unstash({...})
-  local __f1 = drop(__args5) or {"%function", {"x"}, "x"}
-  local __r50 = {__f1, "..."}
-  local ____x251 = reverse(__args5)
-  local ____i7 = 0
-  while ____i7 < _35(____x251) do
-    local __f2 = ____x251[____i7 + 1]
-    __r50 = {__f2, __r50}
-    ____i7 = ____i7 + 1
-  end
-  return {"%function", {"..."}, __r50}
-end})
-setenv("compose", {_stash = true, transformer = function (__x253)
-  local ____id35 = __x253
+setenv("compose", {_stash = true, transformer = function (__x245)
+  local ____id35 = __x245
   local ____id36 = ____id35[1]
   local __compose = ____id36[1]
   local __fns = cut(____id36, 1)
@@ -1241,8 +1240,8 @@ setenv("compose", {_stash = true, transformer = function (__x253)
     end
   end
 end})
-setenv("complement", {_stash = true, transformer = function (__x258)
-  local ____id37 = __x258
+setenv("complement", {_stash = true, transformer = function (__x250)
+  local ____id37 = __x250
   local ____id38 = ____id37[1]
   local __complement = ____id38[1]
   local __form3 = ____id38[2]
@@ -1253,35 +1252,35 @@ setenv("complement", {_stash = true, transformer = function (__x258)
     return macroexpand({"no", join({__form3}, __body29)})
   end
 end})
-setenv("expansion", {_stash = true, transformer = function (__x262)
-  local ____id39 = __x262
+setenv("expansion", {_stash = true, transformer = function (__x254)
+  local ____id39 = __x254
   local ____id40 = ____id39[1]
   local __expansion = ____id40[1]
   local __form4 = ____id39[2]
   return __form4
 end})
-setenv("%brackets", {_stash = true, transformer = function (__x263)
-  local ____id41 = __x263
+setenv("%brackets", {_stash = true, transformer = function (__x255)
+  local ____id41 = __x255
   local ____id42 = ____id41[1]
   local ___37brackets = ____id42[1]
   local __body30 = cut(____id41, 1)
   return macroexpand({"%function", {"%1", "%2"}, {"let-symbol", {"_", "%1"}, __body30}})
 end})
-setenv("%braces", {_stash = true, transformer = function (__x268)
-  local ____id43 = __x268
+setenv("%braces", {_stash = true, transformer = function (__x260)
+  local ____id43 = __x260
   local ____id44 = ____id43[1]
   local ___37braces = ____id44[1]
   local __body31 = cut(____id43, 1)
   return macroexpand(join({"%object"}, __body31))
 end})
 setenv("hd", {_stash = true, expander = function (setfn, ...)
-  local ____r58 = unstash({...})
-  local __setfn1 = destash33(setfn, ____r58)
-  local ____id46 = ____r58
-  local __args7 = cut(____id46, 0)
+  local ____r57 = unstash({...})
+  local __setfn1 = destash33(setfn, ____r57)
+  local ____id46 = ____r57
+  local __args6 = cut(____id46, 0)
   return define_setter("hd", function (v, l)
     return {"set", {"at", l, 0}, v}
-  end, __setfn1, __args7)
+  end, __setfn1, __args6)
 end})
 local reader = require("./reader")
 local compiler = require("./compiler")
