@@ -1212,8 +1212,21 @@ setenv("during-compilation", {_stash = true, macro = function (...)
   eval(__form2)
   return __form2
 end})
-setenv("compose", {_stash = true, transformer = function (__x245)
-  local ____id35 = __x245
+setenv("compose", {_stash = true, macro = function (...)
+  local __args5 = unstash({...})
+  local __f1 = drop(__args5) or {"%function", {"x"}, "x"}
+  local __r50 = {__f1, "..."}
+  local ____x251 = reverse(__args5)
+  local ____i7 = 0
+  while ____i7 < _35(____x251) do
+    local __f2 = ____x251[____i7 + 1]
+    __r50 = {__f2, __r50}
+    ____i7 = ____i7 + 1
+  end
+  return {"%function", {"..."}, __r50}
+end})
+setenv("compose", {_stash = true, transformer = function (__x253)
+  local ____id35 = __x253
   local ____id36 = ____id35[1]
   local __compose = ____id36[1]
   local __fns = cut(____id36, 1)
@@ -1228,8 +1241,8 @@ setenv("compose", {_stash = true, transformer = function (__x245)
     end
   end
 end})
-setenv("complement", {_stash = true, transformer = function (__x250)
-  local ____id37 = __x250
+setenv("complement", {_stash = true, transformer = function (__x258)
+  local ____id37 = __x258
   local ____id38 = ____id37[1]
   local __complement = ____id38[1]
   local __form3 = ____id38[2]
@@ -1240,35 +1253,35 @@ setenv("complement", {_stash = true, transformer = function (__x250)
     return macroexpand({"no", join({__form3}, __body29)})
   end
 end})
-setenv("expansion", {_stash = true, transformer = function (__x254)
-  local ____id39 = __x254
+setenv("expansion", {_stash = true, transformer = function (__x262)
+  local ____id39 = __x262
   local ____id40 = ____id39[1]
   local __expansion = ____id40[1]
   local __form4 = ____id39[2]
   return __form4
 end})
-setenv("%brackets", {_stash = true, transformer = function (__x255)
-  local ____id41 = __x255
+setenv("%brackets", {_stash = true, transformer = function (__x263)
+  local ____id41 = __x263
   local ____id42 = ____id41[1]
   local ___37brackets = ____id42[1]
   local __body30 = cut(____id41, 1)
   return macroexpand({"%function", {"%1", "%2"}, {"let-symbol", {"_", "%1"}, __body30}})
 end})
-setenv("%braces", {_stash = true, transformer = function (__x260)
-  local ____id43 = __x260
+setenv("%braces", {_stash = true, transformer = function (__x268)
+  local ____id43 = __x268
   local ____id44 = ____id43[1]
   local ___37braces = ____id44[1]
   local __body31 = cut(____id43, 1)
   return macroexpand(join({"%object"}, __body31))
 end})
 setenv("hd", {_stash = true, expander = function (setfn, ...)
-  local ____r57 = unstash({...})
-  local __setfn1 = destash33(setfn, ____r57)
-  local ____id46 = ____r57
-  local __args6 = cut(____id46, 0)
+  local ____r58 = unstash({...})
+  local __setfn1 = destash33(setfn, ____r58)
+  local ____id46 = ____r58
+  local __args7 = cut(____id46, 0)
   return define_setter("hd", function (v, l)
     return {"set", {"at", l, 0}, v}
-  end, __setfn1, __args6)
+  end, __setfn1, __args7)
 end})
 local reader = require("./reader")
 local compiler = require("./compiler")

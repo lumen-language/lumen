@@ -1289,8 +1289,21 @@ setenv("during-compilation", {_stash: true, macro: function (..._42args) {
   _eval(__form2);
   return __form2;
 }});
-setenv("compose", {_stash: true, transformer: function (__x245) {
-  var ____id35 = __x245;
+setenv("compose", {_stash: true, macro: function (..._42args) {
+  var __args5 = unstash([..._42args]);
+  var __f1 = drop(__args5) || ["%function", ["x"], "x"];
+  var __r50 = [__f1, "..."];
+  var ____x251 = reverse(__args5);
+  var ____i7 = 0;
+  while (____i7 < _35(____x251)) {
+    var __f2 = ____x251[____i7];
+    __r50 = [__f2, __r50];
+    ____i7 = ____i7 + 1;
+  }
+  return ["%function", ["..."], __r50];
+}});
+setenv("compose", {_stash: true, transformer: function (__x253) {
+  var ____id35 = __x253;
   var ____id36 = ____id35[0];
   var __compose = ____id36[0];
   var __fns = cut(____id36, 1);
@@ -1305,8 +1318,8 @@ setenv("compose", {_stash: true, transformer: function (__x245) {
     }
   }
 }});
-setenv("complement", {_stash: true, transformer: function (__x250) {
-  var ____id37 = __x250;
+setenv("complement", {_stash: true, transformer: function (__x258) {
+  var ____id37 = __x258;
   var ____id38 = ____id37[0];
   var __complement = ____id38[0];
   var __form3 = ____id38[1];
@@ -1317,35 +1330,35 @@ setenv("complement", {_stash: true, transformer: function (__x250) {
     return macroexpand(["no", join([__form3], __body29)]);
   }
 }});
-setenv("expansion", {_stash: true, transformer: function (__x254) {
-  var ____id39 = __x254;
+setenv("expansion", {_stash: true, transformer: function (__x262) {
+  var ____id39 = __x262;
   var ____id40 = ____id39[0];
   var __expansion = ____id40[0];
   var __form4 = ____id39[1];
   return __form4;
 }});
-setenv("%brackets", {_stash: true, transformer: function (__x255) {
-  var ____id41 = __x255;
+setenv("%brackets", {_stash: true, transformer: function (__x263) {
+  var ____id41 = __x263;
   var ____id42 = ____id41[0];
   var ___37brackets = ____id42[0];
   var __body30 = cut(____id41, 1);
   return macroexpand(["%function", ["%1", "%2"], ["let-symbol", ["_", "%1"], __body30]]);
 }});
-setenv("%braces", {_stash: true, transformer: function (__x260) {
-  var ____id43 = __x260;
+setenv("%braces", {_stash: true, transformer: function (__x268) {
+  var ____id43 = __x268;
   var ____id44 = ____id43[0];
   var ___37braces = ____id44[0];
   var __body31 = cut(____id43, 1);
   return macroexpand(join(["%object"], __body31));
 }});
 setenv("hd", {_stash: true, expander: function (setfn, ..._42args) {
-  var ____r57 = unstash([..._42args]);
-  var __setfn1 = destash33(setfn, ____r57);
-  var ____id46 = ____r57;
-  var __args6 = cut(____id46, 0);
+  var ____r58 = unstash([..._42args]);
+  var __setfn1 = destash33(setfn, ____r58);
+  var ____id46 = ____r58;
+  var __args7 = cut(____id46, 0);
   return define_setter("hd", function (v, l) {
     return ["set", ["at", l, 0], v];
-  }, __setfn1, __args6);
+  }, __setfn1, __args7);
 }});
 var reader = require("./reader");
 var compiler = require("./compiler");
