@@ -98,12 +98,12 @@
       (while true
         (let p (parse-option l)
           (unless p (break))
-          (let-when (o args) p
-            (when (= o "--")
+          (let-when (op args) p
+            (when (= op "--")
               (set l (cut l 1))
               (break))
             (set l (cut l (+ 1 (# args))))
-            (let (k (if (= (clip o 0 2) "--") (clip o 2) (clip o 1))
+            (let (k (if (= (clip op 0 2) "--") (clip op 2) (clip op 1))
                   k (or (get a k) k)
                   v (if (none? args) true args))
               (set (get r k) v)

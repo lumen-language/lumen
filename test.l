@@ -1175,4 +1175,17 @@ c"
 (define-test expansion
   (test= '(let x 1 x) (macroexpand '((expansion) (let x 1 x)))))
 
+(define-test optional
+  (let f (fn ((o a 10) bar: (o b 20) (o (foo: (o foo 42)) ())) (list a b foo))
+    (test= '(10 20 42) (f))
+    (test= '(1 20 42) (f 1))
+    (test= '(1 2 42) (f 1 bar: 2))
+    (test= '(1 2 3) (f 1 bar: 2 '(foo: 3)))
+    (test= '(1 20 3) (f 1 '(foo: 3)))
+    (test= '(10 20 42) (apply f '()))
+    (test= '(1 20 42) (apply f '(1)))
+    (test= '(1 2 42) (apply f '(1 bar: 2)))
+    (test= '(1 2 3) (apply f '(1 bar: 2 (foo: 3))))
+    (test= '(1 20 3) (apply f '(1 (foo: 3))))))
+
 (export main)

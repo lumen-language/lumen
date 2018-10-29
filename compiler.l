@@ -78,15 +78,26 @@
       (inc k)))
   k)
 
+(define-global bind-optional (lh rh)
+  (when (or (hd? lh 'o)
+            (hd? lh 'or)
+            (hd? lh '&optional))
+    (let ((_ var val) lh)
+      (bind var `(%if (= ,rh nil) ,(or val 'nil) ,rh)))))
+
+(define-global bind-destructuring (lh rh)
+  (let-unique (id)
+    (with bs (list id rh)
+      (each (k v) lh
+        (let x (if (= k 'rest)
+                   `(cut ,id ,(# lh))
+                 `(get ,id ',(bias k)))
+          (join! bs (bind v x)))))))
+
 (define-global bind (lh rh)
   (if (atom? lh) `(,lh ,rh)
-    (let-unique (id)
-      (with bs (list id rh)
-        (each (k v) lh
-          (let x (if (= k 'rest)
-                     `(cut ,id ,(# lh))
-                   `(get ,id ',(bias k)))
-            (join! bs (bind v x))))))))
+    (or (bind-optional lh rh)
+        (bind-destructuring lh rh))))
 
 (define-global bind-function (args body)
   (let args1 ()

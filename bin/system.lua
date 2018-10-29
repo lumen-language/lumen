@@ -101,18 +101,18 @@ function _G.parse_arguments(aliases, argv)
     local ____y = __p
     if yes(____y) then
       local ____id1 = ____y
-      local __o = ____id1[1]
+      local __op = ____id1[1]
       local __args = ____id1[2]
-      if __o == "--" then
+      if __op == "--" then
         __l = cut(__l, 1)
         break
       end
       __l = cut(__l, 1 + _35(__args))
       local __e3 = nil
-      if clip(__o, 0, 2) == "--" then
-        __e3 = clip(__o, 2)
+      if clip(__op, 0, 2) == "--" then
+        __e3 = clip(__op, 2)
       else
-        __e3 = clip(__o, 1)
+        __e3 = clip(__op, 1)
       end
       local __k = __e3
       local __k1 = __a[__k] or __k

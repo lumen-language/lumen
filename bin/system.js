@@ -68,18 +68,18 @@ parse_arguments = function (aliases, argv) {
     var ____y = __p;
     if (yes(____y)) {
       var ____id = ____y;
-      var __o = ____id[0];
+      var __op = ____id[0];
       var __args = ____id[1];
-      if (__o === "--") {
+      if (__op === "--") {
         __l = cut(__l, 1);
         break;
       }
       __l = cut(__l, 1 + _35(__args));
       var __e = undefined;
-      if (clip(__o, 0, 2) === "--") {
-        __e = clip(__o, 2);
+      if (clip(__op, 0, 2) === "--") {
+        __e = clip(__op, 2);
       } else {
-        __e = clip(__o, 1);
+        __e = clip(__op, 1);
       }
       var __k = __e;
       var __k1 = __a[__k] || __k;
