@@ -276,6 +276,10 @@ read_table[","] = function (s)
     return wrap(s, "unquote")
   end
 end
+read_table["~"] = function (s)
+  read_char(s)
+  return wrap(s, "complement")
+end
 local __e2 = nil
 if exports == nil then
   __e2 = {}

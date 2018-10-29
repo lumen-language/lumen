@@ -26,6 +26,11 @@ function _G.either(x, y)
     return y
   end
 end
+function _G.complement(f)
+  return function (...)
+    return no(f(...))
+  end
+end
 function _G.has63(l, k)
   return is63(l[k])
 end
@@ -236,13 +241,13 @@ function _G.reverse(l)
 end
 function _G.join(...)
   local __ls = unstash({...})
-  local __r43 = {}
+  local __r45 = {}
   local ____x3 = __ls
   local ____i6 = 0
   while ____i6 < _35(____x3) do
     local __l11 = ____x3[____i6 + 1]
     if __l11 then
-      local __n4 = _35(__r43)
+      local __n4 = _35(__r45)
       local ____o5 = __l11
       local __k3 = nil
       for __k3 in pairs(____o5) do
@@ -250,12 +255,12 @@ function _G.join(...)
         if number63(__k3) then
           __k3 = __k3 + __n4
         end
-        __r43[__k3] = __v5
+        __r45[__k3] = __v5
       end
     end
     ____i6 = ____i6 + 1
   end
-  return __r43
+  return __r45
 end
 function _G.testify(x, test)
   if function63(x) then
@@ -657,9 +662,9 @@ function _G.call(f, ...)
   return f(...)
 end
 function _G.setenv(k, ...)
-  local ____r89 = unstash({...})
-  local __k11 = destash33(k, ____r89)
-  local ____id = ____r89
+  local ____r91 = unstash({...})
+  local __k11 = destash33(k, ____r91)
+  local ____id = ____r91
   local __keys = cut(____id, 0)
   if string63(__k11) then
     local __e13 = nil

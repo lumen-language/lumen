@@ -45,6 +45,9 @@
 (define-global yes (x) (not (no x)))
 (define-global either (x y) (if (is? x) x y))
 
+(define-global complement (f)
+  (fn (...) (no (f ...))))
+
 (define-global has? (l k)
   (target js: ((get l 'hasOwnProperty) k)
           lua: (is? (get l k))))

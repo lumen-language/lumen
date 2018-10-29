@@ -61,6 +61,11 @@ either = function (x, y) {
     return y;
   }
 };
+complement = function (f) {
+  return function (..._42args) {
+    return no(f(..._42args));
+  };
+};
 has63 = function (l, k) {
   return l.hasOwnProperty(k);
 };
@@ -271,13 +276,13 @@ reverse = function (l) {
 };
 join = function (..._42args) {
   var __ls = unstash([..._42args]);
-  var __r50 = [];
+  var __r52 = [];
   var ____x5 = __ls;
   var ____i6 = 0;
   while (____i6 < _35(____x5)) {
     var __l11 = ____x5[____i6];
     if (__l11) {
-      var __n4 = _35(__r50);
+      var __n4 = _35(__r52);
       var ____o5 = __l11;
       var __k3 = undefined;
       for (__k3 of pairs(____o5)) {
@@ -285,12 +290,12 @@ join = function (..._42args) {
         if (number63(__k3)) {
           __k3 = __k3 + __n4;
         }
-        __r50[__k3] = __v6;
+        __r52[__k3] = __v6;
       }
     }
     ____i6 = ____i6 + 1;
   }
-  return __r50;
+  return __r52;
 };
 testify = function (x, test) {
   if (function63(x)) {
@@ -728,9 +733,9 @@ call = function (f, ..._42args) {
   return f(..._42args);
 };
 setenv = function (k, ..._42args) {
-  var ____r98 = unstash([..._42args]);
-  var __k11 = destash33(k, ____r98);
-  var ____id1 = ____r98;
+  var ____r100 = unstash([..._42args]);
+  var __k11 = destash33(k, ____r100);
+  var ____id1 = ____r100;
   var __keys = cut(____id1, 0);
   if (string63(__k11)) {
     var __e12 = undefined;

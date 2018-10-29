@@ -276,6 +276,10 @@ read_table[","] = function (s) {
     return wrap(s, "unquote");
   }
 };
+read_table["~"] = function (s) {
+  read_char(s);
+  return wrap(s, "complement");
+};
 var __e2 = undefined;
 if (typeof(exports) === "undefined") {
   __e2 = {};
