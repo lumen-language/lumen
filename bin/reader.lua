@@ -1,4 +1,4 @@
-local delimiters = {["("] = true, [")"] = true, [";"] = true, ["\r"] = true, ["\n"] = true}
+local delimiters = {["("] = true, [")"] = true, ["["] = true, ["]"] = true, ["{"] = true, ["}"] = true, [";"] = true, ["\r"] = true, ["\n"] = true}
 local whitespace = {[" "] = true, ["\t"] = true, ["\r"] = true, ["\n"] = true}
 local function stream(str, more)
   return {pos = 0, string = str, len = _35(str), more = more}
@@ -168,44 +168,92 @@ end
 read_table[")"] = function (s)
   return error("Unexpected ) at " .. s.pos)
 end
-read_table["\""] = function (s)
+read_table["["] = function (s)
   read_char(s)
   local __r18 = nil
-  local __str2 = "\""
+  local __l2 = {{"%brackets"}}
   while nil63(__r18) do
+    skip_non_code(s)
     local __c5 = peek_char(s)
-    if __c5 == "\"" then
-      __r18 = __str2 .. read_char(s)
+    if __c5 == "]" then
+      read_char(s)
+      __r18 = __l2
     else
       if nil63(__c5) then
-        __r18 = expected(s, "\"")
+        __r18 = expected(s, "]")
       else
-        if __c5 == "\\" then
+        local __x4 = read(s)
+        add(__l2, __x4)
+      end
+    end
+  end
+  return __r18
+end
+read_table["]"] = function (s)
+  return error("Unexpected ] at " .. s.pos)
+end
+read_table["{"] = function (s)
+  read_char(s)
+  local __r21 = nil
+  local __l3 = {{"%braces"}}
+  while nil63(__r21) do
+    skip_non_code(s)
+    local __c6 = peek_char(s)
+    if __c6 == "}" then
+      read_char(s)
+      __r21 = __l3
+    else
+      if nil63(__c6) then
+        __r21 = expected(s, "}")
+      else
+        local __x7 = read(s)
+        add(__l3, __x7)
+      end
+    end
+  end
+  return __r21
+end
+read_table["}"] = function (s)
+  return error("Unexpected } at " .. s.pos)
+end
+read_table["\""] = function (s)
+  read_char(s)
+  local __r24 = nil
+  local __str2 = "\""
+  while nil63(__r24) do
+    local __c7 = peek_char(s)
+    if __c7 == "\"" then
+      __r24 = __str2 .. read_char(s)
+    else
+      if nil63(__c7) then
+        __r24 = expected(s, "\"")
+      else
+        if __c7 == "\\" then
           __str2 = __str2 .. read_char(s)
         end
         __str2 = __str2 .. read_char(s)
       end
     end
   end
-  return __r18
+  return __r24
 end
 read_table["|"] = function (s)
   read_char(s)
-  local __r20 = nil
+  local __r26 = nil
   local __str3 = "|"
-  while nil63(__r20) do
-    local __c6 = peek_char(s)
-    if __c6 == "|" then
-      __r20 = __str3 .. read_char(s)
+  while nil63(__r26) do
+    local __c8 = peek_char(s)
+    if __c8 == "|" then
+      __r26 = __str3 .. read_char(s)
     else
-      if nil63(__c6) then
-        __r20 = expected(s, "|")
+      if nil63(__c8) then
+        __r26 = expected(s, "|")
       else
         __str3 = __str3 .. read_char(s)
       end
     end
   end
-  return __r20
+  return __r26
 end
 read_table["'"] = function (s)
   read_char(s)

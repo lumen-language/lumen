@@ -278,5 +278,11 @@
 (define-transformer expansion ((expansion) form)
   form)
 
+(define-transformer %brackets ((%brackets) rest: body)
+  (macroexpand `(%function (%1 %2) (let-symbol (_ %1) ,body))))
+
+(define-transformer %braces ((%braces) rest: body)
+  (macroexpand `(%object ,@body)))
+
 (define-setter hd (v l)
   `(set (at ,l 0) ,v))

@@ -1242,11 +1242,25 @@ setenv("expansion", {_stash = true, transformer = function (__x254)
   local __form4 = ____id39[2]
   return __form4
 end})
+setenv("%brackets", {_stash = true, transformer = function (__x255)
+  local ____id41 = __x255
+  local ____id42 = ____id41[1]
+  local ___37brackets = ____id42[1]
+  local __body30 = cut(____id41, 1)
+  return macroexpand({"%function", {"%1", "%2"}, {"let-symbol", {"_", "%1"}, __body30}})
+end})
+setenv("%braces", {_stash = true, transformer = function (__x260)
+  local ____id43 = __x260
+  local ____id44 = ____id43[1]
+  local ___37braces = ____id44[1]
+  local __body31 = cut(____id43, 1)
+  return macroexpand(join({"%object"}, __body31))
+end})
 setenv("hd", {_stash = true, expander = function (setfn, ...)
-  local ____r55 = unstash({...})
-  local __setfn1 = destash33(setfn, ____r55)
-  local ____id42 = ____r55
-  local __args6 = cut(____id42, 0)
+  local ____r57 = unstash({...})
+  local __setfn1 = destash33(setfn, ____r57)
+  local ____id46 = ____r57
+  local __args6 = cut(____id46, 0)
   return define_setter("hd", function (v, l)
     return {"set", {"at", l, 0}, v}
   end, __setfn1, __args6)
