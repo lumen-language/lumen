@@ -154,10 +154,12 @@
   (with r nil
     (let str "|"
       (while (nil? r)
-        (let c (peek-char s)
-          (if (= c "|") (set r (cat str (read-char s)))
-              (nil? c) (set r (expected s "|"))
-            (cat! str (read-char s))))))))
+        (let c (read-char s)
+          (if (nil? c) (set r (expected s "|"))
+              (= c "|") (if (= (peek-char s) "|")
+                            (cat! str (read-char s))
+                          (set r (cat str c)))
+            (cat! str c)))))))
 
 (define-reader ("'" s)
   (read-char s)

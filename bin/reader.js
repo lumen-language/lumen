@@ -242,14 +242,18 @@ read_table["|"] = function (s) {
   var __r26 = undefined;
   var __str3 = "|";
   while (nil63(__r26)) {
-    var __c8 = peek_char(s);
-    if (__c8 === "|") {
-      __r26 = __str3 + read_char(s);
+    var __c8 = read_char(s);
+    if (nil63(__c8)) {
+      __r26 = expected(s, "|");
     } else {
-      if (nil63(__c8)) {
-        __r26 = expected(s, "|");
+      if (__c8 === "|") {
+        if (peek_char(s) === "|") {
+          __str3 = __str3 + read_char(s);
+        } else {
+          __r26 = __str3 + __c8;
+        }
       } else {
-        __str3 = __str3 + read_char(s);
+        __str3 = __str3 + __c8;
       }
     }
   }

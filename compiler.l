@@ -634,7 +634,7 @@
 (define-global expand (form)
   (lower (macroexpand form)))
 
-(target js: (define run |eval|))
+(target js: (define run (%literal "eval")))
 
 (target lua: (define load1 (or (get _G 'loadstring) (get _G 'load))))
 (target lua:

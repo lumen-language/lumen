@@ -73,7 +73,9 @@
     (test= (not true) (read "false"))
     (test= 'hi (read "hi"))
     (test= '"hi" (read "\"hi\""))
+    (test= "||" (read "||"))
     (test= "|hi|" (read "|hi|"))
+    (test= "|hi|ho|" (read "|hi||ho|"))
     (test= '(1 2) (read "(1 2)"))
     (test= '(1 (a)) (read "(1 (a))"))
     (test= '(quote a) (read "'a"))
@@ -379,8 +381,8 @@ c"
         f (fn () 30))
     (test= 10 a)
     (test= 10 (%literal a))
-    (test= 20 (%literal b |.x|))
-    (test= 30 (%literal f |()|))))
+    (test= 20 (%literal b ".x"))
+    (test= 30 (%literal f "()"))))
 
 (define-test names
   (let (a! 0

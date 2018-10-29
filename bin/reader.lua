@@ -242,14 +242,18 @@ read_table["|"] = function (s)
   local __r26 = nil
   local __str3 = "|"
   while nil63(__r26) do
-    local __c8 = peek_char(s)
-    if __c8 == "|" then
-      __r26 = __str3 .. read_char(s)
+    local __c8 = read_char(s)
+    if nil63(__c8) then
+      __r26 = expected(s, "|")
     else
-      if nil63(__c8) then
-        __r26 = expected(s, "|")
+      if __c8 == "|" then
+        if peek_char(s) == "|" then
+          __str3 = __str3 .. read_char(s)
+        else
+          __r26 = __str3 .. __c8
+        end
       else
-        __str3 = __str3 .. read_char(s)
+        __str3 = __str3 .. __c8
       end
     end
   end
