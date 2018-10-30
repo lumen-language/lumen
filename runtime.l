@@ -155,6 +155,17 @@
       (unless (number? k)
         (set (get t k) v)))))
 
+(define-global vals (x)
+  (with t ()
+    (step v x
+      (add t v))))
+
+(define-global keys (x)
+  (with t ()
+    (each (k v) x
+      (unless (number? k)
+        (add t k)))))
+
 (define-global edge (x)
   (- (# x) 1))
 

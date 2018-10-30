@@ -83,7 +83,7 @@
             (hd? lh 'or)
             (hd? lh '&optional))
     (let ((_ var val) lh)
-      (bind var `(%if (== ,rh nil) ,(or val 'nil) ,rh)))))
+      (bind var `(%if (== ,rh nil) ,(either val 'nil) ,rh)))))
 
 (define-global bind-dotted (args)
   (if (and (>= (# args) 2)
@@ -180,6 +180,12 @@
           (unless (find none? parts)
             `(compose ,@(map expand-atom (map read-string parts)))))))))
 
+(define-global orf (f ...)
+  (if (none? (list ...))
+      (fn (...) (f ...))
+    (let g (orf ...)
+      (fn (...) (let x (f ...) (if (yes x) x (g ...)))))))
+
 (define-global andf (f ...)
   (if (none? (list ...))
       (fn (...) (f ...))
@@ -223,10 +229,17 @@
                 (step k (map expand-atom (map read-string (tl parts)))
                   (set x `(ref ,x ,(quoted k))))))))))))
 
+(define-global expand-jsx (form)
+  (when (and (identifier? form)
+             (== (char form 0) "<")
+             (== (char form (edge form)) ">"))
+    `(jsx ,(inner form))))
+
 (define-global expand-atom-functions* ())
 ; (add expand-atom-functions* expand-compose)
 ; (add expand-atom-functions* expand-ref)
 ; (add expand-atom-functions* expand-and)
+(add expand-atom-functions* expand-jsx)
 
 (define-global expand-atom (form)
   (step f expand-atom-functions*

@@ -77,7 +77,7 @@
 
 (define-macro case (expr rest: clauses)
   (let-unique (x)
-    (let (eq (fn (_) `(= ',_ ,x))
+    (let (eq (fn (_) `(== ',_ ,x))
           cl (fn ((a b))
                (if (nil? b) (list a)
                    (or (string? a) (number? a)) (list (eq a) b)
@@ -285,6 +285,12 @@
 
 (define-transformer %braces ((%braces) rest: body)
   (macroexpand `(%object ,@body)))
+
+(define-transformer jsx ((jsx spec) rest: body)
+  (macroexpand `((React .createElement) ',(unquoted spec)
+                                        (%object ,@(mapo (fn (x) x) (props body)))
+                                        ,@(vals body))))
+
 
 (define-setter hd (v l)
   `(set (at ,l 0) ,v))
