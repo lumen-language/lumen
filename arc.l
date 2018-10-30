@@ -131,8 +131,8 @@
 
 (mac accum (f rest: body)
   (let-unique (r)
-    `(with r ()
-       (let ,f (fn (x) (add r x))
+    `(with ,r ()
+       (let ,f (fn (x) (add ,r x))
          ,@body))))
 
 (define-macro until (test . body)
@@ -156,7 +156,11 @@
 (during-compilation
 
 (define-global shell (x)
-  (((require 'system) .run) x))
+  (with x (((require 'system) .run) x)
+    (if (is (char x (edge x)) #\newline)
+        (set x (clip x 0 (edge x))))
+    (if (is (char x (edge x)) #\return)
+        (set x (clip x 0 (edge x))))))
 
 (define-global stream (x ...)
   (if (string? x)
@@ -280,6 +284,10 @@
    #\) ")"
    #\] "]"
    #\} "}"
+   #\/ "/"
+   #\\ "\\"
+   #\? "?"
+   #\  " "
    )
 )
 
@@ -303,7 +311,6 @@
 (define-global atom (x)
   (~acons x))
 
-(define-global len (...) (# ...))
 (define-global expt (n k) (pow n k))
 (define-global rand (...) (random ...))
 (define-global mod (n k) (% n k))
@@ -313,7 +320,7 @@
 (define-global car (x) (if (nil? x) x (hd x)))
 (define-global cdr (x) (if (nil? x) x (tl x)))
 (define-global caar (x) (car (car x)))
-(define-global cadr (x) (car (cdr x)))
+(define-global cadr (x) (at x 1))
 (define-global cdar (x) (cdr (car x)))
 (define-global cddr (x) (cdr (cdr x)))
 
@@ -329,18 +336,264 @@
 
 (define-global alref (al key) (car (cdr (assoc key al))))
 
-(define-global in (x ...)
-  (in? x (list ...)))
+; (define-global in (x ...)
+;   (in? x (list ...)))
+
+(define-macro in (x . choices)
+  (when (some? choices)
+    (if (one? choices)
+        `(is ,x ,@choices)
+      (w/uniq g
+        `(let ,g ,x
+           (or ,@(map (fn (c) `(is ,g ,c)) choices)))))))
 
 (define-global keys (h)
   (if (function? h)
       (keys (h))
     (with l ()
       (each (k v) h
-        (unless (number? k)
-          (add l k))))))
+        ; (unless (number? k)
+          (add l k)))))
 
 (define-global idfn (x) x)
+)
+
+(during-compilation
+; (define-global pos (test seq (o start 0))
+;   (let f (testify test)
+;     (if (alist seq)
+;         ((afn (seq n)
+;            (if (no? seq)   
+;                 nil
+;                (f (car seq)) 
+;                 n
+;                (self (cdr seq) (+ n 1))))
+;          (nthcdr start seq) 
+;          start)
+;         (recstring [if (f (seq _)) _] seq start))))
+
+(define-global pos (test seq (o start 0))
+  (mem test seq start))
+
+(define-global even (n) (is (mod n 2) 0))
+
+(define-global odd (n) (~even n))
+
+(define-global avg (ns) (/ (apply + ns) (# ns)))
+
+; ; The problem with returning a list instead of multiple values is that
+; ; you can't act as if the fn didn't return multiple vals in cases where
+; ; you only want the first.  Not a big problem.
+
+(define-global round (n)
+  (let (base (trunc n) rem (abs (- n base)))
+    (if (> rem 0.5) (if (> n 0) (+ base 1) (- base 1))
+        (< rem 0.5) base
+        (odd base)  (if (> n 0) (+ base 1) (- base 1))
+                    base)))
+
+(define-global roundup (n)
+  (let (base (trunc n) rem (abs (- n base)))
+    (if (>= rem 0.5) 
+        (if (> n 0) (+ base 1) (- base 1))
+        base)))
+
+; (def round (n)
+;   (target js: ((get Math 'round) n)
+;           lua: (error "todo")))
+
+
+(define-global med (ns (o test >))
+  (at (sort (cut ns) test)
+      (round (/ (# ns) 2))))
+
+
+
+; Could combine with firstn if put f arg last, default to (fn (x) t).
+
+(define-global retrieve (n f xs)
+  (if (no? n)                (keep f xs)
+      (or (<= n 0) (no? xs)) nil
+      (f (car xs))           (cons (car xs) (retrieve (- n 1) f (cdr xs)))
+                             (retrieve n f (cdr xs))))
+(define-global dedup (xs)
+  (let (h (obj) acc nil)
+    (each x xs
+      (unless (get h x)
+        (push x acc)
+        (set (get h x) true)))
+    (rev acc)))
+
+(define-global single (x) (and (acons x) (no (cdr x))))
+
+(define-global intersperse (x ys)
+  (and ys (cons (car ys)
+                (mappend [list x _] (cdr ys)))))
+
+(define-global counts (seq (o c (obj)))
+  (if (no? seq)
+      c
+      (let x (car seq)
+        (unless (is x nil)
+          (unless (has? c x) (set (get c x) 0))
+          (inc (get c x)))
+        (counts (cdr seq) c))))
+
+(define-global commonest (seq)
+  (let (winner nil n 0)
+    (each (k v) (counts seq)
+      (when (> v n) (= winner k n v)))
+    (list winner n)))
+
+
+(define-global iso (a b)
+  (== (str a) (str b)))
+
+(define-global reclist (f xs (o start 0))
+  (unless (== xs nil)
+    (forlen i xs start: start
+      (let (x (at xs i)
+            v (f x i xs))
+        (if v (return v))))))
+; (and (yes? xs) (let v (f xs) (if (t? v) v (reclist f (cdr xs))))))
+
+(define-global recstring (test s (o start 0))
+  (unless (nil? s)
+    (forlen i s start: start
+      (let v (test i)
+        (if (yes v) (return v))))))
+  ; ((afn (i)
+  ;    (and (< i (# s))
+  ;         (or (test i)
+  ;             (self (+ i 1)))))
+  ;  start))
+
+
+; (define-global some (f x)
+;   (unless (nil? x)
+;     (find f x)))
+)
+(during-compilation
+
+(define-global some (test seq)
+  (let f (testify test)
+    (if (alist seq)
+        (reclist f seq)
+        (recstring [f:char seq _] seq))))
+
+
+(define-global all (test seq)
+  (~some (complement (testify test)) seq))
+
+; (define-global mem (f x (o test is))
+;   (unless (nil? x)
+;     (first [test f _] x)))
+
+(define-global mem (test seq (o start 0))
+  (let f (testify test)
+    (if (alist seq)
+        (reclist (fn (x i ...)
+                   (let v (f x i ...)
+                     (when (yes v)
+                       i)))
+                 seq
+                 start)
+      (recstring [if (f:char seq _) _] seq start))))
+
+(define-global crawl (test seq)
+  (let (f (testify test)
+        f (fn (x ...) (if (yes (f x ...)) x)))
+    (if (alist seq)
+        (reclist f seq)
+        (recstring f seq))))
+
+(define-global chars (x)
+  ((ustring .new) x))
+
+(define-global concat (xs (o sep ""))
+  (target lua: ((table .concat) xs sep)
+          js: (xs (.join sep))))
+
+(define-global rem (f x)
+  (if (alist x)
+      (unless (nil? x)
+        (let i (first f x)
+          (if (number? i)
+              (join (cut x 0 i) (rem f (cut x (+ i 1))))
+            x)))
+      (concat (rem f (chars x)))))
+
+(define-global keep (test seq)
+  (rem (complement (testify test)) seq))
+
+)
+
+(during-compilation
+
+(define-global adjoin (x xs (o test iso))
+  (if (nil? xs) (list x)
+      (is? (first [test x _] xs)) xs
+    (do (add xs x) xs)))
+
+(define-macro pushnew (x place rest: args)
+  `(set ,place (adjoin ,x ,place ,@args)))
+
+(define-global push! (x l)
+  (if (nil? l) (list x) `(,x ,@l)))
+
+(define-macro push (x place)
+  `(set ,place (push! ,x ,place)))
+
+(define-macro pull (x place rest: args)
+  `(set ,place (rem ,x ,place ,@args)))
+
+(define-macro togglemem (x place rest: args)
+  (let-unique (v)
+    `(let ,v ,x
+       (set ,place (if (mem ,v ,place)
+                       (rem ,v ,place)
+                       (adjoin ,v ,place ,@args))))))
+
+(define-global mappend (f l)
+  (if (nil? l) l (apply join (map f l))))
+
+(define-global rev (l)
+  (if (nil? l) l (reverse l)))
+
+(define-global firstn (n xs)
+  (if (nil? xs) xs (string? xs) (clip xs 0 n) (cut xs 0 n)))
+
+(define-global int (x)
+  (let s (tostring x)
+    (if (numeric? s) (number s))))
+
+(define-global compare (comparer scorer)
+  (fn (x y) (comparer (scorer x) (scorer y))))
+
+(define-global merge (less? ...)
+  (sort (join ...) less?))
+
+(define-global bestn (n f (o seq ()))
+  (firstn n (sort seq f)))
+
+(define-macro down (v init min . body)
+  (w/uniq (gi gm)
+    `(let (,gi ,init ,v ,gi ,gm (- ,min 1))
+       (while (> ,v ,gm)
+         ,@body
+         (dec ,v)))))
+
+(define-macro repeat (n . body)
+  `(for ,(unique 'i) ,n ,@body))
+
+(define-macro n-of (n expr)
+  (w/uniq ga
+    `(accum ,ga
+       (repeat ,n (,ga ,expr)))))
+
+(define-global hook (name ...)
+  (do))
+
 )
 
 (during-compilation
@@ -375,6 +628,58 @@
                    (dec i))
                  (+ i 1))))
         "")))
+
+(def newstring (n s)
+  (with r ""
+    (for i n
+      (cat! r s))))
+
+(def num (n (o digits 2) (o trail-zeros nil) (o init-zero nil))
+  (let (comma
+          (fn (i)
+            (tostring
+              (map [apply pr (rev _)]
+                   (rev (intersperse (list #\,)
+                                     (tuples (rev (chars (tostring i)))
+                                             3))))))
+          abrep
+          (let a (abs n)
+            (if (< digits 1)
+                 (comma (roundup a))
+                (exact a)
+                 (tostr (comma a)
+                         (when (and trail-zeros (> digits 0))
+                           (tostr "." (newstring digits #\0))))
+                 (let   (d (expt 10 digits)
+                         m (/ (roundup (* a d)) d)
+                         i (trunc m)
+                         r (abs (trunc (- (* m d) (* i d)))))
+                   (+ (if (is i 0) 
+                          (if (or init-zero (is r 0)) "0" "") 
+                          (comma i))
+                      (let   (rest   (tostr r)
+                              padded (+ (newstring (- digits (len rest)) #\0)
+                                        rest)
+                              final  (if trail-zeros
+                                         padded
+                                         (trim padded 'end [is _ #\0])))
+                        (tostr (unless (empty final) ".")
+                               final)))))))
+    (if (and (< n 0) (mem [and (digit _) (isnt _ #\0)] abrep))
+        (+ "-" abrep)
+        abrep)))
+
+; English
+
+(def pluralize (n str)
+  (if (or (is n 1) (single n))
+      str
+      (tostr str "s")))
+
+(def plural (n x)
+  (tostr n #\  (pluralize n x)))
+
+
 
 (= white (gray 255)
    black (gray 0)
@@ -422,6 +727,13 @@
 (define-global clean-url (u)
   (rem [in _ #\" #\' #\< #\>] u))
 
+(def count (test x)
+  (let (n 0 testf (testify test))
+    (unless (nil? x)
+      (step elt x
+        (if (testf elt) (inc n))))
+    n))
+
 (define-global ellipsize (str (o limit 80))
   (if (<= (# str) limit)
       str
@@ -461,15 +773,25 @@
        (do ,@(map (fn (e)
                     `(let ,out (tolist ,e)
                        (unless (no? ,out)
+                         (print (str ,out))
                          (if ,needbars
                              (do (pr bar* ,out) (do))
                              (do (= ,needbars true)
                                  (do (pr ,out) (do)))))))
                   body)))))
 
-(define-global len< (x n) (< (len x) n))
+(def len (x)
+  (if (nil? x) 0
+      (obj? x) (# x)
+      ; (let n (# x)
+      ;   (if (is n 0)
+      ;       (apply max (keep number? (keys x)))
+      ;     n))
+      (# x)))
 
-(define-global len> (x n) (> (len x) n))
+(def len< (x n) (< (len x) n))
+
+(def len> (x n) (> (len x) n))
 
 (define-global begins (seq pat (o start 0))
   (unless (len> pat (- (len seq) start))
@@ -514,11 +836,15 @@
 (define-global tos (...)
   (concat (map stringify (list ...))))
 
+(define-global tostr (...)
+  (concat (map string! (list ...))))
+
 (define-global insert (x ...)
   (if (is (current-buffer) nil)
       (do (write (tos x ...)) x)
       (step v (list x ...)
-        (add (current-buffer) v))))
+        (unless (nil? v)
+          (add (current-buffer) v)))))
 
 (define-global writec (c)
   (insert c))
@@ -531,6 +857,8 @@
 (define-global prn (x ...)
   (with v (pr x ...)
     (pr "\n")))
+
+(define-global sp ((o n 1)) (tostring (for i n (pr " "))))
 
 (define-global flushout ()
   (do))
@@ -557,7 +885,7 @@
   
 
 (def pratoms (body)
-  (if (or (no body) 
+  (if (or (no? body) 
           (all [and (acons _) (~is (car _) 'quote)] body))
       body
       (map [do `(pr ,_)] (vals body))))
@@ -566,6 +894,7 @@
 (mac tolist body
   `((fn ()
       (add buffer-stack* ())
+      ; (pr ,@body)
       (pr ,@body)
       (drop buffer-stack*))))
 
@@ -586,7 +915,8 @@
 
 (def br ((o n 1)) 
   (tolist
-    (repeat n (pr (tag br)))))
+    (for i n
+      (pr (tag br)))))
 
 (def br2 () (tolist (tag br) (tag br)))
 
@@ -595,10 +925,10 @@
 (mac tab       body         `(tag (table border 0) ,@body))
 (mac tr        body         `(tag tr ,@body))
 
-(mac td       body         `(tag td ,@(pratoms body)))
-(mac trtd     body         `(tr (td ,@(pratoms body))))
-(mac tdr      body         `(tag (td align 'right) ,@(pratoms body)))
-(mac tdcolor  (col . body) `(tag (td bgcolor ,col) ,@(pratoms body)))
+(mac td       body         `(tag td ,@(do body)))
+(mac trtd     body         `(tr (td ,@(do body))))
+(mac tdr      body         `(tag (td align 'right) ,@(do body)))
+(mac tdcolor  (col . body) `(tag (td bgcolor ,col) ,@(do body)))
 
 (mac row args
   `(tr ,@(map [list 'td _] args)))
@@ -621,8 +951,8 @@
 (def menu (name items (o sel nil))
   (tag (select name name)
     (each i items
-      (tag (option selected (is i sel))
-        (pr i)))))
+      (pr:tag (option selected (is i sel))
+        i))))
 
 (mac whitepage body
   `(tag html 
@@ -669,10 +999,349 @@
 
 (def cellpr (x) (pr (either x " ")))
 
+(def but ((o text "submit") (o name nil))
+  (gentag input type 'submit name name value text))
+
+(def submit ((o val "submit"))
+  (gentag input type 'submit value val))
+
+(def buts (name . texts)
+  (if (no? texts)
+      (but)
+      (do (but (car texts) name)
+          (each text (cdr texts)
+            (pr " ")
+            (but text name)))))
+
+(mac spanrow (n . body)
+  `(tr (tag (td colspan ,n) ,@body)))
+
+(mac form (action . body)
+  `(tag (form method "post" action ,action) ,@body))
+
+(mac textarea (name rows cols . body)
+  `(tag (textarea name ,name rows ,rows cols ,cols) ,@body))
+
+(def input (name (o val "") (o size 10))
+  (gentag input type 'text name name value val size size))
+
+(mac inputs args
+  `(tag (table border 0)
+     ,@(map (fn ((name label len text))
+              (w/uniq (gl gt)
+                `(let ,gl ,len
+                   (tr (td ,(unless (empty label) `(pr ',label ":")))
+                       (if (isa ,gl 'cons)
+                           (td (textarea ',name (car ,gl) (cadr ,gl)
+                                 (let ,gt ,text (if ,gt (pr ,gt)))))
+                           (td (gentag input type ',(if (is label 'password) 
+                                                    'password 
+                                                    'text)
+                                         name ',name 
+                                         size ,len 
+                                         value ,text)))))))
+            (tuples args 4))))
+
+(def single-input (label name chars btext (o pwd))
+  (pr label)
+  (gentag input type (if pwd 'password 'text) name name size chars)
+  (sp)
+  (submit btext))
+
+
 
 (mac italic body
   ; `(<span> style: (obj fontWeight: 'italic) ,@body))
   `(tag i ,@body))
+
+
+
+
+
+;; ===================================
+;; srv.arc
+
+; HTTP Server.
+
+; To improve performance with static files, set static-max-age*.
+
+(= arcdir* "arc/" logdir* "arc/logs/" staticdir* "static/")
+
+(= quitsrv* nil breaksrv* nil) 
+
+
+(defconst fns* (obj))
+(= fnids* nil timed-fnids* nil)
+
+; count on huge (expt 64 10) size of fnid space to avoid clashes
+
+(def rand-string (n)
+  (shell "randint 10000000000000"))
+
+(def new-fnid ()
+  (check (rand-string 10) ~fns* (new-fnid)))
+
+(def fnid (f)
+  (let key (new-fnid)
+    (= (fns* key) f)
+    (push key fnids*)
+    key))
+
+
+
+(def url-for (fnid)
+  (tostr fnurl* "?fnid=" fnid))
+
+(def flink (f)
+  (tostr fnurl* "?fnid=" (fnid (fn (req) (prn) (f req)))))
+
+(def rflink (f)
+  (tostr rfnurl* "?fnid=" (fnid f)))
+  
+; Since it's just an expr, gensym a parm for (ignored) args.
+
+(mac w/link (expr . body)
+  `(tag (a href (flink (fn (,(unique 'x)) ,expr)))
+     ,@body))
+
+(mac w/rlink (expr . body)
+  `(tag (a href (rflink (fn (,(unique 'x)) ,expr)))
+     ,@body))
+
+(mac onlink (text . body)
+  `(w/link (do ,@body) (pr ,text)))
+
+(mac onrlink (text . body)
+  `(w/rlink (do ,@body) (pr ,text)))
+
+; bad to have both flink and linkf; rename flink something like fnid-link
+
+(mac linkf (text parms . body)
+  `(tag (a href (flink (fn ,parms ,@body))) (pr ,text)))
+
+(mac rlinkf (text parms . body)
+  `(tag (a href (rflink (fn ,parms ,@body))) (pr ,text)))
+
+
+;(defop top req (linkf 'whoami? (req) (pr "I am " (get-user req))))
+
+;(defop testf req (w/link (pr "ha ha ha") (pr "laugh")))
+
+(mac w/link-if (test expr . body)
+  `(tag-if ,test (a href (flink (fn (,(unique 'x)) ,expr)))
+     ,@body))
+
+(def fnid-field (id)
+  (gentag input type 'hidden name 'fnid value id))
+
+; f should be a fn of one arg, which will be http request args.
+
+(def fnform (f bodyfn (o redir))
+  (tag (form method 'post action (if redir rfnurl2* fnurl*))
+    (fnid-field (fnid f))
+    (bodyfn)))
+
+; Could also make a version that uses just an expr, and var capture.
+; Is there a way to ensure user doesn't use "fnid" as a key?
+
+(mac aform (f . body)
+  (w/uniq ga
+    `(tag (form method 'post action fnurl*)
+       (fnid-field (fnid (fn (,ga)
+                           (prn)
+                           (,f ,ga))))
+       ,@body)))
+
+;(defop test1 req
+;  (fnform (fn (req) (prn) (pr req))
+;          (fn () (single-input "" 'foo 20 "submit"))))
+ 
+;(defop test2 req
+;  (aform (fn (req) (pr req))
+;    (single-input "" 'foo 20 "submit")))
+
+; Like aform except creates a fnid that will last for lasts seconds
+; (unless the server is restarted).
+
+(mac taform (lasts f . body)
+  (w/uniq (gl gf gi ga)
+    `(let (,gl ,lasts
+           ,gf (fn (,ga) (prn) (,f ,ga)))
+       (tag (form method 'post action fnurl*)
+         (fnid-field (if ,gl (timed-fnid ,gl ,gf) (fnid ,gf)))
+         ,@body))))
+
+
+
+
+(= formwid* 60 bigformwid* 80 numwid* 16 formatdoc-url* nil)
+
+; Eventually figure out a way to separate type name from format of 
+; input field, instead of having e.g. toks and bigtoks
+
+(def varfield (typ id val)
+  (if (in typ 'string 'string1 'url)
+       (gentag input type 'text name id value val size formwid*)
+      (in typ 'num 'int 'posint 'sym)
+       (gentag input type 'text name id value val size numwid*)
+      (in typ 'users 'toks)
+       (gentag input type 'text name id value (tostring (apply prs val))
+                     size formwid*)    
+      (is typ 'sexpr)
+       (gentag input type 'text name id 
+                     value (tostring (map [do (write _) (sp)] val))
+                     size formwid*)
+      (in typ 'syms 'text 'doc 'mdtext 'mdtext2 'lines 'bigtoks)
+       (let text (if (in typ 'syms 'bigtoks)
+                      (tostring (apply prs val))
+                     (is typ 'lines)
+                      (tostring (apply pr (intersperse #\newline val)))
+                     (in typ 'mdtext 'mdtext2)
+                      (unmarkdown val)
+                     (no val)
+                      ""
+                     val)
+         (pr:tag (textarea cols (if (is typ 'doc) bigformwid* formwid*) 
+                        rows (needrows text formwid* 4)
+                        wrap 'virtual 
+                        style (if (is typ 'doc) "font-size:8.5pt")
+                        name id
+                        value text))
+           ; (prn) ; needed or 1 initial newline gets chopped off
+           ; (pr text))
+           ; text)
+         (when (and formatdoc-url* (in typ 'mdtext 'mdtext2))
+           (pr " ")
+           (tag (font size -2)
+             (link "help" formatdoc-url* (gray 175)))))
+      (caris typ 'choice)
+       (menu id (cddr typ) val)
+      (is typ 'yesno)
+       (menu id (list "yes" "no") (if val "yes" "no"))
+      (is typ 'hexcol)
+       (gentag input type 'text name id value val)
+      (is typ 'time)
+       (gentag input type 'text name id value (if val (english-time val) ""))
+      (is typ 'date)
+       (gentag input type 'text name id value (if val (english-date val) ""))
+       (err "unknown varfield type" typ)))
+
+(def text-rows (text wid (o pad 3))
+  (+ (trunc (/ (len text) (* wid .8))) pad))
+
+(def needrows (text cols (o pad 0))
+  (+ pad (max (+ 1 (count #\newline text))
+              (roundup (/ (len text) (- cols 5))))))
+
+(def varline (typ id val (o liveurls))
+  (if (in typ 'users 'syms 'toks 'bigtoks)  (apply prs val)
+      (is typ 'lines)                       (map prn val)
+      (is typ 'yesno)                       (pr (if val 'yes 'no))
+      (caris typ 'choice)                   (varline (cadr typ) nil val)
+      (is typ 'url)                         (if (and liveurls (valid-url val))
+                                                (link val val)
+                                                (pr val))
+      (text-type typ)                       (pr (or val ""))
+                                            (pr val)))
+
+(def text-type (typ) (in typ 'string 'string1 'url 'text 'mdtext 'mdtext2))
+
+; Newlines in forms come back as /r/n.  Only want the /ns. Currently
+; remove the /rs in individual cases below.  Could do it in aform or
+; even in the parsing of http requests, in the server.
+
+; Need the calls to striptags so that news users can't get html
+; into a title or comment by editing it.  If want a form that 
+; can take html, just create another typ for it.
+
+(def readvar (typ str (o fail nil))
+  (case (carif typ)
+    string  (striptags str)
+    string1 (if (blank str) fail (striptags str))
+    url     (if (blank str) "" (valid-url str) (clean-url str) fail)
+    num     (let n (saferead str) (if (number? n) n fail))
+    int     (let n (saferead str)
+              (if (number? n) (round n) fail))
+    posint  (let n (saferead str)
+              (if (and (number? n) (> n 0)) (round n) fail))
+    text    (striptags str)
+    doc     (striptags str)
+    mdtext  (md-from-form str)
+    mdtext2 (md-from-form str t)                      ; for md with no links
+    sym     (or (sym:car:tokens str) fail)
+    syms    (map sym (tokens str))
+    sexpr   (errsafe (readall str))
+    users   (rem [no (goodname _)] (tokens str))
+    toks    (tokens str)
+    bigtoks (tokens str)
+    lines   (lines str)
+    choice  (readvar (cadr typ) str)
+    yesno   (is str "yes")
+    hexcol  (if (hex>color str) str fail)
+    time    (or (errsafe (parse-time str)) fail)
+    date    (or (errsafe (parse-date str)) fail)
+            (err "unknown readvar type" typ)))
+
+; dates should be tagged date, and just redefine <
+
+(def varcompare (typ)
+  (if (in typ 'syms 'sexpr 'users 'toks 'bigtoks 'lines 'hexcol)
+       (fn (x y) (> (len x) (len y)))
+      (is typ 'date)
+       (fn (x y)
+         (or (no y) (and x (date< x y))))
+       (fn (x y)
+         (or (empty y) (and (~empty x) (< x y))))))
+
+
+; (= fail* (uniq))
+
+(= fail* ()) ; coudn't possibly come back from a form
+  
+; Takes a list of fields of the form (type label value view modify) and 
+; a fn f and generates a form such that when submitted (f label newval) 
+; will be called for each valid value.  Finally done is called.
+
+(def vars-form (user fields f done (o button "update") (o lasts))
+  (taform lasts
+          (if (all [no? (at _ 4)] fields)
+              (fn (req))
+              (fn (req)
+                (when-umatch user req
+                  (each (k v) req!args
+                    (let name (sym k)
+                      (awhen (find [is (cadr _) name] fields)
+                        ; added sho to fix bug
+                        (let (typ id val sho mod) it
+                          (when (and mod v)
+                            (let newval (readvar typ v fail*)
+                              (unless (is newval fail*)
+                                (f name newval))))))))
+                  (done))))
+     (pr:tab
+       (showvars fields))
+     (unless (all [no? (at _ 4)] fields)  ; no modifiable fields
+       (br)
+       (submit button))))
+                
+(def showvars (fields (o liveurls))
+  (step (typ id val view mod question) fields
+    (when view
+      (when question
+        (pr:tr (td (prn question))))
+      (pr:tr (unless question (tag (td valign 'top) 
+                                   (unless (empty id)
+                                     (pr id ":"))))
+          (td (if mod 
+                  (varfield typ id val)
+                  (varline  typ id val liveurls))))
+      (prn))))
+
+; http://daringfireball.net/projects/markdown/syntax
+
+(def md-from-form (str (o nolinks))
+  (markdown (trim (rem #\return (esc-tags str)) 'end) 60 nolinks))
+
 
 (define-global markdown (s (o maxurl) (o nolinks))
   (let ital nil
@@ -787,28 +1456,29 @@
       (writec (char s (inc i))))))
 
 (define-global unmarkdown (s)
-  (tostring
-    (forlen i s
-      (if (litmatch "<p>" s i)
-           (do (inc i 2) 
-               (unless (is i 2) (pr "\n\n")))
-          (litmatch "<i>" s i)
-           (do (inc i 2) (pr #\*))
-          (litmatch "</i>" s i)
-           (do (inc i 3) (pr #\*))
-          (litmatch "<a href=" s i)
-           (let endurl (posmatch [in _ #\> #\space] s (+ i 9))
-             (if endurl
-                 (do (pr (clip s (+ i 9) (- endurl 1)))
-                     (= i (aif (posmatch "</a>" s endurl)
-                               (+ it 3)
-                               endurl)))
-                 (writec (char s i))))
-          (litmatch "<pre><code>" s i)
-           (awhen (findsubseq "</code></pre>" s (+ i 12))
-             (pr (clip s (+ i 11) it))
-             (= i (+ it 12)))
-          (writec (char s i))))))
+  (unless (nil? s)
+    (tostring
+      (forlen i s
+        (if (litmatch "<p>" s i)
+             (do (inc i 2) 
+                 (unless (is i 2) (pr "\n\n")))
+            (litmatch "<i>" s i)
+             (do (inc i 2) (pr #\*))
+            (litmatch "</i>" s i)
+             (do (inc i 3) (pr #\*))
+            (litmatch "<a href=" s i)
+             (let endurl (posmatch [in _ #\> #\space] s (+ i 9))
+               (if endurl
+                   (do (pr (clip s (+ i 9) (- endurl 1)))
+                       (= i (aif (posmatch "</a>" s endurl)
+                                 (+ it 3)
+                                 endurl)))
+                   (writec (char s i))))
+            (litmatch "<pre><code>" s i)
+             (awhen (findsubseq "</code></pre>" s (+ i 12))
+               (pr (clip s (+ i 11) it))
+               (= i (+ it 12)))
+            (writec (char s i)))))))
 
 (define-global atend (i s)
   (>= i (edge s)))
@@ -845,217 +1515,38 @@
 (define-global nthcdr (n seq)
   (if (is seq nil) seq (cut seq n)))
 
-)
+(def tuples (xs (o n 2))
+  (if (no? xs)
+      nil
+      (cons (firstn n xs)
+            (tuples (nthcdr n xs) n))))
 
-(during-compilation
-; (define-global pos (test seq (o start 0))
-;   (let f (testify test)
-;     (if (alist seq)
-;         ((afn (seq n)
-;            (if (no? seq)   
-;                 nil
-;                (f (car seq)) 
-;                 n
-;                (self (cdr seq) (+ n 1))))
-;          (nthcdr start seq) 
-;          start)
-;         (recstring [if (f (seq _)) _] seq start))))
+(def caris (x val) 
+  (and (acons x) (is (car x) val)))
 
-(define-global pos (test seq (o start 0))
-  (mem test seq start))
-
-(define-global even (n) (is (mod n 2) 0))
-
-(define-global odd (n) (~even n))
-
-; Could combine with firstn if put f arg last, default to (fn (x) t).
-
-(define-global retrieve (n f xs)
-  (if (no? n)                (keep f xs)
-      (or (<= n 0) (no? xs)) nil
-      (f (car xs))           (cons (car xs) (retrieve (- n 1) f (cdr xs)))
-                             (retrieve n f (cdr xs))))
-(define-global dedup (xs)
-  (let (h (obj) acc nil)
-    (each x xs
-      (unless (get h x)
-        (push x acc)
-        (set (get h x) true)))
-    (rev acc)))
-
-(define-global single (x) (and (acons x) (no (cdr x))))
-
-(define-global intersperse (x ys)
-  (and ys (cons (car ys)
-                (mappend [list x _] (cdr ys)))))
-
-(define-global counts (seq (o c (obj)))
-  (if (no? seq)
-      c
-      (let x (car seq)
-        (unless (is x nil)
-          (unless (has? c x) (set (get c x) 0))
-          (inc (get c x)))
-        (counts (cdr seq) c))))
-
-(define-global commonest (seq)
-  (let (winner nil n 0)
-    (each (k v) (counts seq)
-      (when (> v n) (= winner k n v)))
-    (list winner n)))
-
-
-(define-global iso (a b)
-  (== (str a) (str b)))
-
-(define-global reclist (f xs (o start 0))
-  (unless (== xs nil)
-    (forlen i xs start: start
-      (let (x (at xs i)
-            v (f x i xs))
-        (if v (return v))))))
-; (and (yes? xs) (let v (f xs) (if (t? v) v (reclist f (cdr xs))))))
-
-(define-global recstring (test s (o start 0))
-  (forlen i s start: start
-    (let v (test i)
-      (if v (return v)))))
-  ; ((afn (i)
-  ;    (and (< i (# s))
-  ;         (or (test i)
-  ;             (self (+ i 1)))))
-  ;  start))
-
-
-; (define-global some (f x)
-;   (unless (nil? x)
-;     (find f x)))
-)
-(during-compilation
-
-(define-global some (test seq)
-  (let f (testify test)
-    (if (alist seq)
-        (reclist f seq)
-        (recstring [f:char seq _] seq))))
-
-
-(define-global all (test seq)
-  (~some (complement (testify test)) seq))
-
-; (define-global mem (f x (o test is))
-;   (unless (nil? x)
-;     (first [test f _] x)))
-
-(define-global mem (test seq (o start 0))
-  (let f (testify test)
-    (if (alist seq)
-        (reclist (fn (x i ...)
-                   (let v (f x i ...)
-                     (when (yes v)
-                       i)))
-                 seq
-                 start)
-      (recstring [if (f:char seq _) _] seq start))))
-
-(define-global crawl (test seq)
-  (let (f (testify test)
-        f (fn (x ...) (if (yes (f x ...)) x)))
-    (if (alist seq)
-        (reclist f seq)
-        (recstring f seq))))
-
-(define-global chars (x)
-  ((ustring .new) x))
-
-(define-global concat (xs (o sep ""))
-  (target lua: ((table .concat) xs sep)
-          js: (xs (.join sep))))
-
-(define-global rem (f x)
-  (if (alist x)
-      (unless (nil? x)
-        (let i (first f x)
-          (if (number? i)
-              (join (cut x 0 i) (rem f (cut x (+ i 1))))
-            x)))
-      (concat (rem f (chars x)))))
-
-(define-global keep (test seq)
-  (rem (complement (testify test)) seq))
 
 )
 
 (during-compilation
 
-(define-global adjoin (x xs (o test iso))
-  (if (nil? xs) (list x)
-      (is? (first [test x _] xs)) xs
-    (do (add xs x) xs)))
+; (def keys (h) 
+;   (accum a (each (k v) h (a k))))
 
-(define-macro pushnew (x place rest: args)
-  `(set ,place (adjoin ,x ,place ,@args)))
+; (def vals (h) 
+;   (accum a (each (k v) h (a v))))
 
-(define-global push! (x l)
-  (if (nil? l) (list x) `(,x ,@l)))
+; These two should really be done by coerce.  Wrap coerce?
 
-(define-macro push (x place)
-  `(set ,place (push! ,x ,place)))
+(def tablist (h)
+  (accum a (maptable (fn args (a args)) h)))
 
-(define-macro pull (x place rest: args)
-  `(set ,place (rem ,x ,place ,@args)))
+(def listtab (al)
+  (let h ()
+    (map (fn ((k v)) (= (get h k) v))
+         al)
+    h))
 
-(define-macro togglemem (x place rest: args)
-  (let-unique (v)
-    `(let ,v ,x
-       (set ,place (if (mem ,v ,place)
-                       (rem ,v ,place)
-                       (adjoin ,v ,place ,@args))))))
-
-(define-global mappend (f l)
-  (if (nil? l) l (apply join (map f l))))
-
-(define-global rev (l)
-  (if (nil? l) l (reverse l)))
-
-(define-global firstn (n xs)
-  (if (nil? xs) xs (cut xs 0 n)))
-
-(define-global int (x)
-  (let s (tostring x)
-    (if (numeric? s) (number s))))
-
-(define-global compare (comparer scorer)
-  (fn (x y) (comparer (scorer x) (scorer y))))
-
-(define-global merge (less? ...)
-  (sort (join ...) less?))
-
-(define-global bestn (n f (o seq ()))
-  (firstn n (sort seq f)))
-
-(define-macro down (v init min . body)
-  (w/uniq (gi gm)
-    `(let (,gi ,init ,v ,gi ,gm (- ,min 1))
-       (while (> ,v ,gm)
-         ,@body
-         (dec ,v)))))
-
-
-(define-macro repeat (n . body)
-  `(for ,(unique 'i) ,n ,@body))
-
-(define-macro n-of (n expr)
-  (w/uniq ga
-    `(accum ,ga
-       (repeat ,n (,ga ,expr)))))
-
-(define-global hook (name ...)
-  name)
-
-)
-
-(during-compilation
+  
 
 (define-global readfile1 (name)
   ((JSON .parse) (read-file name)))
@@ -1110,61 +1601,67 @@
 ;"\u0085"
 
 (def tokens (s (o sep whitec) (o start 0))
-  (let test (testify sep)
-  ;       ntest (fn (x) (not (test x))))
-  ;   (accum a
-  ;     (dec start)
-  ;     (while (let-when i (mem test s (+ start 1))
-  ;              (let x (clip s start i)
-  ;                (unless (none? x)
-  ;                  (a x)))
-  ;              (= start (either (mem ntest s i) i))
-  ;              true))
-  ;     (a (clip s start))
-  ;     )))
-                    
-        ; e
-    (let rec (afn (cs toks tok)
-               (if (no? cs)         (consif tok toks)
-                   (test (car cs)) (self (cdr cs) (consif tok toks) nil)
-                                   (self (cdr cs) toks (cons (car cs) tok))))
-      (map concat (rev (map rev (rec (chars s) nil nil)))))))
+  (let (test (testify sep)
+        ntest (fn (x) (not (test x))))
+    (accum a
+      (dec start)
+      (while (let-when i (mem test s (+ start 1))
+               (let x (clip s start i)
+                 (unless (none? x)
+                   (a x)))
+               (= start (either (mem ntest s i) i))
+               true))
+      (unless (is? (mem test s start))
+        (a (clip s start))))))
+    ; (let rec (afn (cs toks tok)
+               ; (if (no? cs)         (consif tok toks)
+                   ; (test (car cs)) (self (cdr cs) (consif tok toks) nil)
+                    ;                (self (cdr cs) toks (cons (car cs) tok))))
+      ; (map concat (rev (map rev (rec (chars s) nil nil)))))))
 
 ; names of cut, split, halve not optimal
 
-(def halve (s (o sep whitec))
+(def halve (s (o sep whitec) (o start 0))
   (let test (testify sep)
-    (let rec (afn (cs tok)
-               (if (no? cs)         (list (rev tok))
-                   (test (car cs)) (list cs (rev tok))
-                                   (self (cdr cs) (cons (car cs) tok))))
-      (rev (map string!
-                (rec (chars s) nil))))))
+    (let i (mem test s start)
+      (if (is? i)
+          (list (clip s 0 i) (clip s i))
+        (list s)))))
+    ; (let rec (afn (cs tok)
+    ;            (if (no? cs)         (list (rev tok))
+    ;                (test (car cs)) (list cs (rev tok))
+    ;                                (self (cdr cs) (cons (car cs) tok))))
+    ;   (rev (map string!
+    ;             (rec (chars s) nil))))))
 
 ; maybe promote to arc.arc, but if so include a list clause
 
-(def positions (test seq)
+(def positions (test seq (o start 0))
   (accum a
     (let f (testify test)
-      (forlen i seq
-        (if (f (seq i)) (a i))))))
+      (forlen i seq start: start
+        (if (f (elt seq i)) (a i))))))
 
 (def lines (s)
-  (accum a
-    ((afn ((p . ps))
-       (if ps
-           (do (a (rem #\return (cut s (+ p 1) (car ps))))
-               (self ps))
-           (a (cut s (+ p 1)))))
-     (cons -1 (positions #\newline s)))))
+  (map [if (is (char _ (edge _)) #\return)
+           (clip _ 0 (edge _))
+          _]
+       (split s #\newline)))
+  ; (accum a
+  ;   ((afn ((p . ps))
+  ;      (if ps
+  ;          (do (a (rem #\return (cut s (+ p 1) (car ps))))
+  ;              (self ps))
+  ;          (a (cut s (+ p 1)))))
+  ;    (cons -1 (positions #\newline s)))))
 
 (def slices (s test)
   (accum a
     ((afn ((p . ps))
-       (if ps
-           (do (a (cut s (+ p 1) (car ps)))
+       (if (yes? ps)
+           (do (a (clip s (+ p 1) (car ps)))
                (self ps))
-           (a (cut s (+ p 1)))))
+           (a (clip s (+ p 1)))))
      (cons -1 (positions test s)))))
 
 
@@ -1179,7 +1676,7 @@
   `(do1 'ok (time ,expr)))
 
 (define-macro time10 (expr)
-  `(time (repeat 10 ,expr)))
+  `(time (for i 10 ,expr)))
 
 
 (define-global union (f xs ys)
@@ -1232,12 +1729,13 @@
   (if (string? x) x (pp-to-string x)))
 
 (define-global string! (x)
-  (if (string? x) x (str x)))
+  (if (string? x) x (nil? x) "" (str x)))
 
 (define-global maptable ((o f idfn) (o l (obj)))
   (each (k v) l
     (f k v))
   l)
+
 
 ; Application Server.  Layer inserted 2 Sep 06.
 
@@ -1374,8 +1872,10 @@
     (load-user id)))
 
 (def load-user (u)
-  (= (vote* u) (load-table (cat votedir* u))
+  (= ;(vote* u) (load-table (cat votedir* u))
      (prof* u) (temload 'profile (cat profdir* u)))
+  (set (vote* u) nil)
+  (votes u)
   u)
 
 (def goodname (u) true)
@@ -1392,7 +1892,28 @@
 (def votes (u)
   (or (vote* u)
       (aand (file-exists (cat votedir* u))
-            (= (vote* u) (load-table it)))))
+            (load-table it)
+            (listtab (map [list (cadr _) _] it))
+            (= (vote* u) it))))
+            ; (let (h (load-table it)
+            ;       r ())
+            ;   (step x h
+            ;     (let id (at x 1)
+            ;       (add r (list id x))))
+            ;   (= (vote* u) (listtab r))))))
+            ; ; (= (vote* u) (load-table it)))))
+
+; (def votes (u)
+;   (let-when h (votes-1 u)
+;     (unless (keys? h)
+;       (with r (obj)
+;         (step x h
+;           (let id (at x 1)
+;             (= (get r id) x)))
+;         (= (vote* u) r)))))
+               
+
+
           
 (def init-user (u)
   (= (vote* u) (obj) 
@@ -1535,12 +2056,9 @@
 
 (defvar stemmable-sites* (obj))
 
-(define-global sitename (url)
-  false)
-
 (define-global canonical-url (url)
   (if (stemmable-sites* (sitename url))
-      (cut url 0 (pos #\? url))
+      (clip url 0 (mem #\? url))
       url))
 
 (define-global new-item-id ()
@@ -1780,9 +2298,9 @@ function vote(node) {
 (mac fulltop (user lid label title whence . body)
   (w/uniq (gu gi gl gt gw)
     `(let (,gu ,user ,gi ,lid ,gl ,label ,gt ,title ,gw ,whence)
-       (npage (+ "" this-site* (if ,gt (+ bar* ,gt) ""))
+       (npage (+ "" this-site* (if (yes? ,gt) (+ "" bar* ,gt) ""))
          (if (check-procrast ,gu)
-             (do (pagetop 'full ,gi ,gl ,gt ,gu ,gw)
+             (pr (pagetop 'full ,gi ,gl ,gt ,gu ,gw)
                  (hook 'page ,gu ,gl)
                  ,@body)
              (row (procrast-msg ,gu ,gw)))))))
@@ -1985,9 +2503,9 @@ function vote(node) {
 (defmemo sitename (url)
   (and (valid-url url)
        (let toks (parse-site (rem #\space url))
-         (if (isa (saferead (car toks)) 'int)
+         (if (number? (saferead (car toks)))
              (tostring (prall toks "" "."))
-             (let (t1 t2 t3 . rest) toks  
+             (let ((t1 t2 t3 . rest) toks  )
                (if (and (~in t3 nil "www")
                         (or (mem t1 multi-tld-countries*) 
                             (mem t2 long-domains*)))
@@ -2074,24 +2592,24 @@ function vote(node) {
 
 (def pagetop (switch lid label (o title) (o user) (o whence))
 ; (tr (tdcolor black (vspace 5)))
-(tolist
-  (tr (tdcolor (main-color user)
+; (tolist
+  (pr:tr (tdcolor (main-color user)
         (tag (table border 0 cellPadding 0 cellSpacing 0 width "100%"
                     style (obj padding: "2px"))
           (tr (gen-logo)
               (when (is switch 'full)
                 (tag (td style (obj lineHeight: "12pt" height: "10px"))
                   (spanclass pagetop
-                    (tag b (link this-site* "news"))
-                    (hspace 10)
-                    (toprow user label))))
+                    (pr:tag b (link this-site* "news"))
+                    (pr:hspace 10)
+                    (pr:toprow user label))))
              (if (is switch 'full)
-                 (tag (td style (obj text-align: "right" paddingRight: "4px"))
+                 (tag (td style (obj textAlign: "right" paddingRight: "4px"))
                    (spanclass pagetop (topright user whence)))
                  (tag (td style (obj lineHeight: "12pt" height: "10px"))
                    (spanclass pagetop (prbold label))))))))
   (map [_ user] pagefns*)
-  (spacerow 10)))
+  (pr:spacerow 10))
 
 (def gen-logo ()
   (tag (td style (obj width: "18px" paddingRight: "4px"))
@@ -2099,13 +2617,14 @@ function vote(node) {
       (tag (img src logo-url* width 18 height 18 
                 style (obj border: (cat "1px " border-color* " solid")))))))
 
-(= toplabels* (list "" "welcome" "new" "threads" "comments" "leaders" "*"))
+(= toplabels* (list "welcome" "new" "threads" "comments" "leaders" nil))
 
 ; redefined later
 
 (= welcome-url* "welcome")
 
 (def toprow (user label)
+  (print (str (list 'toprow user: user label: label)))
   (w/bars 
     (when (noob user)
       (toplink "welcome" welcome-url* label)) 
@@ -2117,7 +2636,7 @@ function vote(node) {
     (hook 'toprow user label)
     (link "submit")
     (unless (mem label toplabels*)
-      (fontcolor white (pr label)))))
+      (fontcolor white label))))
 
 (def toplink (name dest label)
   (tag-if (is name label) (span class 'topsel)
@@ -2126,8 +2645,8 @@ function vote(node) {
 (def topright (user whence (o showkarma t))
   (when user 
     (userlink user user nil)
-    (when showkarma (pr  "&nbsp;(@(karma user))"))
-    (pr "&nbsp;|&nbsp;"))
+    (when showkarma (pr (tostr " (" (karma user) ")")))
+    (pr " | "))
   (if user
       (rlinkf 'logout (req)
         (when-umatch/r user req
@@ -2144,49 +2663,233 @@ function vote(node) {
   (and user (< (days-since (uvar user created)) 1)))
 
 
-; redefined later
+; ; redefined later
 
-(= welcome-url* "welcome")
-(= threads-url idfn)
+; (= welcome-url* "welcome")
+; (= threads-url idfn)
 
-(def toprow (user label)
-  (w/bars 
-    (when (noob user)
-      (toplink "welcome" welcome-url* label)) 
-    (toplink "new" "newest" label)
-    (when user
-      (toplink "threads" (threads-url user) label))
-    (toplink "comments" "newcomments" label)
-    (toplink "leaders"  "leaders"     label)
-    (hook 'toprow user label)
-    (link "submit")
-    (unless (mem label toplabels*)
-      (fontcolor white (pr label)))))
+; (def toprow (user label)
+;   (w/bars 
+;     (when (noob user)
+;       (toplink "welcome" welcome-url* label)) 
+;     (toplink "new" "newest" label)
+;     (when user
+;       (toplink "threads" (threads-url user) label))
+;     (toplink "comments" "newcomments" label)
+;     (toplink "leaders"  "leaders"     label)
+;     (hook 'toprow user label)
+;     (link "submit")
+;     (unless (mem label toplabels*)
+;       (fontcolor white (pr label)))))
 
-(def toplink (name dest label)
-  (tag-if (is name label) (span class 'topsel)
-    (link name dest)))
+; (def toplink (name dest label)
+;   (tag-if (is name label) (span class 'topsel)
+;     (link name dest)))
 
-(def topright (user whence (o showkarma t))
-  (when user 
-    (userlink user user nil)
-    (when showkarma (pr  "&nbsp;(@(karma user))"))
-    (pr "&nbsp;|&nbsp;"))
-  (if user
-      (rlinkf 'logout (req)
-        (when-umatch/r user req
-          (logout-user user)
-          whence))
-      (onlink "login"
-        (login-page 'both nil 
-                    (list (fn (u ip) 
-                            (ensure-news-user u)
-                            (newslog ip u 'top-login))
-                          whence)))))
+; (def topright (user whence (o showkarma t))
+;   (when user 
+;     (userlink user user nil)
+;     (when showkarma (pr  "&nbsp;(@(karma user))"))
+;     (pr "&nbsp;|&nbsp;"))
+;   (if user
+;       (do)
+;       ; (rlinkf 'logout (req)
+;       ;   (when-umatch/r user req
+;       ;     (logout-user user)
+;       ;     whence))
+;       (onlink "login"
+;         (login-page 'both nil 
+;                     (list (fn (u ip) 
+;                             (ensure-news-user u)
+;                             (newslog ip u 'top-login))
+;                           whence)))))
 
-(def noob (user)
-  (and user (< (days-since (uvar user created)) 1)))
+; (def noob (user)
+;   (and user (< (days-since (uvar user created)) 1)))
+
+; Doc
+
+; (defop formatdoc req
+;   (msgpage (get-user req) formatdoc* "Formatting Options"))
+
+(= formatdoc-url* "formatdoc")
+
+(= formatdoc* 
+"Blank lines separate paragraphs.
+<p> Text after a blank line that is indented by two or more spaces is 
+reproduced verbatim.  (This is intended for code.)
+<p> Text surrounded by asterisks is italicized, if the character after the 
+first asterisk isn't whitespace.
+<p> Urls become links, except in the text field of a submission.<br><br>")
 
 
+; Noprocrast
+
+(def check-procrast (user)
+  (or (no user)
+      (no (uvar user noprocrast))
+      (let now (seconds)
+        (unless (uvar user firstview)
+          (reset-procrast user))
+        (or (when (< (/ (- now (uvar user firstview)) 60)
+                     (uvar user maxvisit))
+              (= (uvar user lastview) now)
+              (save-prof user)
+              t)
+            (when (> (/ (- now (uvar user lastview)) 60)
+                     (uvar user minaway))
+              (reset-procrast user)
+              t)))))
+                
+(def reset-procrast (user)
+  (= (uvar user lastview) (= (uvar user firstview) (seconds)))
+  (save-prof user))
+
+(def procrast-msg (user whence)
+  (let m (+ 1 (trunc (- (uvar user minaway)
+                        (minutes-since (uvar user lastview)))))
+    (pr "<b>Get back to work!</b>")
+    (para "Sorry, you can't see this page.  Based on the anti-procrastination
+           parameters you set in your profile, you'll be able to use the site 
+           again in " (plural m "minute") ".")
+    (para "(If you got this message after submitting something, don't worry,
+           the submission was processed.)")
+    (para "To change your anti-procrastination settings, go to your profile 
+           by clicking on your username.  If <tt>noprocrast</tt> is set to 
+           <tt>yes</tt>, you'll be limited to sessions of <tt>maxvisit</tt>
+           minutes, with <tt>minaway</tt> minutes between them.")
+    (para)
+    (w/rlink whence (underline (pr "retry")))
+    ; (hspace 20)
+    ; (w/rlink (do (reset-procrast user) whence) (underline (pr "override")))
+    (br2)))
+
+
+
+
+; Users
+
+(def user-url (user) (+ "user?id=" user))
+
+(= show-avg* nil)
+
+(def userlink (user subject (o show-avg t))
+  (pr (link (user-name user subject) (user-url subject)))
+  (awhen (and show-avg* (admin user) show-avg (uvar subject avg))
+    (pr " (" (num it 1 t t) ")")))
+
+(= noob-color* (color 60 150 60))
+
+(def user-name (user subject)
+  (if (and (editor user) (ignored subject))
+       (tostring (fontcolor darkred (pr subject)))
+      (and (editor user) (< (user-age subject) 1440))
+       (tostring (fontcolor noob-color* (pr subject)))
+      subject))
+
+
+; (newsop user (id)
+;   (if (only.profile id)
+;       (user-page user id)
+;       (pr "No such user.")))
+
+(def user-page (user subject)
+  (let here (user-url subject)
+    (shortpage user nil nil (+ "Profile: " subject) here
+      (pr:profile-form user subject)
+      ; (pr:row:br2)
+      ; (when (some astory:item (uvar subject submitted))
+      ;   (pr:row:underlink "submissions" (submitted-url subject)))
+      ; (when (some acomment:item (uvar subject submitted))
+      ;   (pr:row:underlink "comments" (threads-url subject)))
+      (hook 'user user subject))))
+
+
+(def profile-form (user subject)
+  (let prof (profile subject) 
+    (vars-form user
+               (user-fields user subject)
+               (fn (name val) 
+                 (when (and (is name 'ignore) val (no? prof!ignore))
+                   (log-ignore user subject 'profile))
+                 (= (get prof name) val))
+               (fn () (save-prof subject)
+                      (user-page user subject)))))
+
+(= topcolor-threshold* 250)
+
+(def user-fields (user subject)
+  (let (e (editor user) 
+        a (admin user) 
+        w (is user subject)
+        k (and w (> (karma user) topcolor-threshold*))
+        u (or a w)
+        m (or a (and (member user) w))
+        h (profile subject)
+        p [get h _])
+    `((string  user       ,subject                                 ,t  ,nil)
+      (string  name       ,(p 'name)                               ,m  ,m)
+      (string  created    ,(text-age:user-age subject)             ,t  ,nil)
+      (int     auth       ,(p 'auth)                               ,e  ,a)
+      (yesno   member     ,(p 'member)                             ,a  ,a)
+      (posint  karma      ,(p 'karma)                              ,t  ,a)
+      (num     avg        ,(p 'avg)                                ,a  ,nil)
+      (yesno   ignore     ,(p 'ignore)                             ,e  ,e)
+      (num     weight     ,(p 'weight)                             ,a  ,a)
+      (mdtext2 about      ,(p 'about)                              ,t  ,u)
+      (string  email      ,(p 'email)                              ,u  ,u)
+      (yesno   showdead   ,(p 'showdead)                           ,u  ,u)
+      (yesno   noprocrast ,(p 'noprocrast)                         ,u  ,u)
+      (string  firstview  ,(p 'firstview)                          ,a  ,nil)
+      (string  lastview   ,(p 'lastview)                           ,a  ,nil)
+      (posint  maxvisit   ,(p 'maxvisit)                           ,u  ,u)
+      (posint  minaway    ,(p 'minaway)                            ,u  ,u)
+      (sexpr   keys       ,(p 'keys)                               ,a  ,a)
+      (hexcol  topcolor   ,(or (p 'topcolor) site-color*)          ,k  ,k)
+      (int     delay      ,(p 'delay)                              ,u  ,u)
+      (string  ,"" ,(resetpw-link)                                 ,w  ,nil)
+      (string  ,"" ,(underlink "submissions" (submitted-url subject)) ,w  ,nil)
+      (string  ,"" ,(underlink "comments"    (threads-url subject))   ,w  ,nil)
+      (string  saved      ,(saved-link user subject)               ,u  ,nil)
+      
+      )))
+
+(def saved-link (user subject)
+  (when (or (admin user) (is user subject))
+    (let n (if (len> (votes subject) 500)
+               "many" 
+               (len (voted-stories user subject)))
+      (if (is n 0)
+          ""
+          (underlink n (saved-url subject))))))
+
+(def resetpw-link ()
+  (underlink "change password" "resetpw"))
+
+
+
+(def text-age (a)
+  (tostring
+    (if (>= a 1440) (pr (plural (trunc (/ a 1440)) "day")    " ago")
+        (>= a   60) (pr (plural (trunc (/ a 60))   "hour")   " ago")
+                    (pr (plural (trunc a)          "minute") " ago"))))
+
+
+
+(def voted-stories (user subject)
+  (keep [and (astory _) (cansee user _)]
+        (map item (keys (or (votes subject) ())))))
+
+
+
+(def saved-url (user) (+ "saved?id=" user))
+
+; Submitted
+
+(def submitted-url (user) (+ "submitted?id=" user))
+
+; Threads
+
+(def threads-url (user) (+ "threads?id=" user))
 
 (do)
