@@ -898,7 +898,7 @@
       (pr ,@body)
       (drop buffer-stack*))))
 
-(mac tostring body
+(mac w/string body
   `(apply cat (map stringify (flat (tolist ,@body)))))
 
 (def tagbody (body)
@@ -1185,17 +1185,17 @@
       (in typ 'num 'int 'posint 'sym)
        (gentag input type 'text name id value val size numwid*)
       (in typ 'users 'toks)
-       (gentag input type 'text name id value (tostring (apply prs val))
+       (gentag input type 'text name id value (w/string (apply prs val))
                      size formwid*)    
       (is typ 'sexpr)
        (gentag input type 'text name id 
-                     value (tostring (map [do (write _) (sp)] val))
+                     value (w/string (map [do (pr _ " ")] (or val ())))
                      size formwid*)
       (in typ 'syms 'text 'doc 'mdtext 'mdtext2 'lines 'bigtoks)
        (let text (if (in typ 'syms 'bigtoks)
-                      (tostring (apply prs val))
+                      (w/string (apply prs val))
                      (is typ 'lines)
-                      (tostring (apply pr (intersperse #\newline val)))
+                      (w/string (apply pr (intersperse #\newline val)))
                      (in typ 'mdtext 'mdtext2)
                       (unmarkdown val)
                      (no val)
@@ -1447,7 +1447,7 @@
 (define-global closedelim (c) (in c #\> #\) #\] #\}))
 
 (define-global code-block (s i)
-  (tostring
+  (w/string
     (until (let left (- (len s) i 1)
              (or (is left 0)
                  (and (> left 2)
@@ -1457,7 +1457,7 @@
 
 (define-global unmarkdown (s)
   (unless (nil? s)
-    (tostring
+    (w/string
       (forlen i s
         (if (litmatch "<p>" s i)
              (do (inc i 2) 
@@ -1593,7 +1593,7 @@
 
 ; Matching.  Spun off 29 Jul 06.
 
-; arc> (tostring (writec (coerce 133 'char)))
+; arc> (w/string (writec (coerce 133 'char)))
 ;
 ;> (define ss (open-output-string))
 ;> (write-char (integer->char 133) ss)
@@ -1956,55 +1956,6 @@
 (defvar url->story* (obj))
 (= maxid* 0)
 (defvar initload* 15000)
-
-; (define-global quote-table ((k v))
-;   (list (quoted k) (if (obj? v) `(list ,@(map (fn (x) `(list ,@x)) v)) v)))
-
-(define-global arc-eval (x)
-  (if (obj? x) `(list ,@(map arc-eval x))
-      (string-literal? x) x
-      (is x 'nil) `',null
-      (atom? x) (quoted x)
-    x))
-
-(define-global load-arc-table (l)
-  (with r (obj)
-    (step (k v) l
-      (set (get r k) (eval (arc-eval v))))))
-
-(= arc3-dir* "/Users/bb/Documents/Share/arc3.1/arc3.1/arc/news/")
-
-(define-global load-from-arc ((o path arc3-dir*))
-  (with r (obj stories: (obj) profs: (obj))
-    (let i 1
-      (while (aand (cat path "story/" (tostring i))
-                   (file-exists it)
-                   (last (read-from-file it))
-                   (load-arc-table it)
-                   (set (get r!stories i) it))
-        (inc i)))
-    (defconst prof* (obj))
-    (defconst vote* (obj))
-    (step x (dir (cat path "profile/"))
-      (aand (file-exists (cat path "profile/" x))
-            (last (read-from-file it))
-            (load-arc-table it)
-            (set (get r!profs x) it)
-            (set (prof* x) it)
-            (set (vote* x) it!votes)
-            ))
-    (let (ids (sort (map !id r!stories) >)
-          items (obj))
-      (= maxid* (car ids))
-      (defconst items* (obj))
-      (step id ids
-        (let i (get r!stories id)
-          (push i (get items i!type))
-          (= (items* i!id) i)))
-      (defconst stories* (rev items!story))
-      (defconst comments* (rev items!comment))
-      (hook 'initload items))
-    ))
 
 (define-global load-items ()
   ; (system (cat "rm " storydir* "*.tmp"))
@@ -2479,7 +2430,8 @@ function vote(node) {
            (ignored user)
            (< (user-age user) new-age-threshold*)
            (< (karma user) new-karma-threshold*))
-       (len> (recent-items [or (author user _) (is _!ip ip)] 180)
+       (len> (keep [is _!type kind]
+                   (recent-items [or (author user _) (is _!ip ip)] 180))
              (if (is kind 'story)
                  (if (bad-user user) 0 1)
                  (if (bad-user user) 1 10)))))
@@ -2504,7 +2456,7 @@ function vote(node) {
   (and (valid-url url)
        (let toks (parse-site (rem #\space url))
          (if (number? (saferead (car toks)))
-             (tostring (prall toks "" "."))
+             (w/string (prall toks "" "."))
              (let ((t1 t2 t3 . rest) toks  )
                (if (and (~in t3 nil "www")
                         (or (mem t1 multi-tld-countries*) 
@@ -2617,7 +2569,7 @@ function vote(node) {
       (tag (img src logo-url* width 18 height 18 
                 style (obj border: (cat "1px " border-color* " solid")))))))
 
-(= toplabels* (list "welcome" "new" "threads" "comments" "leaders" nil))
+(= toplabels* (list "welcome" "new" "threads" "comments" "leaders"))
 
 ; redefined later
 
@@ -2635,7 +2587,7 @@ function vote(node) {
     (toplink "leaders"  "leaders"     label)
     (hook 'toprow user label)
     (link "submit")
-    (unless (mem label toplabels*)
+    (unless (or (nil? label) (mem label toplabels*))
       (fontcolor white label))))
 
 (def toplink (name dest label)
@@ -2662,50 +2614,6 @@ function vote(node) {
 (def noob (user)
   (and user (< (days-since (uvar user created)) 1)))
 
-
-; ; redefined later
-
-; (= welcome-url* "welcome")
-; (= threads-url idfn)
-
-; (def toprow (user label)
-;   (w/bars 
-;     (when (noob user)
-;       (toplink "welcome" welcome-url* label)) 
-;     (toplink "new" "newest" label)
-;     (when user
-;       (toplink "threads" (threads-url user) label))
-;     (toplink "comments" "newcomments" label)
-;     (toplink "leaders"  "leaders"     label)
-;     (hook 'toprow user label)
-;     (link "submit")
-;     (unless (mem label toplabels*)
-;       (fontcolor white (pr label)))))
-
-; (def toplink (name dest label)
-;   (tag-if (is name label) (span class 'topsel)
-;     (link name dest)))
-
-; (def topright (user whence (o showkarma t))
-;   (when user 
-;     (userlink user user nil)
-;     (when showkarma (pr  "&nbsp;(@(karma user))"))
-;     (pr "&nbsp;|&nbsp;"))
-;   (if user
-;       (do)
-;       ; (rlinkf 'logout (req)
-;       ;   (when-umatch/r user req
-;       ;     (logout-user user)
-;       ;     whence))
-;       (onlink "login"
-;         (login-page 'both nil 
-;                     (list (fn (u ip) 
-;                             (ensure-news-user u)
-;                             (newslog ip u 'top-login))
-;                           whence)))))
-
-; (def noob (user)
-;   (and user (< (days-since (uvar user created)) 1)))
 
 ; Doc
 
@@ -2782,9 +2690,9 @@ first asterisk isn't whitespace.
 
 (def user-name (user subject)
   (if (and (editor user) (ignored subject))
-       (tostring (fontcolor darkred (pr subject)))
+       (fontcolor darkred (pr subject))
       (and (editor user) (< (user-age subject) 1440))
-       (tostring (fontcolor noob-color* (pr subject)))
+       (fontcolor noob-color* (pr subject))
       subject))
 
 
@@ -2797,11 +2705,6 @@ first asterisk isn't whitespace.
   (let here (user-url subject)
     (shortpage user nil nil (+ "Profile: " subject) here
       (pr:profile-form user subject)
-      ; (pr:row:br2)
-      ; (when (some astory:item (uvar subject submitted))
-      ;   (pr:row:underlink "submissions" (submitted-url subject)))
-      ; (when (some acomment:item (uvar subject submitted))
-      ;   (pr:row:underlink "comments" (threads-url subject)))
       (hook 'user user subject))))
 
 
@@ -2869,7 +2772,7 @@ first asterisk isn't whitespace.
 
 
 (def text-age (a)
-  (tostring
+  (w/string
     (if (>= a 1440) (pr (plural (trunc (/ a 1440)) "day")    " ago")
         (>= a   60) (pr (plural (trunc (/ a 60))   "hour")   " ago")
                     (pr (plural (trunc a)          "minute") " ago"))))
