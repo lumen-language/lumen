@@ -78,6 +78,10 @@
       (inc k)))
   k)
 
+(define-global bind-atom (lh rh)
+  (when (atom? lh)
+    `(,lh ,rh)))
+
 (define-global bind-optional (lh rh)
   (when (or (hd? lh 'o)
             (hd? lh 'or)
@@ -94,13 +98,35 @@
                  `(get ,id ',(bias k)))
           (join! bs (bind v x)))))))
 
+(define-global brackets? (x)
+  (hd? x '%brackets))
+
+(define-global bind-brackets (lh rh)
+  (when (brackets? lh)
+    (bind (tl lh) rh)))
+
+(define-global dotted? (l)
+  (get (set-of "&" ".") (at l (- (# l) 2))))
+
+(define-global dotted (l)
+  (when (dotted? l)
+    (join (cut l 0 (- (# l) 2)) (obj rest: (last l)))))
+
+(define-global bind-dotted (lh rh)
+  (when (dotted? lh)
+    (bind (dotted lh) rh)))
+
 (define-global bind (lh rh)
-  (if (atom? lh) `(,lh ,rh)
-    (or (bind-optional lh rh)
-        (bind-destructuring lh rh))))
+  (or (bind-atom lh rh)
+      (bind-brackets lh rh)
+      (bind-dotted lh rh)
+      (bind-optional lh rh)
+      (bind-destructuring lh rh)))
 
 (define-global bind-function (args body)
-  (let args1 ()
+  (let (args1 ()
+        args (if (brackets? args) (tl args) args)
+        args (if (dotted? args) (dotted args) args))
     (define rest ()
       (set (get args1 'rest) true)
       `(unstash (list ,"...")))
