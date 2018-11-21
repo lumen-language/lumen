@@ -472,8 +472,10 @@
 (define-global compile-function (args body
                                       name: name
                                       prefix: prefix
+                                      infix: infix
                                       global: global?
                                       async: async?
+                                      keyword: keyword
                                       generator: generator?)
   (let (id (if name (compile name) "")
         id (if global? (cat "_G." id) id)
@@ -484,13 +486,14 @@
         body (with-indent (compile body stmt: true))
         ind (indentation)
         p (if prefix (cat prefix " ") "")
+        m (if generator? "" (if infix (cat " " infix) ""))
         tr (if (= target* 'js) "" "end")
         async1 (if async? "async " "")
-        func (if generator? "function* " "function "))
+        func (if generator? "function*" (either keyword "function")))
     (if name (cat! tr "\n"))
     (if (= target* 'js)
-        (cat async1 func id args " {\n" body ind "}" tr)
-      (cat p "function " id args "\n" body ind tr))))
+        (cat async1 func id args m " {\n" body ind "}" tr)
+      (cat p "function " id args m "\n" body ind tr))))
 
 (define can-return? (form)
   (and (is? form)
@@ -758,8 +761,10 @@
 (define-special break () stmt: true
   (cat (indentation) "break"))
 
-(define-special %function (args rest: body)
-  (apply compile-function args body))
+(define-special %function (args arrow: arrow? rest: body)
+  (if (and (= target* 'js) arrow?)
+      (apply compile-function args keyword: "" infix: "=>" body)
+    (apply compile-function args body)))
 
 (define-special %global-function (name args rest: body) stmt: true tr: true
   (if (= target* 'lua)

@@ -1,61 +1,61 @@
 var fs = require("fs");
 var child_process = require("child_process");
-var read_file = function (path) {
+var read_file = function(path) {
   return fs.readFileSync(path, "utf8");
 };
-var write_file = function (path, data) {
+var write_file = function(path, data) {
   return fs.writeFileSync(path, data, "utf8");
 };
-var file_exists63 = function (path) {
+var file_exists63 = function(path) {
   return fs.existsSync(path, "utf8") && fs.statSync(path).isFile();
 };
-var directory_exists63 = function (path) {
+var directory_exists63 = function(path) {
   return fs.existsSync(path, "utf8") && fs.statSync(path).isDirectory();
 };
 var path_separator = require("path").sep;
-var path_join = function (a, ..._42args) {
-  return reduce(function (x, y) {
+var path_join = function(a, ..._42args) {
+  return reduce(function(x, y) {
     return x + path_separator + y;
   }, [..._42args], a);
 };
-var get_environment_variable = function (name) {
+var get_environment_variable = function(name) {
   return process.env[name];
 };
-var stdout = function () {
+var stdout = function() {
   return (process || io).stdout;
 };
-var stderr = function () {
+var stderr = function() {
   return (process || io).stderr;
 };
-var write = function (x, out) {
+var write = function(x, out) {
   return (out || stdout()).write(x);
 };
-var exit = function (code) {
+var exit = function(code) {
   return process.exit(code);
 };
 var argv = undefined;
-set_argv = function (l) {
+set_argv = function(l) {
   argv = l;
   return argv;
 };
-get_argv = function () {
+get_argv = function() {
   if (nil63(argv)) {
     set_argv(cut(process.argv, 2));
   }
   return argv;
 };
-var opt63 = function (x) {
+var opt63 = function(x) {
   return string63(x) && char(x, 0) === "-" && !( x === "-");
 };
-parse_positional = function (args, pos) {
+parse_positional = function(args, pos) {
   return cut(args, either(pos, 0), first(opt63, args, pos));
 };
-parse_option = function (args) {
+parse_option = function(args) {
   if (opt63(hd(args))) {
     return [hd(args), parse_positional(args, 1)];
   }
 };
-parse_arguments = function (aliases, argv) {
+parse_arguments = function(aliases, argv) {
   var __l = argv || get_argv();
   var __a = aliases || {};
   var __r17 = parse_positional(__l);
@@ -98,7 +98,7 @@ parse_arguments = function (aliases, argv) {
   set_argv(__r17.rest);
   return __r17;
 };
-arguments = function (aliases, argv) {
+arguments = function(aliases, argv) {
   var __argv = argv || get_argv();
   var __r19 = parse_arguments(__argv, aliases);
   set_argv(__r19.rest);
@@ -107,11 +107,11 @@ arguments = function (aliases, argv) {
     return __r19;
   }
 };
-var reload = function (module) {
+var reload = function(module) {
   delete require.cache[require.resolve(module)];
   return require(module);
 };
-var run = function (command) {
+var run = function(command) {
   return child_process.execSync(command).toString();
 };
 var __e2 = undefined;
