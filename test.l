@@ -2,64 +2,64 @@
 
 (define passed 0)
 (define failed 0)
-(define tests ())
+(define tests [])
 
-(define reader (require 'reader))
-(define compiler (require 'compiler))
+(define reader (require :reader))
+(define compiler (require :compiler))
 
-(define equal? (a b)
+(define equal? [a b]
   (if (atom? a) (= a b)
     (= (str a) (str b))))
 
 (during-compilation
-  (define-macro test (x msg)
+  (define-macro test [x msg]
     `(if (not ,x)
          (do (set failed (+ failed 1))
              (return ,msg))
        (inc passed)))
 
-  (define-macro test= (a b)
+  (define-macro test= [a b]
     (let-unique (x y)
       `(let (,x ,a ,y ,b)
          (when verbose?
-           (print (cat "  " (pp-to-string '(test= ,a ,b)))))
+           (print (cat "  " (pp-to-string (quote (test= ,a ,b))))))
          (test (equal? ,x ,y)
                (cat "failed: expected " (str ,x) ", was " (str ,y))))))
 
-  (define-macro define-test (name rest: body)
-    `(add tests (list ',name (fn (verbose?) ,@body)))))
+  (define-macro define-test (name :rest body)
+    `(add tests (list (quote ,name) (fn (verbose?) ,@body)))))
 
 (define main (argv)
   (let (args (parse-arguments
-               (obj l: 'list
-                    v: 'verbose)
+               (obj :l :list
+                    :v :verbose)
                argv)
         names (keep string? args)
         names (unless (none? names) names)
         cmds (keep obj? args)
         verbose? false)
     (step (a val) cmds
-      (if (= a 'list)
+      (if (= a :list)
           (do (step (name) tests
                 (print name))
               (return tests))
-          (= a 'verbose)
+          (= a :verbose)
           (set verbose? true)))
     (set passed 0 failed 0)
     (step (name f) tests
       (when (or (nil? names) (in? name names))
         (when verbose? (print (cat "(" name)))
-        (let result (f verbose?)
+        (let [result (f verbose?)]
           (when (string? result)
             (if verbose?
-                (print (cat " error: " (escape result)))
+                (print (cat " :error " (escape result)))
               (print (cat " " name " " result)))))
-        (when verbose? (print (cat " passed: " passed " failed: " failed ")")))))
+        (when verbose? (print (cat " :passed " passed " :failed " failed ")")))))
     (unless verbose?
       (print (cat " " passed " passed, " failed " failed")))))
 
 (define-test reader
-  (let read (reader .read-string)
+  (let [read (reader .read-string)]
     (test= nil (read ""))
     (test= "nil" (read "nil"))
     (test= 17 (read "17"))
@@ -71,27 +71,27 @@
     (test= "-0Xg" (read "-0Xg"))
     (test= true (read "true"))
     (test= (not true) (read "false"))
-    (test= 'hi (read "hi"))
-    (test= '"hi" (read "\"hi\""))
+    (test= :hi (read "hi"))
+    (test= (quote "hi") (read "\"hi\""))
     (test= "|hi|" (read "|hi|"))
-    (test= '(1 2) (read "(1 2)"))
-    (test= '(1 (a)) (read "(1 (a))"))
-    (test= '(quote a) (read "'a"))
-    (test= '(quasiquote a) (read "`a"))
-    (test= '(quasiquote (unquote a)) (read "`,a"))
-    (test= '(quasiquote (unquote-splicing a)) (read "`,@a"))
-    (test= 2 (# (read "(1 2 a: 7)")))
-    (test= 7 (get (read "(1 2 a: 7)") 'a))
-    (test= true (get (read "(a: true)") 'a))
+    (test= `(1 2) (read "(1 2)"))
+    (test= `(1 (a)) (read "(1 (a))"))
+    (test= `(quote a) (read "'a"))
+    (test= `(quasiquote a) (read "`a"))
+    (test= `(quasiquote (unquote a)) (read "`,a"))
+    (test= `(quasiquote (unquote-splicing a)) (read "`,@a"))
+    (test= 2 (len (read "(1 2 :a 7)")))
+    (test= 7 (get (read "(1 2 :a 7)") :a))
+    (test= true (get (read "(:a true)") :a))
     (test= 1 (- -1))
     (test= "0?" (read "0?"))
     (test= "0!" (read "0!"))
     (test= "0." (read "0."))))
 
 (define-test read-more
-  (let read (reader .read-string)
+  (let [read (reader .read-string)]
     (test= 17 (read "17" true))
-    (let more ()
+    (let [more ()]
       (test= more (read "(open" more))
       (test= more (read "\"unterminated " more))
       (test= more (read "|identifier" more))
@@ -102,7 +102,7 @@
       (test= more (read "'\"boz" more)))
     (let ((ok e) (guard (read "(open")))
       (test= false ok)
-      (test= "Expected ) at 5" (get e 'message)))))
+      (test= "Expected ) at 5" (get e :message)))))
 
 (define-test nil?
   (test= true (nil? nil))
@@ -146,14 +146,14 @@
   (test= false (and true true false)))
 
 (define-test short
-  (test= true (or true (error 'bad)))
-  (test= false (and false (error 'bad)))
-  (let a true
+  (test= true (or true (error :bad)))
+  (test= false (and false (error :bad)))
+  (let [a true]
     (test= true (or true (do (set a false) false)))
     (test= true a)
     (test= false (and false (do (set a false) true)))
     (test= true a))
-  (let b true
+  (let [b true]
     (test= true (or (do (set b false) false) (do (set b true) b)))
     (test= true b)
     (test= true (or (do (set b true) b) (do (set b true) b)))
@@ -165,18 +165,18 @@
 
 (define-test numeric
   (test= 4 (+ 2 2))
-  (test= 0 (apply * '(0 0)))
-  (test= 4 (apply + '(2 2)))
+  (test= 0 (apply * `(0 0)))
+  (test= 4 (apply + `(2 2)))
   (test= 0 (apply + ()))
   (test= 18 18.00)
   (test= 4 (- 7 3))
-  (test= 4 (apply - '(7 3)))
+  (test= 4 (apply - `(7 3)))
   (test= 0 (apply - ()))
   (test= 5.0 (/ 10 2))
-  (test= 5.0 (apply / '(10 2)))
+  (test= 5.0 (apply / `(10 2)))
   (test= 1 (apply / ()))
   (test= 6 (* 2 3.00))
-  (test= 6 (apply * '(2 3.00)))
+  (test= 6 (apply * `(2 3.00)))
   (test= 1 (apply * ()))
   (test= true (> 2.01 2))
   (test= true (>= 5.0 5.0))
@@ -190,7 +190,7 @@
 (define-test math
   (test= 3 (max 1 3))
   (test= 2 (min 2 7))
-  (let n (random)
+  (let [n (random)]
     (test= true (and (> n 0) (< n 1))))
   (test= 4 (floor 4.78)))
 
@@ -201,7 +201,7 @@
   (test= 10 (+ (/ 4 2) 8)))
 
 (define-test infix
-  (let (l '(1 1 2 3)
+  (let (l `(1 1 2 3)
         (a b c d) l)
     (test= true (apply <= l))
     (test= false (apply < l))
@@ -219,82 +219,82 @@
 
 (define-test standalone
   (test= 10 (do (+ illegal) 10))
-  (let x nil
+  (let [x nil]
     (test= 9 (do (list nothing fooey (set x 10)) 9))
     (test= 10 x))
   (test= 12 (do (get but zz) 12))
-  (let y nil
-    (let ignore (do (%literal y " = 10;") 42)
+  (let [y nil]
+    (let [ignore (do (%literal y " = 10;") 42)]
       (test= 10 y))
-    (let l (obj a: (obj b: 42 f: (fn () (set y 42))))
-      (get (get l 'a) 'b)
-      (test= (get (get l 'a) 'b) 42)
+    (let [l (obj :a (obj :b 42 :f (fn () (set y 42))))]
+      (get (get l :a) :b)
+      (test= (get (get l :a) :b) 42)
       (l .a .b)
       (test= (l .a .b) 42)
       (l .a (.f))
       (test= y 42))))
 
 (define-test string
-  (test= 3 (# "foo"))
-  (test= 3 (# "\"a\""))
-  (test= 'a "a")
+  (test= 3 (len "foo"))
+  (test= 3 (len "\"a\""))
+  (test= :a "a")
   (test= "a" (char "bar" 1))
-  (let s "a
-b"
-    (test= 3 (# s)))
-  (let s "a
+  (let [s "a
+b"]
+    (test= 3 (len s)))
+  (let [s "a
 b
-c"
-    (test= 5 (# s)))
-  (test= 3 (# "a\nb"))
-  (test= 3 (# "a\\b"))
+c"]
+    (test= 5 (len s)))
+  (test= 3 (len "a\nb"))
+  (test= 3 (len "a\\b"))
   (test= "x3" (cat "x" (+ 1 2))))
 
 (define-test quote
   (test= 7 (quote 7))
   (test= true (quote true))
   (test= false (quote false))
-  (test= (quote a) 'a)
+  (test= (quote a) :a)
   (test= (quote (quote a)) ''a)
   (test= "\"a\"" '"a")
   (test= "\"\\n\"" (quote "\n"))
   (test= "\"\\r\\n\"" (quote "\r\n"))
   (test= "\"\\\\\"" (quote "\\"))
   (test= '(quote "a") ''"a")
-  (test= "|(|" '|(|)
-  (test= (quote unquote) 'unquote)
+;  (test= "|(|" '|(|)
+  (test= (quote unquote) :unquote)
   (test= (quote (unquote)) '(unquote))
   (test= (quote (unquote a)) '(unquote a))
-  (let x '(10 20 a: 33 1a: 44)
+  (let [x '(10 20 :a 33 :1a 44)]
     (test= 20 (at x 1))
-    (test= 33 (get x 'a))
-    (test= 44 (get x '1a))))
+    (test= 33 (get x :a))
+    (test= 44 (get x :1a))))
 
 (define-test list
-  (test= '() (list))
+  (test= [] (list))
   (test= () (list))
-  (test= '(a) (list 'a))
-  (test= '(a) (quote (a)))
-  (test= '(()) (list (list)))
-  (test= 0 (# (list)))
-  (test= 2 (# (list 1 2)))
-  (test= '(1 2 3) (list 1 2 3))
-  (test= 17 (get (list foo: 17) 'foo))
-  (test= 17 (get (list 1 foo: 17) 'foo))
-  (test= true (get (list foo: true) 'foo))
-  (test= true (get '(foo: true) 'foo))
-  (test= true (get (hd '((foo: true))) 'foo))
-  (test= '(a: a) (list a: 'a))
-  (test= '(b: false) (list b: false))
-  (test= '(c: 0) (list c: 0)))
+  (test= [:a] (list :a))
+  (test= `(a) (quote (a)))
+  (test= `(()) (list (list)))
+  (test= 0 (len (list)))
+  (test= 2 (len (list 1 2)))
+  (test= [1 2 3] (list 1 2 3))
+  (test= 17 (get (list :foo 17) :foo))
+  (test= 17 (get (list 1 :foo 17) :foo))
+  (test= true (get (list :foo true) :foo))
+  (test= true (get `(:foo true) :foo))
+  (test= true (get (hd `((:foo true))) :foo))
+  (test= `(:a a) (list :a :a))
+  (test= `(:b false) (list :b false))
+  (test= `(:c 0) (list :c 0)))
 
 (define-test quasiquote
   (test= (quote a) (quasiquote a))
-  (test= 'a `a)
+  (test= :a `a)
   (test= () `())
   (test= 2 `,2)
   (test= nil `(,@nil))
-  (let a 42
+  (let [a 42]
     (test= 42 `,a)
     (test= 42 (quasiquote (unquote a)))
     (test= '(quasiquote (unquote a)) ``,a)
@@ -303,12 +303,12 @@ c"
     (test= '(quasiquote (quasiquote (unquote (unquote 42)))) ```,,,a)
     (test= '(a (quasiquote (b (unquote c)))) `(a `(b ,c)))
     (test= '(a (quasiquote (b (unquote 42)))) `(a `(b ,,a)))
-    (let b 'c
+    (let [b :c]
       (test= '(quote c) `',b)
       (test= '(42) `(,a))
       (test= '((42)) `((,a)))
       (test= '(41 (42)) `(41 (,a)))))
-  (let c '(1 2 3)
+  (let [c '(1 2 3)]
     (test= '((1 2 3)) `(,c))
     (test= '(1 2 3) `(,@c))
     (test= '(0 1 2 3) `(0 ,@c))
@@ -316,66 +316,66 @@ c"
     (test= '(0 (1 2 3) 4) `(0 (,@c) 4))
     (test= '(1 2 3 1 2 3) `(,@c ,@c))
     (test= '((1 2 3) 1 2 3) `((,@c) ,@c)))
-  (let a 42
+  (let [a 42]
     (test= '(quasiquote ((unquote-splicing (list a)))) ``(,@(list a)))
     (test= '(quasiquote ((unquote-splicing (list 42)))) ``(,@(list ,a))))
-  (test= true (get `(foo: true) 'foo))
+  (test= true (get `(:foo true) :foo))
   (let (a 17
         b '(1 2)
-        c (obj a: 10)
-        d (list a: 10))
-    (test= 17 (get `(foo: ,a) 'foo))
-    (test= 2 (# `(foo: ,a ,@b)))
-    (test= 17 (get `(foo: ,@a) 'foo))
-    (test= '(1 a: 10) `(1 ,@c))
-    (test= '(1 a: 10) `(1 ,@d))
-    (test= true (get (hd `((foo: true))) 'foo))
-    (test= true (get (hd `(,(list foo: true))) 'foo))
-    (test= true (get `(,@(list foo: true)) 'foo))
-    (test= true (get `(1 2 3 ,@'(foo: true)) 'foo)))
+        c (obj :a 10)
+        d (list :a 10))
+    (test= 17 (get `(:foo ,a) :foo))
+    (test= 2 (len `(:foo ,a ,@b)))
+    (test= 17 (get `(:foo ,@a) :foo))
+    (test= '(1 :a 10) `(1 ,@c))
+    (test= '(1 :a 10) `(1 ,@d))
+    (test= true (get (hd `((:foo true))) :foo))
+    (test= true (get (hd `(,(list :foo true))) :foo))
+    (test= true (get `(,@(list :foo true)) :foo))
+    (test= true (get `(1 2 3 ,@'(:foo true)) :foo)))
   (let-macro ((a keys `(obj ,@keys)))
-    (test= true (get (a foo: true) 'foo))
-    (test= 17 (get (a bar: 17) 'bar)))
-  (let-macro ((a () `(obj baz: (fn () 17))))
-    (test= 17 ((get (a) 'baz)))))
+    (test= true (get (a :foo true) :foo))
+    (test= 17 (get (a :bar 17) :bar)))
+  (let-macro ((a () `(obj :baz (fn () 17))))
+    (test= 17 ((get (a) :baz)))))
 
 (define-test quasiexpand
-  (test= 'a (macroexpand 'a))
-  (test= '(17) (macroexpand '(17)))
-  (test= '(1 z) (macroexpand '(1 z)))
-  (test= '(%array 1 "z") (macroexpand '`(1 z)))
-  (test= '(%array 1 z) (macroexpand '`(,1 ,z)))
-  (test= 'z (macroexpand '`(,@z)))
-  (test= '(join (%array 1) z) (macroexpand '`(,1 ,@z)))
-  (test= '(join (%array 1) x y) (macroexpand '`(,1 ,@x ,@y)))
-  (test= '(join (%array 1) z (%array 2)) (macroexpand '`(,1 ,@z ,2)))
-  (test= '(join (%array 1) z (%array "a")) (macroexpand '`(,1 ,@z a)))
-  (test= '"x" (macroexpand '`x))
-  (test= '(%array "quasiquote" "x") (macroexpand '``x))
-  (test= '(%array "quasiquote" (%array "quasiquote" "x")) (macroexpand '```x))
-  (test= 'x (macroexpand '`,x))
-  (test= '(%array "quote" x) (macroexpand '`',x))
-  (test= '(%array "quasiquote" (%array "x")) (macroexpand '``(x)))
-  (test= '(%array "quasiquote" (%array "unquote" "a")) (macroexpand '``,a))
-  (test= '(%array "quasiquote" (%array (%array "unquote" "x")))
-         (macroexpand '``(,x))))
+  (test= :a (macroexpand :a))
+  (test= `(17) (macroexpand `(17)))
+  (test= `(1 z) (macroexpand `(1 z)))
+  (test= `(%array 1 "z") (macroexpand (quote `(1 z))))
+  (test= `(%array 1 z) (macroexpand (quote `(,1 ,z))))
+  (test= `z (macroexpand (quote `(,@z))))
+  (test= (quote (join (%array 1) z)) (macroexpand (quote `(,1 ,@z))))
+  (test= (quote (join (%array 1) x y)) (macroexpand '`(,1 ,@x ,@y)))
+  (test= (quote (join (%array 1) z (%array 2))) (macroexpand (quote `(,1 ,@z ,2))))
+  (test= (quote (join (%array 1) z (%array "a"))) (macroexpand (quote `(,1 ,@z a))))
+  (test= (quote "x") (macroexpand (quote `x)))
+  (test= (quote (%array "quasiquote" "x")) (macroexpand (quote ``x)))
+  (test= (quote (%array "quasiquote" (%array "quasiquote" "x"))) (macroexpand (quote ```x)))
+  (test= (quote x) (macroexpand (quote `,x)))
+  (test= (quote (%array "quote" x)) (macroexpand (quote (`quote ,x))))
+  (test= (quote (%array "quasiquote" (%array "x"))) (macroexpand (quote ``(x))))
+  (test= (quote (%array "quasiquote" (%array "unquote" "a"))) (macroexpand (quote ``,a)))
+  (test= (quote (%array "quasiquote" (%array (%array "unquote" "x"))))
+         (macroexpand (quote ``(,x)))))
 
 (define-test calls
   (let (f (fn () (values 42 true))
         l (list f)
-        t (obj f: f))
+        t (obj :f f))
     (f)
     ((fn ()
       (test= 42 (f))
-      (test= '(42 true) (results (f)))))
+      (test= `(42 true) (results (f)))))
     (test= 42 ((at l 0)))
-    (test= 42 ((get t 'f)))
+    (test= 42 ((get t :f)))
     (test= nil ((fn () (return))))
     (test= 10 ((fn (x) (- x 2)) 12))))
 
 (define-test id
   (let (a 10
-        b (obj x: 20)
+        b (obj :x 20)
         f (fn () 30))
     (test= 10 a)
     (test= 10 (%literal a))
@@ -400,10 +400,10 @@ c"
   (test= 2 (set yy 1 zz 2))
   (test= 1 yy)
   (test= 2 zz)
-  (let a 42
-    (set a 'bar)
-    (test= 'bar a)
-    (let x (set a 10)
+  (let [a 42]
+    (set a :bar)
+    (test= :bar a)
+    (let [x (set a 10)]
       (test= 10 x)
       (test= 10 a))
     (set a false)
@@ -412,23 +412,23 @@ c"
     (test= nil a)))
 
 (define-test wipe
-  (let x '(a: true b: true c: true)
-    (wipe (get x 'a))
-    (test= nil (get x 'a))
-    (test= true (get x 'b))
-    (wipe (get x 'c))
-    (test= nil (get x 'c))
-    (test= true (get x 'b))
-    (wipe (get x 'b))
-    (test= nil (get x 'b))
+  (let [x {:a true :b true :c true}]
+    (wipe (get x :a))
+    (test= nil (get x :a))
+    (test= true (get x :b))
+    (wipe (get x :c))
+    (test= nil (get x :c))
+    (test= true (get x :b))
+    (wipe (get x :b))
+    (test= nil (get x :b))
     (test= () x)))
 
 (define-test do
-  (let a 17
+  (let [a 17]
     (do (set a 10)
         (test= 10 a))
     (test= 10 (do a))
-    (let b (do (set a 2) (+ a 5))
+    (let [b (do (set a 2) (+ a 5))]
       (test= a 2)
       (test= b 7))
     (do (set a 10)
@@ -436,14 +436,14 @@ c"
             (test= 20 a)))
     (test= 20 (do (set a 10)
                   (do (set a 20) a))))
-  (test= '(%do) (expand '(do))))
+  (test= `(%do) (expand `(do))))
 
 (define-test if
-  (test= 'a (macroexpand '(if a)))
-  (test= '(%if a b) (macroexpand '(if a b)))
-  (test= '(%if a b c) (macroexpand '(if a b c)))
-  (test= '(%if a b (%if c d)) (macroexpand '(if a b c d)))
-  (test= '(%if a b (%if c d e)) (macroexpand '(if a b c d e)))
+  (test= `a (macroexpand `(if a)))
+  (test= `(%if a b) (macroexpand `(if a b)))
+  (test= `(%if a b c) (macroexpand `(if a b c)))
+  (test= `(%if a b (%if c d)) (macroexpand `(if a b c d)))
+  (test= `(%if a b (%if c d e)) (macroexpand `(if a b c d e)))
   (if true
       (test= true true)
     (test= true false))
@@ -460,39 +460,39 @@ c"
     (test= true true))
   (test= false (if false true false))
   (test= 1 (if true 1 2))
-  (test= 1 (if (let a 10 a) 1 2))
+  (test= 1 (if (let [a 10] a) 1 2))
   (test= 1 (if true (with a 1) 2))
-  (test= 1 (if false 2 (let a 1 a)))
+  (test= 1 (if false 2 (let [a 1] a)))
   (test= 1 (if false 2 true (with a 1)))
-  (test= 1 (if false 2 false 3 (let a 1 a)))
+  (test= 1 (if false 2 false 3 (let [a 1] a)))
   (test= 0 (if false 1 0))
   (for i 2
     (test= (if (< i 1) true)
            (if (< i 1) true nil))))
 
 (define-test case
-  (let x 10
+  (let [x 10]
     (test= 2 (case x 9 9 10 2 4))
     (test= 2 (case x 9 9 (10) 2 4))
     (test= 2 (case x 9 9 (10 20) 2 4)))
-  (let x 'z
+  (let [x :z]
     (test= 9 (case x z 9 10))
     (test= 7 (case x a 1 b 2 7))
     (test= 2 (case x a 1 (z) 2 7))
     (test= 2 (case x a 1 (b z) 2 7)))
   (let (n 0 f (fn () (inc n))) ; no multiple eval
-    (test= 'b (case (f) 0 'a 1 'b 'c)))
-  (test= 'b ((fn () (case 2 0 (do) 1 'a 2 'b)))))
+    (test= :b (case (f) 0 :a 1 :b :c)))
+  (test= :b ((fn () (case 2 0 (do) 1 :a 2 :b)))))
 
 (define-test while
-  (let i 0
+  (let [i 0]
     (while (< i 5)
       (if (= i 3) (break) (inc i)))
     (test= 3 i)
     (while (< i 10)
       (inc i))
     (test= 10 i)
-    (let a (while (< i 15) (inc i))
+    (let [a (while (< i 15) (inc i))]
       (test= nil a)
       (test= 15 i))
     (let b
@@ -504,64 +504,63 @@ c"
       (test= 19 i))))
 
 (define-test for
-  (let l ()
+  (let [l ()]
     (for i 5
       (add l i))
-    (test= '(0 1 2 3 4) l))
-  (test= '(0 1) (with l () (for i 2 (add l i))))
-  (let (n 0 l '(a b c d e))
-    (for i (# l)
+    (test= [0 1 2 3 4] l))
+  (test= [0 1] (with l () (for i 2 (add l i))))
+  (let [n 0 l [:a :b :c :d :e]]
+    (for [i (len l)]
       (inc n i)
-      (set l '(a b c)))
+      (set l [:a :b :c]))
     (test= 3 n)))
 
 (define-test table
-  (test= 10 (get (obj a: 10) 'a))
-  (test= true (get (obj a: true) 'a)))
+  (test= 10 (get (obj :a 10) :a))
+  (test= true (get (obj :a true) :a)))
 
 (define-test empty
-  (test= true (empty? ()))
-  (test= true (empty? (obj)))
-  (test= false (empty? '(1)))
-  (test= false (empty? '(a: true)))
-  (test= false (empty? (obj a: true)))
-  (test= false (empty? '(b: false))))
+  (test= true (empty? []))
+  (test= true (empty? {}))
+  (test= false (empty? [1]))
+  (test= false (empty? {:a true}))
+  (test= false (empty? {:b false})))
 
 (define-test at
-  (let l '(a b c d)
-    (test= 'a (at l 0))
-    (test= 'b (at l 1))
+  (let [l [:a :b :c :d]]
+    (test= :a (at l 0))
+    (test= :b (at l 1))
     (set (at l 0) 9)
     (test= 9 (at l 0))
     (set (at l 3) 10)
     (test= 10 (at l 3))))
 
 (define-test get-set
-  (let t (obj)
-    (set (get t 'foo) 'bar)
-    (test= 'bar (get t 'foo))
-    (test= 'bar (get t "foo"))
-    (let k 'foo
-      (test= 'bar (get t k)))
-    (test= 'bar (get t (cat "f" "oo"))))
+  (let [t (obj)]
+    (set (get t :foo) :bar)
+    (test= :bar (get t :foo))
+    (test= :bar (get t "foo"))
+    (let [k :foo]
+      (test= :bar (get t k)))
+    (test= :bar (get t (cat "f" "oo"))))
   (let (t1 (obj) t2 (obj))
-    (set (get (or nil t1 t2) 'foo) 'bar)
-    (test= 'bar (get t1 'foo))
-    (test= nil (get t2 'foo))))
+    (set (get (or nil t1 t2) :foo) :bar)
+    (test= :bar (get t1 :foo))
+    (test= nil (get t2 :foo))))
 
 (define-test each
-  (let t '(1 2 3 a: true b: false)
-    (let (a 0 b 0)
+  (let [t `(1 2 3 :a true :b false)]
+    (let [a 0 b 0]
       (each (k v) t
         (if (number? k)
             (inc a)
           (inc b)))
       (test= 3 a)
       (test= 2 b))
-    (let a 0
+    (let [a 0]
       (each x t (inc a))
       (test= 5 a)))
-  (let t '((1) (2) b: (3))
+  (let [t `((1) (2) :b (3))]
     (each x t
       (test= false (atom? x)))
     (each (x) t
@@ -570,42 +569,42 @@ c"
       (test= true (number? x)))))
 
 (define-test step
-  (let n 0
-    (step x '(1 2 3) (inc n x))
+  (let [n 0]
+    (step x `(1 2 3) (inc n x))
     (test= 6 n))
-  (let n 0
-    (step (x y) '((1 2) (3 4))
+  (let [n 0]
+    (step (x y) `((1 2) (3 4))
       (inc n (+ x y)))
     (test= 10 n))
-  (let xs ()
-    (let l (list (obj a: 1 b: 2) (obj a: 2 b: 4))
-      (step (a: a b: b) l
+  (let [xs ()]
+    (let [l (list (obj :a 1 :b 2) (obj :a 2 :b 4))]
+      (step (:a a :b b) l
         (add xs (+ a b))))
-    (test= '(3 6) xs))
-  (let l '(a b)
+    (test= `(3 6) xs))
+  (let [l `(a b)]
     (step x l
-      (if (= x 'a) (add l 'c)
-          (= x 'c) (add l 'd)))
-    (test= '(a b c d) l)))
+      (if (= x `a) (add l `c)
+          (= x `c) (add l `d)))
+    (test= `(a b c d) l)))
 
 (define-test inc
-  (let x 2 (inc x) (test= 3 x))
-  (let x 2 (test= 3 (inc x)))
-  (let x 2 (test= 4 (inc x 2)))
-  (let x 2 (test= 2 (inc x 0))))
+  (let [x 2] (inc x) (test= 3 x))
+  (let [x 2] (test= 3 (inc x)))
+  (let [x 2] (test= 4 (inc x 2)))
+  (let [x 2] (test= 2 (inc x 0))))
 
 (define-test dec
-  (let x 2 (dec x) (test= 1 x))
-  (let x 2 (test= 1 (dec x)))
-  (let x 4 (test= 2 (dec x 2)))
-  (let x 2 (test= 2 (dec x 0))))
+  (let [x 2] (dec x) (test= 1 x))
+  (let [x 2] (test= 1 (dec x)))
+  (let [x 4] (test= 2 (dec x 2)))
+  (let [x 2] (test= 2 (dec x 0))))
 
 (define-test fn
-  (let f (fn (n) (+ n 10))
+  (let [f (fn (n) (+ n 10))]
     (test= 20 (f 10))
     (test= 30 (f 20))
     (test= 40 ((fn (n) (+ n 10)) 30))
-    (test= '(2 3 4) (map (fn (x) (+ x 1)) '(1 2 3)))))
+    (test= `(2 3 4) (map (fn (x) (+ x 1)) `(1 2 3)))))
 
 (define-test define
   (define x 20)
@@ -624,14 +623,14 @@ c"
   (test= 42 (f)))
 
 (define-test return
-  (let a ((fn () 17))
+  (let [a ((fn () 17))]
     (test= 17 a))
-  (let a ((fn () (if true 10 20)))
+  (let [a ((fn () (if true 10 20)))]
     (test= 10 a))
-  (let a ((fn () (while false (blah))))
+  (let [a ((fn () (while false (blah))))]
     (test= nil a))
-  (let a 11
-    (let b ((fn () (inc a)))
+  (let [a 11]
+    (let [b ((fn () (inc a)))]
       (test= 12 b)
       (test= 12 a)))
   (test= 1 ((fn () (return (if true (return 1) 2))))))
@@ -640,21 +639,21 @@ c"
   (let-macro ((guard1 (x)
                 (let-unique (ok v)
                   `(let ((,ok ,v) (guard ,x))
-                     (list ,ok (if ,ok ,v (get ,v 'message)))))))
+                     (list ,ok (if ,ok ,v (get ,v :message)))))))
     (test= (list false "") (guard1 (error)))
     (test= (list false "") (guard1 (error nil)))
     (test= (list false "false") (guard1 (error false)))
     (test= (list false "true") (guard1 (error true)))
     (test= (list false "42") (guard1 (error 42)))
-    (test= '(true 42) (guard1 42))
-    (test= '(false foo) (guard1 (error "foo")))
-    (test= '(false foo) (guard1 (do (error "foo") (error "baz"))))
-    (test= '(false baz) (guard1 (do (guard1 (error "foo")) (error "baz"))))
-    (test= '(true 42) (guard1 (if true 42 (error "baz"))))
-    (test= '(false baz) (guard1 (if false 42 (error "baz"))))))
+    (test= `(true 42) (guard1 42))
+    (test= `(false foo) (guard1 (error "foo")))
+    (test= `(false foo) (guard1 (do (error "foo") (error "baz"))))
+    (test= `(false baz) (guard1 (do (guard1 (error "foo")) (error "baz"))))
+    (test= `(true 42) (guard1 (if true 42 (error "baz"))))
+    (test= `(false baz) (guard1 (if false 42 (error "baz"))))))
 
 (define-test let
-  (let a 10
+  (let [a 10]
     (test= 10 a))
   (let (a 10)
     (test= 10 a))
@@ -696,22 +695,22 @@ c"
        (test= 21 zz))
      (test= 20 zz))
    20)
-  (let q 9
+  (let [q 9]
     ((fn ()
-       (let q 10
+       (let [q 10]
          (test= 10 q))
        (test= 9 q))))
   (test= 0 (+ (abs -1)
-              (let abs (fn (x) x)
+              (let [abs (fn (x) x)]
                 (abs -1)))))
 
 (define-test with
   (test= 10 (with x 9 (inc x))))
 
 (define-test let-when
-  (test= nil (let-when frips (= 'a 'b) 19))
+  (test= nil (let-when frips (= :a :b) 19))
   (test= 19 (let-when frips 20 (- frips 1)))
-  (test= 20 (let-when (a b) '(19 20) b))
+  (test= 20 (let-when (a b) [19 20] b))
   (test= nil (let-when (a b) nil b))
   (test= 123 (let-when a 0 (+ a 123))))
 
@@ -720,7 +719,7 @@ c"
 
 (let (zzop 10
       zzap (+ zzop 10)
-      (zza zzb) '(1 2 3 a: 10 b: 20))
+      (zza zzb) `(1 2 3 :a 10 :b 20))
   (define-test let-toplevel1
     (test= 10 zzop)
     (test= 20 zzap)
@@ -732,12 +731,12 @@ c"
   (test= 100 zzap))
 
 (define-test reserved
-  (let (end 'zz
-        try 'yy
+  (let (end :zz
+        try :yy
         return 99)
-    (test= 'zz end)
-    (test= 'yy try)
-    (test= '99 return))
+    (test= :zz end)
+    (test= :yy try)
+    (test= :99 return))
   (define else (if end return)
     (return (+ if end return)))
   (test= 6 (else 1 2 3))
@@ -746,44 +745,44 @@ c"
   (test= 6 (1+ 5)))
 
 (define-test destructuring
-  (let ((a b c) '(1 2 3))
+  (let ((a b c) `(1 2 3))
     (test= 1 a)
     (test= 2 b)
     (test= 3 c))
-  (let ((w (x (y) z)) '(1 (2 (3) 4)))
+  (let ((w (x (y) z)) `(1 (2 (3) 4)))
     (test= 1 w)
     (test= 2 x)
     (test= 3 y)
     (test= 4 z))
-  (let ((a b rest: c) '(1 2 3 4))
-    (test= '(3 4) c))
-  (let ((w (x rest: y) rest: z) '(1 (2 3 4) 5 6 7))
-    (test= '(3 4) y)
-    (test= '(5 6 7) z))
-  (let ((foo: foo) (obj foo: 99))
+  (let ((a b :rest c) `(1 2 3 4))
+    (test= `(3 4) c))
+  (let ((w (x :rest y) :rest z) `(1 (2 3 4) 5 6 7))
+    (test= `(3 4) y)
+    (test= `(5 6 7) z))
+  (let ((:foo foo) (obj :foo 99))
     (test= 99 foo))
-  (let ((foo: foo) (list foo: 99))
+  (let ((:foo foo) (list :foo 99))
     (test= 99 foo))
-  (let ((foo: a) (obj foo: 99))
+  (let ((:foo a) (obj :foo 99))
     (test= 99 a))
-  (let ((foo: (a b)) (obj foo: '(98 99)))
+  (let ((:foo (a b)) (obj :foo `(98 99)))
     (test= 98 a)
     (test= 99 b))
-  (let ((foo: foo bar: (baz: baz))
-        (obj foo: 42 bar: '(99 baz: true)))
+  (let ((:foo foo :bar (:baz baz))
+        (obj :foo 42 :bar `(99 :baz true)))
     (test= 42 foo)
     (test= true baz))
-  (let ((a (b foo: foo) bar: bar)
-        (list 10 (list 20 foo: 17) bar: '(1 2 3)))
+  (let ((a (b :foo foo) :bar bar)
+        (list 10 (list 20 :foo 17) :bar `(1 2 3)))
     (test= 10 a)
     (test= 20 b)
     (test= 17 foo)
-    (test= '(1 2 3) bar))
-  (let yy (list 1 2 3)
-    (let ((xx yy rest: zz) yy)
+    (test= `(1 2 3) bar))
+  (let [yy (list 1 2 3)]
+    (let ((xx yy :rest zz) yy)
       (test= 1 xx)
       (test= 2 yy)
-      (test= '(3) zz))))
+      (test= `(3) zz))))
 
 (define-test let-macro
   (let-macro ((a () 17)
@@ -832,33 +831,33 @@ c"
     (test= 2 (a))))
 
 (define-test macros-and-let
-  (let a 10
+  (let [a 10]
     (test= a 10)
     (let-macro ((a () 12))
       (test= 12 (a)))
     (test= a 10))
-  (let b 20
+  (let [b 20]
     (test= b 20)
     (let-symbol (b 22)
       (test= 22 b))
     (test= b 20))
   (let-macro ((c () 30))
     (test= 30 (c))
-    (let c 32
+    (let [c 32]
       (test= 32 c))
     (test= 30 (c)))
   (let-symbol (d 40)
     (test= 40 d)
-    (let d 42
+    (let [d 42]
       (test= 42 d))
     (test= 40 d)))
 
 (define-test let-unique
   (let-unique (ham chap)
-    (test= '__ham2 ham)
-    (test= '__chap1 chap)
+    (test= :__ham2 ham)
+    (test= :__chap1 chap)
     (let-unique (ham)
-      (test= '__ham3 ham))))
+      (test= :__ham3 ham))))
 
 (define-test literals
   (test= true true)
@@ -871,84 +870,84 @@ c"
   (test= true (nan? (* nan 20)))
   (test= -inf (- inf))
   (test= inf (- -inf))
-  (let (Inf 1 NaN 2 -Inf 'a -NaN 'b)
+  (let (Inf 1 NaN 2 -Inf :a -NaN :b)
     (test= Inf 1)
     (test= NaN 2)
-    (test= -Inf 'a)
-    (test= -NaN 'b)))
+    (test= -Inf :a)
+    (test= -NaN :b)))
 
 (define-test add
-  (let l ()
-    (add l 'a)
-    (add l 'b)
-    (add l 'c)
-    (test= '(a b c) l)
-    (test= nil (add () 'a))))
+  (let [l ()]
+    (add l :a)
+    (add l :b)
+    (add l :c)
+    (test= `(a b c) l)
+    (test= nil (add () :a))))
 
 (define-test drop
-  (let l '(a b c)
-    (test= 'c (drop l))
-    (test= 'b (drop l))
-    (test= 'a (drop l))
+  (let [l `(a b c)]
+    (test= `c (drop l))
+    (test= `b (drop l))
+    (test= `a (drop l))
     (test= nil (drop l))))
 
 (define-test last
-  (test= 3 (last '(1 2 3)))
+  (test= 3 (last `(1 2 3)))
   (test= nil (last ()))
-  (test= 'c (last '(a b c))))
+  (test= `c (last `(a b c))))
 
 (define-test join
-  (test= '(1 2 3) (join '(1 2) '(3)))
-  (test= '(1 2) (join () '(1 2)))
+  (test= `(1 2 3) (join `(1 2) `(3)))
+  (test= `(1 2) (join () `(1 2)))
   (test= () (join () ()))
   (test= () (join nil nil))
   (test= () (join nil ()))
   (test= () (join))
   (test= () (join ()))
-  (test= '(1) (join '(1) nil))
-  (test= '(a) (join '(a) ()))
-  (test= '(a) (join nil '(a)))
-  (test= '(a) (join '(a)))
-  (test= '(a b: true) (join '(a) (obj b: true)))
-  (test= '(a b b: true) (join '(a) '(b b: true)))
-  (test= '(a b: 10) (join '(a b: true) (obj b: 10)))
-  (test= '(b: 10) (join (obj b: true) '(b: 10)))
-  (let t (join '(a b: 1) '(b c: 2))
-    (test= 1 (get t 'b))
-    (test= 2 (get t 'c))
-    (test= 'b (at t 1))))
+  (test= `(1) (join `(1) nil))
+  (test= `(a) (join `(a) ()))
+  (test= `(a) (join nil `(a)))
+  (test= `(a) (join `(a)))
+  (test= `(a :b true) (join `(a) (obj :b true)))
+  (test= `(a b :b true) (join `(a) `(b :b true)))
+  (test= `(a :b 10) (join `(a :b true) (obj :b 10)))
+  (test= `(:b 10) (join (obj :b true) `(:b 10)))
+  (let [t (join `(a :b 1) `(b :c 2))]
+    (test= 1 (get t `b))
+    (test= 2 (get t `c))
+    (test= `b (at t 1))))
 
 (define-test reverse
   (test= () (reverse ()))
-  (test= '(3 2 1) (reverse '(1 2 3)))
-  (test= '(3 2 1 a: true) (reverse '(1 2 3 a: true))))
+  (test= `(3 2 1) (reverse `(1 2 3)))
+  (test= `(3 2 1 :a true) (reverse `(1 2 3 :a true))))
 
 (define-test map
   (test= () (map (fn (x) x) ()))
-  (test= '(1) (map (fn (x) x) '(1)))
-  (test= '(2 3 4) (map (fn (x) (+ x 1)) '(1 2 3)))
-  (test= '(2 3 4 a: 5) (map (fn (x) (+ x 1)) (list 1 2 3 a: 4)))
-  (test= '(a: true) (map (fn (x) x) '(a: true)))
-  (test= '(b: false) (map (fn (x) x) '(b: false)))
-  (test= '(a: true b: false) (map (fn (x) x) '(a: true b: false)))
-  (let evens (fn (x) (when (= (% x 2) 0) x))
-    (test= '(2 4 6) (map evens '(1 2 3 4 5 6)))
-    (test= '(2 4 6 b: 8) (map evens '(1 2 3 4 5 6 a: 7 b: 8)))))
+  (test= `(1) (map (fn (x) x) `(1)))
+  (test= `(2 3 4) (map (fn (x) (+ x 1)) `(1 2 3)))
+  (test= `(2 3 4 :a 5) (map (fn (x) (+ x 1)) (list 1 2 3 :a 4)))
+  (test= `(:a true) (map (fn (x) x) `(:a true)))
+  (test= `(:b false) (map (fn (x) x) `(:b false)))
+  (test= `(:a true :b false) (map (fn (x) x) `(:a true :b false)))
+  (let [evens (fn (x) (when (= (% x 2) 0) x))]
+    (test= `(2 4 6) (map evens `(1 2 3 4 5 6)))
+    (test= `(2 4 6 :b 8) (map evens `(1 2 3 4 5 6 :a 7 :b 8)))))
 
 (define-test cut
   (test= () (cut ()))
-  (test= '(a) (cut '(a)))
-  (test= '(b c) (cut '(a b c) 1))
-  (test= '(b c) (cut '(a b c d) 1 3))
-  (test= '(1 2 3) (cut '(1 2 3) 0 10))
-  (test= '(1) (cut '(1 2 3) -4 1))
-  (test= '(1 2 3) (cut '(1 2 3) -4))
-  (test= '(2 a: true) (cut '(1 2 a: true) 1))
-  (test= '(a: true b: 2) (cut '(a: true b: 2)))
-  (let t '(1 2 3)
-    (test= () (cut t (# t))))
-  (let t '(1 2 3 a: true)
-    (test= '(a: true) (cut t (# t)))))
+  (test= `(a) (cut `(a)))
+  (test= `(b c) (cut `(a b c) 1))
+  (test= `(b c) (cut `(a b c d) 1 3))
+  (test= `(1 2 3) (cut `(1 2 3) 0 10))
+  (test= `(1) (cut `(1 2 3) -4 1))
+  (test= `(1 2 3) (cut `(1 2 3) -4))
+  (test= `(2 :a true) (cut `(1 2 :a true) 1))
+  (test= `(:a true :b 2) (cut `(:a true :b 2)))
+  (let [t `(1 2 3)]
+    (test= () (cut t (len t))))
+  (let [t `(1 2 3 :a true)]
+    (test= `(:a true) (cut t (len t)))))
 
 (define-test clip
   (test= "uux" (clip "quux" 1))
@@ -978,62 +977,62 @@ c"
   (test= (list "a" "b" "") (split "azzbzz" "zz")))
 
 (define-test reduce
-  (test= 'a (reduce (fn (a b) (+ a b)) '() 'a))
-  (test= 'abc (reduce (fn (a b) (cat a b)) '(b c) 'a))
-  (test= 6 (reduce (fn (a b) (+ a b)) '(1 2 3) 0))
-  (test= '(((0 1) 2) 3) (reduce (fn (a b) (list a b)) '(1 2 3) 0))
-  (test= '(3 (2 (1 0))) (reduce (fn (b a) (list a b)) '(1 2 3) 0))
-  (test= '(1 2 3 4 5) (reduce (fn (a b) (join a b)) '((1) (2 3) (4 5)) ())))
+  (test= `a (reduce (fn (a b) (+ a b)) `() `a))
+  (test= `abc (reduce (fn (a b) (cat a b)) `(b c) `a))
+  (test= 6 (reduce (fn (a b) (+ a b)) `(1 2 3) 0))
+  (test= `(((0 1) 2) 3) (reduce (fn (a b) (list a b)) `(1 2 3) 0))
+  (test= `(3 (2 (1 0))) (reduce (fn (b a) (list a b)) `(1 2 3) 0))
+  (test= `(1 2 3 4 5) (reduce (fn (a b) (join a b)) `((1) (2 3) (4 5)) ())))
 
 (define-test keep
   (test= () (keep (fn (x) x) ()))
-  (test= '(0 1 2) (keep (fn (x) x) '(0 1 2)))
-  (test= '((1) (2 3)) (keep some? '(() (1) () (2 3))))
-  (let evens (fn (x) (= (% x 2) 0))
-    (test= '(6) (keep evens '(5 6 7)))
-    (test= '(2 4 6) (keep evens '(1 2 3 4 5 6)))
-    (test= '(2 4 6 b: 8) (keep evens '(1 2 3 4 5 6 a: 7 b: 8)))))
+  (test= `(0 1 2) (keep (fn (x) x) `(0 1 2)))
+  (test= `((1) (2 3)) (keep some? `(() (1) () (2 3))))
+  (let [evens (fn (x) (= (% x 2) 0))]
+    (test= `(6) (keep evens `(5 6 7)))
+    (test= `(2 4 6) (keep evens `(1 2 3 4 5 6)))
+    (test= `(2 4 6 :b 8) (keep evens `(1 2 3 4 5 6 :a 7 :b 8)))))
 
 (define-test in?
-  (test= true (in? 'x '(x y z)))
-  (test= true (in? 7 '(5 6 7)))
-  (test= nil (in? 'baz '(no can do))))
+  (test= true (in? `x `(x y z)))
+  (test= true (in? 7 `(5 6 7)))
+  (test= nil (in? `baz `(no can do))))
 
 (define-test find
   (test= nil (find (fn (x) x) ()))
-  (test= 7 (find (fn (x) x) '(7)))
-  (test= true (find (fn (x) (= x 7)) '(2 4 7)))
-  (test= true (find (fn (x) (= x 7)) '(2 4 foo: 7)))
-  (test= true (find (fn (x) (= x true)) '(2 4 bar: true)))
-  (test= true (in? 7 '(2 4 7)))
-  (test= true (in? 7 '(2 4 foo: 7)))
-  (test= true (in? true '(2 4 bar: true))))
+  (test= 7 (find (fn (x) x) `(7)))
+  (test= true (find (fn (x) (= x 7)) `(2 4 7)))
+  (test= true (find (fn (x) (= x 7)) `(2 4 :foo 7)))
+  (test= true (find (fn (x) (= x true)) `(2 4 :bar true)))
+  (test= true (in? 7 `(2 4 7)))
+  (test= true (in? 7 `(2 4 :foo 7)))
+  (test= true (in? true `(2 4 :bar true))))
 
 (define-test first
-  (test= nil (first 'x ()))
-  (test= 0 (first 7 '(7)))
-  (test= 2 (first 7 '(2 4 7 1 7)))
-  (test= 4 (first 7 '(2 4 7 1 7) 3))
-  (test= 3 (first (fn (x) (> x 3)) '(1 2 3 4 5 6))))
+  (test= nil (first `x ()))
+  (test= 0 (first 7 `(7)))
+  (test= 2 (first 7 `(2 4 7 1 7)))
+  (test= 4 (first 7 `(2 4 7 1 7) 3))
+  (test= 3 (first (fn (x) (> x 3)) `(1 2 3 4 5 6))))
 
 (define-test sort
-  (test= '(a b c) (sort '(c a b)))
-  (test= '(3 2 1) (sort '(1 2 3) >)))
+  (test= `(a b c) (sort `(c a b)))
+  (test= `(3 2 1) (sort `(1 2 3) >)))
 
 (define-test type
   (test= true (string? "abc"))
   (test= false (string? 17))
-  (test= false (string? '(a)))
+  (test= false (string? `(a)))
   (test= false (string? true))
   (test= false (string? (obj)))
   (test= false (number? "abc"))
   (test= true (number? 17))
-  (test= false (number? '(a)))
+  (test= false (number? `(a)))
   (test= false (number? true))
   (test= false (number? (obj)))
   (test= false (boolean? "abc"))
   (test= false (boolean? 17))
-  (test= false (boolean? '(a)))
+  (test= false (boolean? `(a)))
   (test= true (boolean? true))
   (test= false (boolean? (obj)))
   (test= true (atom? nil))
@@ -1041,107 +1040,107 @@ c"
   (test= true (atom? 42))
   (test= true (atom? true))
   (test= false (atom? (fn ())))
-  (test= false (atom? '(1)))
+  (test= false (atom? `(1)))
   (test= false (atom? (obj)))
-  (test= true (obj? (obj a: 10)))
+  (test= true (obj? (obj :a 10)))
   (test= false (obj? null))
   (test= false (obj? 1))
-  (test= false (obj? 'zz))
+  (test= false (obj? :zz))
   (test= false (obj? (fn ()))))
 
 (define-test str
   (define f (x) x)
   (let (l () l2 ())
     (set (get l f) true)
-    (set (get l2 (target js: (str l) lua: l)) true)
-    (let k (target js: f lua: 'function)
+    (set (get l2 (target :js (str l) :lua l)) true)
+    (let [k (target :js f :lua "function")]
       (test= (cat "(" k ": true)") (str l))
-      (test= (cat "((" k ": true): true)") (str l2)))))
+      (test= (cat "((" k ": :true) true)") (str l2)))))
 
 (define-test apply
-  (test= 4 (apply (fn (a b) (+ a b)) '(2 2)))
-  (test= '(2 2) (apply (fn a a) '(2 2)))
-  (let t '(1)
-    (set (get t 'foo) 17)
-    (test= 17 (apply (fn a (get a 'foo)) t)))
-  (test= 42 (apply (fn (foo: foo) foo) (list foo: 42)))
-  (test= 42 (apply (fn ((foo: foo)) foo) (list (list foo: 42))))
-  (test= 116 (apply + 1 5 '(100 10))))
+  (test= 4 (apply (fn (a b) (+ a b)) `(2 2)))
+  (test= `(2 2) (apply (fn a a) `(2 2)))
+  (let [t `(1)]
+    (set (get t `foo) 17)
+    (test= 17 (apply (fn a (get a `foo)) t)))
+  (test= 42 (apply (fn (:foo foo) foo) (list :foo 42)))
+  (test= 42 (apply (fn ((:foo foo)) foo) (list (list :foo 42))))
+  (test= 116 (apply + 1 5 `(100 10))))
 
 (define-test eval
-  (let eval (compiler .eval)
-    (test= 4 (eval '(+ 2 2)))
-    (test= 5 (eval '(let a 3 (+ 2 a))))
-    (test= 9 (eval '(do (define x 7) (+ x 2))))
-    (test= 6 (eval '(apply + '(1 2 3))))))
+  (let [eval (compiler .eval)]
+    (test= 4 (eval `(+ 2 2)))
+    (test= 5 (eval `(let [a 3] (+ 2 a))))
+    (test= 9 (eval `(do (define x 7) (+ x 2))))
+    (test= 6 (eval `(apply + `(1 2 3))))))
 
 (define-test call
-  (let f (fn () 42)
+  (let [f (fn () 42)]
     (test= 42 (call f)))
-  (let fs (list (fn () 1) (fn () 10))
-    (test= '(1 10) (map call fs)))
-  (let f (fn (x y) (+ x y 1))
+  (let [fs (list (fn () 1) (fn () 10))]
+    (test= `(1 10) (map call fs)))
+  (let [f (fn (x y) (+ x y 1))]
     (test= 42 (call f 40 1))))
 
 (define-test parameters
-  (test= 42 ((fn ((a)) a) '(42)))
-  (let f (fn (a (b c)) (list a b c))
-    (test= '(1 2 3) (f 1 '(2 3))))
-  (let f (fn (a (b rest: c) rest: d) (list a b c d))
-    (test= '(1 2 (3 4) (5 6 7)) (f 1 '(2 3 4) 5 6 7)))
-  (let f (fn (a (b rest: c) rest: d) (list a b c d))
-    (test= '(1 2 (3 4) (5 6 7)) (apply f '(1 (2 3 4) 5 6 7))))
-  (test= '(3 4) ((fn (a b rest: c) c) 1 2 3 4))
-  (let f (fn (w (x rest: y) rest: z) (list y z))
-    (test= '((3 4) (5 6 7)) (f 1 '(2 3 4) 5 6 7)))
-  (test= 42 ((fn (foo: foo) foo) foo: 42))
-  (test= 42 (apply (fn (foo: foo) foo) '(foo: 42)))
-  (test= 42 ((fn ((foo: foo)) foo) (list foo: 42)))
-  (let f (fn (a bar: b (foo: foo)) (list a b foo))
-    (test= '(10 20 42) (f 10 bar: 20 (list foo: 42))))
-  (let f (fn (a bar: b (foo: foo)) (list a b foo))
-    (test= '(10 20 42) (apply f '(10 bar: 20 (foo: 42)))))
-  (test= 1 ((fn (a b: b) (+ (or a 0) b)) b: 1))
-  (test= 1 (apply (fn (a b: b) (+ (or a 0) b)) (list b: 1)))
-  (let f (fn args args)
-    (test= '(1 2 3) (f 1 2 3)))
-  (let f (fn args args)
-    (test= '(1 2 3) (apply f (list 1 2 3))))
-  (let l ()
-    (define f (a: a) (add l a) a)
-    (define g (a b c: c) (add l (list a b c)) c)
-    (test= 42 (f a: (g (f a: 10) (f a: 20) c: (f a: 42))))
-    (test= '(10 20 42 (10 20 42) 42) l))
-  (let l nil
+  (test= 42 ((fn ((a)) a) `(42)))
+  (let [f (fn (a (b c)) (list a b c))]
+    (test= `(1 2 3) (f 1 `(2 3))))
+  (let [f (fn (a (b :rest c) :rest d) (list a b c d))]
+    (test= `(1 2 (3 4) (5 6 7)) (f 1 `(2 3 4) 5 6 7)))
+  (let [f (fn (a (b :rest c) :rest d) (list a b c d))]
+    (test= `(1 2 (3 4) (5 6 7)) (apply f `(1 (2 3 4) 5 6 7))))
+  (test= `(3 4) ((fn (a b :rest c) c) 1 2 3 4))
+  (let [f (fn (w (x :rest y) :rest z) (list y z))]
+    (test= `((3 4) (5 6 7)) (f 1 `(2 3 4) 5 6 7)))
+  (test= 42 ((fn (:foo foo) foo) :foo 42))
+  (test= 42 (apply (fn (:foo foo) foo) `(:foo 42)))
+  (test= 42 ((fn ((:foo foo)) foo) (list :foo 42)))
+  (let [f (fn (a :bar b (:foo foo)) (list a b foo))]
+    (test= `(10 20 42) (f 10 :bar 20 (list :foo 42))))
+  (let [f (fn (a :bar b (:foo foo)) (list a b foo))]
+    (test= `(10 20 42) (apply f `(10 :bar 20 (:foo 42)))))
+  (test= 1 ((fn (a :b b) (+ (or a 0) b)) :b 1))
+  (test= 1 (apply (fn (a :b b) (+ (or a 0) b)) (list :b 1)))
+  (let [f (fn args args)]
+    (test= `(1 2 3) (f 1 2 3)))
+  (let [f (fn args args)]
+    (test= `(1 2 3) (apply f (list 1 2 3))))
+  (let [l ()]
+    (define f (:a a) (add l a) a)
+    (define g (a b :c c) (add l (list a b c)) c)
+    (test= 42 (f :a (g (f :a 10) (f :a 20) :c (f :a 42))))
+    (test= `(10 20 42 (10 20 42) 42) l))
+  (let [l nil]
     (define f x (set l x))
     (define g (a b) (+ a b))
-    (f (g 1 2 foo: 7))
-    (test= '(3) l))
-  (let l nil
+    (f (g 1 2 :foo 7))
+    (test= `(3) l))
+  (let [l nil]
     (define f x (set l x) 10)
     (define g (a b) (+ (f) a b))
-    (test= 13 (g 1 2 foo: 7))
-    (test= '() l))
-  (let l nil
-    (define f (x rest: ys) (set l ys))
+    (test= 13 (g 1 2 :foo 7))
+    (test= `() l))
+  (let [l nil]
+    (define f (x :rest ys) (set l ys))
     (define g () nil)
-    (f 1 'x g)
-    (test= (list 'x g) l)))
+    (f 1 `x g)
+    (test= (list `x g) l)))
 
 (define-test hd?
-  (test= true (hd? '(%if 1 2) '%if))
-  (test= false (hd? '((%if) 1 2) '(%if)))
-  (test= true (hd? '((%if) 1 2) (testify '%if hd?)))
-  (test= false (hd? 42 '%if))
-  (test= nil (hd? '() nil))
-  (test= 'a (hd? '(a b c)))
-  (test= true (hd? '(1 2 3) number?))
-  (test= false (hd? '(1 2 3) string?)))
+  (test= true (hd? `(%if 1 2) `%if))
+  (test= false (hd? `((%if) 1 2) `(%if)))
+  (test= true (hd? `((%if) 1 2) (testify `%if hd?)))
+  (test= false (hd? 42 `%if))
+  (test= nil (hd? `() nil))
+  (test= `a (hd? `(a b c)))
+  (test= true (hd? `(1 2 3) number?))
+  (test= false (hd? `(1 2 3) string?)))
 
 (define-test setforms
-  (let l '(a b c)
-    (set (hd l) 'z)
-    (test= '(z b c) l)))
+  (let [l `(a b c)]
+    (set (hd l) `z)
+    (test= `(z b c) l)))
 
 (define-test tostring
   (test= "foo" (tostring "foo"))
@@ -1153,18 +1152,18 @@ c"
   (test= "false" (tostring false)))
 
 (define-test select
-  (test= 4 (select "#" (values 'a 'b 'c 'd)))
-  (test= 'b (select 2 (values 'a 'b 'c 'd)))
-  (test= '(b c d) (results (select 2 (values 'a 'b 'c 'd)))))
+  (test= 4 (select "#" (values `a `b `c `d)))
+  (test= `b (select 2 (values `a `b `c `d)))
+  (test= `(b c d) (results (select 2 (values `a `b `c `d)))))
 
 (define-test unicode
   (let (blns ((JSON .parse) (read-file "deps/blns.json"))
         strs (map (ustring .new) blns)
         ns ((JSON .parse) (read-file "deps/blnscount.json")))
-    (test= ns (map # strs))))
+    (test= ns (map len strs))))
 
 (define-test compose
-  (test= "print(1)" ((compose compile lower macroexpand) '(print 1)))
+  (test= "print(1)" ((compose compile lower macroexpand) `(print 1)))
   (test= "6" ((compose tostring +) 1 2 3)))
 
 (define-test complement
@@ -1173,19 +1172,19 @@ c"
   (test= true (((compose complement complement) string?) "foo")))
 
 (define-test expansion
-  (test= '(let x 1 x) (macroexpand '((expansion) (let x 1 x)))))
+  (test= `(let [x 1] x) (macroexpand `((expansion) (let [x 1] x)))))
 
 (define-test optional
-  (let f (fn ((o a 10) bar: (o b 20) (o (foo: (o foo 42)) ())) (list a b foo))
-    (test= '(10 20 42) (f))
-    (test= '(1 20 42) (f 1))
-    (test= '(1 2 42) (f 1 bar: 2))
-    (test= '(1 2 3) (f 1 bar: 2 '(foo: 3)))
-    (test= '(1 20 3) (f 1 '(foo: 3)))
-    (test= '(10 20 42) (apply f '()))
-    (test= '(1 20 42) (apply f '(1)))
-    (test= '(1 2 42) (apply f '(1 bar: 2)))
-    (test= '(1 2 3) (apply f '(1 bar: 2 (foo: 3))))
-    (test= '(1 20 3) (apply f '(1 (foo: 3))))))
+  (let [f (fn ((o a 10) :bar (o b 20) (o (:foo (o foo 42)) ())) (list a b foo))]
+    (test= `(10 20 42) (f))
+    (test= `(1 20 42) (f 1))
+    (test= `(1 2 42) (f 1 :bar 2))
+    (test= `(1 2 3) (f 1 :bar 2 `(:foo 3)))
+    (test= `(1 20 3) (f 1 `(:foo 3)))
+    (test= `(10 20 42) (apply f `()))
+    (test= `(1 20 42) (apply f `(1)))
+    (test= `(1 2 42) (apply f `(1 :bar 2)))
+    (test= `(1 2 3) (apply f `(1 :bar 2 (:foo 3))))
+    (test= `(1 20 3) (apply f `(1 (:foo 3))))))
 
 (export main)

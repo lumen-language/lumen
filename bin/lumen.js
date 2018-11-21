@@ -30,7 +30,7 @@ ipairs = function(l) {
   return pairs(l).filter(number63);
 };
 pcall = function(f, ..._42args) {
-  var ____id = (function() {
+  var __id = (function() {
     try {
       return [true, results(f(..._42args))];
     }
@@ -38,9 +38,9 @@ pcall = function(f, ..._42args) {
       return [false, __e13];
     }
   })();
-  var __ok = ____id[0];
-  var __v1 = ____id[1];
-  return values(__ok, ...__v1);
+  var ok = __id[0];
+  var v = __id[1];
+  return values(ok, ...v);
 };
 nil63 = function(x) {
   return x === undefined || x === null;
@@ -144,34 +144,34 @@ index63 = function(i) {
   return number63(i);
 };
 iterate = function(o, f, l, r) {
-  var __from = inf;
-  var __upto = _inf;
+  var from = inf;
+  var upto = _inf;
   var ____o = l;
   var __k = undefined;
   for (__k of pairs(____o)) {
-    var __v2 = ____o[__k];
+    var __v1 = ____o[__k];
     if (index63(__k)) {
-      if (__k < __from) {
-        __from = __k;
+      if (__k < from) {
+        from = __k;
       }
-      if (__k > __upto) {
-        __upto = __k;
+      if (__k > upto) {
+        upto = __k;
       }
     } else {
-      r = f(r, __v2, __k, undefined);
+      r = f(r, __v1, __k, undefined);
     }
   }
-  __upto = __upto + 1;
-  var __i1 = __from;
-  while (__i1 < __upto) {
-    var __v3 = l[__i1];
-    r = f(r, __v3, undefined, __i1);
-    __i1 = __i1 + 1;
+  upto = upto + 1;
+  var i = from;
+  while (i < upto) {
+    var v = l[i];
+    r = f(r, v, undefined, i);
+    i = i + 1;
   }
   var __o1 = o || {};
   __o1.result = r;
-  __o1.from = __from;
-  __o1.upto = __upto;
+  __o1.from = from;
+  __o1.upto = upto;
   return __o1;
 };
 var __o2 = {};
@@ -180,33 +180,33 @@ reduce = function(f, l, r) {
 };
 cut = function(x, from, upto) {
   var __l = [];
-  var __j = 0;
+  var j = 0;
   var __e5 = undefined;
   if (nil63(from) || from < 0) {
     __e5 = 0;
   } else {
     __e5 = from;
   }
-  var __i2 = __e5;
-  var __n1 = _35(x);
+  var i = __e5;
+  var n = _35(x);
   var __e6 = undefined;
-  if (nil63(upto) || upto > __n1) {
-    __e6 = __n1;
+  if (nil63(upto) || upto > n) {
+    __e6 = n;
   } else {
     __e6 = upto;
   }
-  var __upto1 = __e6;
-  while (__i2 < __upto1) {
-    __l[__j] = x[__i2];
-    __i2 = __i2 + 1;
-    __j = __j + 1;
+  var upto = __e6;
+  while (i < upto) {
+    __l[j] = x[i];
+    i = i + 1;
+    j = j + 1;
   }
   var ____o3 = x;
   var __k1 = undefined;
   for (__k1 of pairs(____o3)) {
-    var __v4 = ____o3[__k1];
+    var __v2 = ____o3[__k1];
     if (! number63(__k1)) {
-      __l[__k1] = __v4;
+      __l[__k1] = __v2;
     }
   }
   return __l;
@@ -216,9 +216,9 @@ props = function(x) {
   var ____o4 = x;
   var __k2 = undefined;
   for (__k2 of pairs(____o4)) {
-    var __v5 = ____o4[__k2];
+    var __v3 = ____o4[__k2];
     if (! number63(__k2)) {
-      __t[__k2] = __v5;
+      __t[__k2] = __v3;
     }
   }
   return __t;
@@ -262,10 +262,10 @@ almost = function(l) {
 };
 reverse = function(l) {
   var __l1 = props(l);
-  var __i5 = edge(l);
-  while (__i5 >= 0) {
-    add(__l1, l[__i5]);
-    __i5 = __i5 - 1;
+  var __i3 = edge(l);
+  while (__i3 >= 0) {
+    add(__l1, l[__i3]);
+    __i3 = __i3 - 1;
   }
   return __l1;
 };
@@ -273,22 +273,22 @@ join = function(..._42args) {
   var __ls = unstash([..._42args]);
   var __r50 = [];
   var ____x5 = __ls;
-  var ____i6 = 0;
-  while (____i6 < _35(____x5)) {
-    var __l11 = ____x5[____i6];
+  var ____i4 = 0;
+  while (____i4 < _35(____x5)) {
+    var __l11 = ____x5[____i4];
     if (__l11) {
-      var __n4 = _35(__r50);
+      var __n3 = _35(__r50);
       var ____o5 = __l11;
       var __k3 = undefined;
       for (__k3 of pairs(____o5)) {
-        var __v6 = ____o5[__k3];
+        var __v4 = ____o5[__k3];
         if (number63(__k3)) {
-          __k3 = __k3 + __n4;
+          __k3 = __k3 + __n3;
         }
-        __r50[__k3] = __v6;
+        __r50[__k3] = __v4;
       }
     }
-    ____i6 = ____i6 + 1;
+    ____i4 = ____i4 + 1;
   }
   return __r50;
 };
@@ -310,9 +310,9 @@ testify = function(x, test) {
 find = function(x, t) {
   var __f = testify(x);
   var ____o6 = t;
-  var ____i8 = undefined;
-  for (____i8 of pairs(____o6)) {
-    var __x6 = ____o6[____i8];
+  var ____i6 = undefined;
+  for (____i6 of pairs(____o6)) {
+    var __x6 = ____o6[____i6];
     var __y = __f(__x6);
     if (__y) {
       return __y;
@@ -321,25 +321,25 @@ find = function(x, t) {
 };
 first = function(x, l, pos) {
   var __f1 = testify(x);
-  var __i9 = either(pos, 0);
-  var __n7 = -1;
+  var __i7 = either(pos, 0);
+  var __n6 = -1;
   var ____o7 = l;
   var __k4 = undefined;
   for (__k4 of pairs(____o7)) {
-    var __v7 = ____o7[__k4];
+    var __v5 = ____o7[__k4];
     if (number63(__k4)) {
-      __n7 = max(__n7, __k4);
+      __n6 = max(__n6, __k4);
     }
   }
-  __n7 = __n7 + 1;
-  while (__i9 < __n7) {
-    var __v8 = l[__i9];
-    var ____y1 = __f1(__v8);
+  __n6 = __n6 + 1;
+  while (__i7 < __n6) {
+    var __v6 = l[__i7];
+    var ____y1 = __f1(__v6);
     if (yes(____y1)) {
       var __y2 = ____y1;
-      return __i9;
+      return __i7;
     }
-    __i9 = __i9 + 1;
+    __i7 = __i7 + 1;
   }
 };
 in63 = function(x, t) {
@@ -347,11 +347,11 @@ in63 = function(x, t) {
 };
 pair = function(l) {
   var __l12 = [];
-  var __i11 = 0;
-  while (__i11 < _35(l)) {
-    add(__l12, [l[__i11], l[__i11 + 1]]);
-    __i11 = __i11 + 1;
-    __i11 = __i11 + 1;
+  var __i9 = 0;
+  while (__i9 < _35(l)) {
+    add(__l12, [l[__i9], l[__i9 + 1]]);
+    __i9 = __i9 + 1;
+    __i9 = __i9 + 1;
   }
   return __l12;
 };
@@ -371,21 +371,21 @@ sort = function(l, f) {
 map = function(f, x) {
   var __t1 = [];
   var ____x8 = x;
-  var ____i12 = 0;
-  while (____i12 < _35(____x8)) {
-    var __v9 = ____x8[____i12];
-    var __y3 = f(__v9);
+  var ____i10 = 0;
+  while (____i10 < _35(____x8)) {
+    var __v7 = ____x8[____i10];
+    var __y3 = f(__v7);
     if (is63(__y3)) {
       add(__t1, __y3);
     }
-    ____i12 = ____i12 + 1;
+    ____i10 = ____i10 + 1;
   }
   var ____o8 = x;
   var __k5 = undefined;
   for (__k5 of pairs(____o8)) {
-    var __v10 = ____o8[__k5];
+    var __v8 = ____o8[__k5];
     if (! number63(__k5)) {
-      var __y4 = f(__v10);
+      var __y4 = f(__v8);
       if (is63(__y4)) {
         __t1[__k5] = __y4;
       }
@@ -405,7 +405,7 @@ keys63 = function(t) {
   var ____o9 = t;
   var __k6 = undefined;
   for (__k6 of pairs(____o9)) {
-    var __v11 = ____o9[__k6];
+    var __v9 = ____o9[__k6];
     if (! number63(__k6)) {
       return true;
     }
@@ -414,9 +414,9 @@ keys63 = function(t) {
 };
 empty63 = function(t) {
   var ____o10 = t;
-  var ____i15 = undefined;
-  for (____i15 of pairs(____o10)) {
-    var __x9 = ____o10[____i15];
+  var ____i13 = undefined;
+  for (____i13 of pairs(____o10)) {
+    var __x9 = ____o10[____i13];
     return false;
   }
   return true;
@@ -427,9 +427,9 @@ stash = function(args) {
     var ____o11 = args;
     var __k7 = undefined;
     for (__k7 of pairs(____o11)) {
-      var __v12 = ____o11[__k7];
+      var __v10 = ____o11[__k7];
       if (! number63(__k7)) {
-        __p[__k7] = __v12;
+        __p[__k7] = __v10;
       }
     }
     __p._stash = true;
@@ -447,9 +447,9 @@ unstash = function(args) {
       var ____o12 = __l2;
       var __k8 = undefined;
       for (__k8 of pairs(____o12)) {
-        var __v13 = ____o12[__k8];
+        var __v11 = ____o12[__k8];
         if (!( __k8 === "_stash")) {
-          __args1[__k8] = __v13;
+          __args1[__k8] = __v11;
         }
       }
       return __args1;
@@ -463,9 +463,9 @@ destash33 = function(l, args1) {
     var ____o13 = l;
     var __k9 = undefined;
     for (__k9 of pairs(____o13)) {
-      var __v14 = ____o13[__k9];
+      var __v12 = ____o13[__k9];
       if (!( __k9 === "_stash")) {
-        args1[__k9] = __v14;
+        args1[__k9] = __v12;
       }
     }
   } else {
@@ -473,9 +473,9 @@ destash33 = function(l, args1) {
   }
 };
 search = function(s, pattern, start) {
-  var __i19 = s.indexOf(pattern, start);
-  if (__i19 >= 0) {
-    return __i19;
+  var __i17 = s.indexOf(pattern, start);
+  if (__i17 >= 0) {
+    return __i17;
   }
 };
 split = function(s, sep) {
@@ -483,14 +483,14 @@ split = function(s, sep) {
     return [];
   } else {
     var __l3 = [];
-    var __n15 = _35(sep);
+    var __n14 = _35(sep);
     while (true) {
-      var __i20 = search(s, sep);
-      if (nil63(__i20)) {
+      var __i18 = search(s, sep);
+      if (nil63(__i18)) {
         break;
       } else {
-        add(__l3, clip(s, 0, __i20));
-        s = clip(s, __i20 + __n15);
+        add(__l3, clip(s, 0, __i18));
+        s = clip(s, __i18 + __n14);
       }
     }
     add(__l3, s);
@@ -528,14 +528,14 @@ _37 = function(n, ..._42args) {
   }, [..._42args], either(n, 1));
 };
 var pairwise = function(f, xs) {
-  var __i21 = 0;
-  while (__i21 < edge(xs)) {
-    var __a = xs[__i21];
-    var __b = xs[__i21 + 1];
+  var __i19 = 0;
+  while (__i19 < edge(xs)) {
+    var __a = xs[__i19];
+    var __b = xs[__i19 + 1];
     if (! f(__a, __b)) {
       return false;
     }
-    __i21 = __i21 + 1;
+    __i19 = __i19 + 1;
   }
   return true;
 };
@@ -570,22 +570,22 @@ _6261 = function(..._42args) {
   }, __xs4);
 };
 number = function(s) {
-  var __n16 = parseFloat(s);
-  if (! isNaN(__n16)) {
-    return __n16;
+  var __n15 = parseFloat(s);
+  if (! isNaN(__n15)) {
+    return __n15;
   }
 };
 number_code63 = function(n) {
   return n > 47 && n < 58;
 };
 numeric63 = function(s) {
-  var __n17 = _35(s);
-  var __i22 = 0;
-  while (__i22 < __n17) {
-    if (! number_code63(code(s, __i22))) {
+  var __n16 = _35(s);
+  var __i20 = 0;
+  while (__i20 < __n16) {
+    if (! number_code63(code(s, __i20))) {
       return false;
     }
-    __i22 = __i22 + 1;
+    __i20 = __i20 + 1;
   }
   return some63(s);
 };
@@ -594,16 +594,16 @@ lowercase_code63 = function(n) {
 };
 camel_case = function(str) {
   var __s = "";
-  var __n18 = _35(str);
-  var __i23 = 0;
-  while (__i23 < __n18) {
-    var __c = code(str, __i23);
-    if (__c === 45 && lowercase_code63(code(str, __i23 - 1) || 0) && lowercase_code63(code(str, __i23 + 1) || 0)) {
-      __i23 = __i23 + 1;
-      __c = code(str, __i23) - 32;
+  var __n17 = _35(str);
+  var __i21 = 0;
+  while (__i21 < __n17) {
+    var __c = code(str, __i21);
+    if (__c === 45 && lowercase_code63(code(str, __i21 - 1) || 0) && lowercase_code63(code(str, __i21 + 1) || 0)) {
+      __i21 = __i21 + 1;
+      __c = code(str, __i21) - 32;
     }
     __s = __s + from_code(__c);
-    __i23 = __i23 + 1;
+    __i21 = __i21 + 1;
   }
   return __s;
 };
@@ -640,9 +640,9 @@ tostring = function(x) {
 };
 escape = function(s) {
   var __s1 = "\"";
-  var __i24 = 0;
-  while (__i24 < _35(s)) {
-    var __c1 = char(s, __i24);
+  var __i22 = 0;
+  while (__i22 < _35(s)) {
+    var __c1 = char(s, __i22);
     var __e8 = undefined;
     if (__c1 === "\n") {
       __e8 = "\\n";
@@ -669,7 +669,7 @@ escape = function(s) {
     }
     var __c11 = __e8;
     __s1 = __s1 + __c11;
-    __i24 = __i24 + 1;
+    __i22 = __i22 + 1;
   }
   return __s1 + "\"";
 };
@@ -698,20 +698,20 @@ str = function(x, stack) {
             var ____o14 = x;
             var __k10 = undefined;
             for (__k10 of pairs(____o14)) {
-              var __v15 = ____o14[__k10];
+              var __v13 = ____o14[__k10];
               if (number63(__k10)) {
-                __xs5[__k10] = str(__v15, __l4);
+                __xs5[__k10] = str(__v13, __l4);
               } else {
                 add(__ks, __k10 + ":");
-                add(__ks, str(__v15, __l4));
+                add(__ks, str(__v13, __l4));
               }
             }
             drop(__l4);
             var ____o15 = join(__xs5, __ks);
-            var ____i26 = undefined;
-            for (____i26 of pairs(____o15)) {
-              var __v16 = ____o15[____i26];
-              __s11 = __s11 + __sp + __v16;
+            var ____i24 = undefined;
+            for (____i24 of pairs(____o15)) {
+              var __v14 = ____o15[____i24];
+              __s11 = __s11 + __sp + __v14;
               __sp = " ";
             }
             return __s11 + ")";
@@ -744,8 +744,8 @@ setenv = function(k, ..._42args) {
     var ____o16 = __keys;
     var __k12 = undefined;
     for (__k12 of pairs(____o16)) {
-      var __v17 = ____o16[__k12];
-      __entry[__k12] = __v17;
+      var __v15 = ____o16[__k12];
+      __entry[__k12] = __v15;
     }
     __frame[__k11] = __entry;
     return __frame[__k11];
@@ -998,7 +998,13 @@ setenv("let", {_stash: true, macro: function(bs, ..._42args) {
       return join(["%do"], __body11);
     } else {
       if (brackets63(__bs11)) {
-        return join(["let", tl(__bs11)], __body11);
+        var __e = undefined;
+        if (empty63(__body11)) {
+          __e = "var";
+        } else {
+          __e = "let";
+        }
+        return join([__e, tl(__bs11)], __body11);
       } else {
         var ____id13 = __bs11;
         var __lh2 = ____id13[0];
@@ -1204,19 +1210,19 @@ setenv("each", {_stash: true, macro: function(x, t, ..._42args) {
   var __o1 = unique("o");
   var __n1 = unique("n");
   var __i3 = unique("i");
-  var __e = undefined;
+  var __e1 = undefined;
   if (atom63(__x187)) {
-    __e = [__i3, __x187];
+    __e1 = [__i3, __x187];
   } else {
-    var __e1 = undefined;
+    var __e2 = undefined;
     if (_35(__x187) > 1) {
-      __e1 = __x187;
+      __e2 = __x187;
     } else {
-      __e1 = [__i3, hd(__x187)];
+      __e2 = [__i3, hd(__x187)];
     }
-    __e = __e1;
+    __e1 = __e2;
   }
-  var ____id34 = __e;
+  var ____id34 = __e1;
   var __k1 = ____id34[0];
   var __v4 = ____id34[1];
   return ["let", [__o1, __t], ["for", [__k1], ["pairs", __o1], join(["let", [__v4, ["get", __o1, __k1]]], __body26)]];
@@ -1278,22 +1284,22 @@ setenv("cat!", {_stash: true, macro: function(a, ..._42args) {
   return ["set", __a2, join(["cat", __a2], __bs4)];
 }});
 setenv("inc", {_stash: true, macro: function(n, by) {
-  var __e2 = undefined;
-  if (nil63(by)) {
-    __e2 = 1;
-  } else {
-    __e2 = by;
-  }
-  return ["set", n, ["+", n, __e2]];
-}});
-setenv("dec", {_stash: true, macro: function(n, by) {
   var __e3 = undefined;
   if (nil63(by)) {
     __e3 = 1;
   } else {
     __e3 = by;
   }
-  return ["set", n, ["-", n, __e3]];
+  return ["set", n, ["+", n, __e3]];
+}});
+setenv("dec", {_stash: true, macro: function(n, by) {
+  var __e4 = undefined;
+  if (nil63(by)) {
+    __e4 = 1;
+  } else {
+    __e4 = by;
+  }
+  return ["set", n, ["-", n, __e4]];
 }});
 setenv("with-indent", {_stash: true, macro: function(form) {
   var __x233 = unique("x");

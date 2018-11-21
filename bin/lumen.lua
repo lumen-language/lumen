@@ -106,34 +106,34 @@ function _G.index63(i)
   return natural63(i)
 end
 function _G.iterate(o, f, l, r)
-  local __from = inf
-  local __upto = _inf
+  local from = inf
+  local upto = _inf
   local ____o = l
   local __k = nil
   for __k in pairs(____o) do
     local __v1 = ____o[__k]
     if index63(__k) then
-      if __k < __from then
-        __from = __k
+      if __k < from then
+        from = __k
       end
-      if __k > __upto then
-        __upto = __k
+      if __k > upto then
+        upto = __k
       end
     else
       r = f(r, __v1, __k, nil)
     end
   end
-  __from = __from - 1
-  local __i1 = __from
-  while __i1 < __upto do
-    local __v2 = l[__i1 + 1]
-    r = f(r, __v2, nil, __i1)
-    __i1 = __i1 + 1
+  from = from - 1
+  local i = from
+  while i < upto do
+    local v = l[i + 1]
+    r = f(r, v, nil, i)
+    i = i + 1
   end
   local __o1 = o or {}
   __o1.result = r
-  __o1.from = __from
-  __o1.upto = __upto
+  __o1.from = from
+  __o1.upto = upto
   return __o1
 end
 local __o2 = {}
@@ -142,33 +142,33 @@ function _G.reduce(f, l, r)
 end
 function _G.cut(x, from, upto)
   local __l = {}
-  local __j = 0
+  local j = 0
   local __e5 = nil
   if nil63(from) or from < 0 then
     __e5 = 0
   else
     __e5 = from
   end
-  local __i2 = __e5
-  local __n1 = _35(x)
+  local i = __e5
+  local n = _35(x)
   local __e6 = nil
-  if nil63(upto) or upto > __n1 then
-    __e6 = __n1
+  if nil63(upto) or upto > n then
+    __e6 = n
   else
     __e6 = upto
   end
-  local __upto1 = __e6
-  while __i2 < __upto1 do
-    __l[__j + 1] = x[__i2 + 1]
-    __i2 = __i2 + 1
-    __j = __j + 1
+  local upto = __e6
+  while i < upto do
+    __l[j + 1] = x[i + 1]
+    i = i + 1
+    j = j + 1
   end
   local ____o3 = x
   local __k1 = nil
   for __k1 in pairs(____o3) do
-    local __v3 = ____o3[__k1]
+    local __v2 = ____o3[__k1]
     if not number63(__k1) then
-      __l[__k1] = __v3
+      __l[__k1] = __v2
     end
   end
   return __l
@@ -178,9 +178,9 @@ function _G.props(x)
   local ____o4 = x
   local __k2 = nil
   for __k2 in pairs(____o4) do
-    local __v4 = ____o4[__k2]
+    local __v3 = ____o4[__k2]
     if not number63(__k2) then
-      __t[__k2] = __v4
+      __t[__k2] = __v3
     end
   end
   return __t
@@ -227,10 +227,10 @@ function _G.almost(l)
 end
 function _G.reverse(l)
   local __l1 = props(l)
-  local __i5 = edge(l)
-  while __i5 >= 0 do
-    add(__l1, l[__i5 + 1])
-    __i5 = __i5 - 1
+  local __i3 = edge(l)
+  while __i3 >= 0 do
+    add(__l1, l[__i3 + 1])
+    __i3 = __i3 - 1
   end
   return __l1
 end
@@ -238,22 +238,22 @@ function _G.join(...)
   local __ls = unstash({...})
   local __r43 = {}
   local ____x3 = __ls
-  local ____i6 = 0
-  while ____i6 < _35(____x3) do
-    local __l11 = ____x3[____i6 + 1]
+  local ____i4 = 0
+  while ____i4 < _35(____x3) do
+    local __l11 = ____x3[____i4 + 1]
     if __l11 then
-      local __n4 = _35(__r43)
+      local __n3 = _35(__r43)
       local ____o5 = __l11
       local __k3 = nil
       for __k3 in pairs(____o5) do
-        local __v5 = ____o5[__k3]
+        local __v4 = ____o5[__k3]
         if number63(__k3) then
-          __k3 = __k3 + __n4
+          __k3 = __k3 + __n3
         end
-        __r43[__k3] = __v5
+        __r43[__k3] = __v4
       end
     end
-    ____i6 = ____i6 + 1
+    ____i4 = ____i4 + 1
   end
   return __r43
 end
@@ -275,9 +275,9 @@ end
 function _G.find(x, t)
   local __f = testify(x)
   local ____o6 = t
-  local ____i8 = nil
-  for ____i8 in pairs(____o6) do
-    local __x4 = ____o6[____i8]
+  local ____i6 = nil
+  for ____i6 in pairs(____o6) do
+    local __x4 = ____o6[____i6]
     local __y = __f(__x4)
     if __y then
       return __y
@@ -286,26 +286,26 @@ function _G.find(x, t)
 end
 function _G.first(x, l, pos)
   local __f1 = testify(x)
-  local __i9 = either(pos, 0)
-  local __n7 = -1
+  local __i7 = either(pos, 0)
+  local __n6 = -1
   local ____o7 = l
   local __k4 = nil
   for __k4 in pairs(____o7) do
-    local __v6 = ____o7[__k4]
+    local __v5 = ____o7[__k4]
     if number63(__k4) then
       __k4 = __k4 - 1
-      __n7 = max(__n7, __k4)
+      __n6 = max(__n6, __k4)
     end
   end
-  __n7 = __n7 + 1
-  while __i9 < __n7 do
-    local __v7 = l[__i9 + 1]
-    local ____y1 = __f1(__v7)
+  __n6 = __n6 + 1
+  while __i7 < __n6 do
+    local __v6 = l[__i7 + 1]
+    local ____y1 = __f1(__v6)
     if yes(____y1) then
       local __y2 = ____y1
-      return __i9
+      return __i7
     end
-    __i9 = __i9 + 1
+    __i7 = __i7 + 1
   end
 end
 function _G.in63(x, t)
@@ -313,11 +313,11 @@ function _G.in63(x, t)
 end
 function _G.pair(l)
   local __l12 = {}
-  local __i11 = 0
-  while __i11 < _35(l) do
-    add(__l12, {l[__i11 + 1], l[__i11 + 1 + 1]})
-    __i11 = __i11 + 1
-    __i11 = __i11 + 1
+  local __i9 = 0
+  while __i9 < _35(l) do
+    add(__l12, {l[__i9 + 1], l[__i9 + 1 + 1]})
+    __i9 = __i9 + 1
+    __i9 = __i9 + 1
   end
   return __l12
 end
@@ -328,21 +328,21 @@ end
 function _G.map(f, x)
   local __t1 = {}
   local ____x6 = x
-  local ____i12 = 0
-  while ____i12 < _35(____x6) do
-    local __v8 = ____x6[____i12 + 1]
-    local __y3 = f(__v8)
+  local ____i10 = 0
+  while ____i10 < _35(____x6) do
+    local __v7 = ____x6[____i10 + 1]
+    local __y3 = f(__v7)
     if is63(__y3) then
       add(__t1, __y3)
     end
-    ____i12 = ____i12 + 1
+    ____i10 = ____i10 + 1
   end
   local ____o8 = x
   local __k5 = nil
   for __k5 in pairs(____o8) do
-    local __v9 = ____o8[__k5]
+    local __v8 = ____o8[__k5]
     if not number63(__k5) then
-      local __y4 = f(__v9)
+      local __y4 = f(__v8)
       if is63(__y4) then
         __t1[__k5] = __y4
       end
@@ -362,7 +362,7 @@ function _G.keys63(t)
   local ____o9 = t
   local __k6 = nil
   for __k6 in pairs(____o9) do
-    local __v10 = ____o9[__k6]
+    local __v9 = ____o9[__k6]
     if not number63(__k6) then
       return true
     end
@@ -371,9 +371,9 @@ function _G.keys63(t)
 end
 function _G.empty63(t)
   local ____o10 = t
-  local ____i15 = nil
-  for ____i15 in pairs(____o10) do
-    local __x7 = ____o10[____i15]
+  local ____i13 = nil
+  for ____i13 in pairs(____o10) do
+    local __x7 = ____o10[____i13]
     return false
   end
   return true
@@ -384,9 +384,9 @@ function _G.stash(args)
     local ____o11 = args
     local __k7 = nil
     for __k7 in pairs(____o11) do
-      local __v11 = ____o11[__k7]
+      local __v10 = ____o11[__k7]
       if not number63(__k7) then
-        __p[__k7] = __v11
+        __p[__k7] = __v10
       end
     end
     __p._stash = true
@@ -404,9 +404,9 @@ function _G.unstash(args)
       local ____o12 = __l2
       local __k8 = nil
       for __k8 in pairs(____o12) do
-        local __v12 = ____o12[__k8]
+        local __v11 = ____o12[__k8]
         if not( __k8 == "_stash") then
-          __args1[__k8] = __v12
+          __args1[__k8] = __v11
         end
       end
       return __args1
@@ -420,9 +420,9 @@ function _G.destash33(l, args1)
     local ____o13 = l
     local __k9 = nil
     for __k9 in pairs(____o13) do
-      local __v13 = ____o13[__k9]
+      local __v12 = ____o13[__k9]
       if not( __k9 == "_stash") then
-        args1[__k9] = __v13
+        args1[__k9] = __v12
       end
     end
   else
@@ -435,22 +435,22 @@ function _G.search(s, pattern, start)
     __e8 = start + 1
   end
   local __start = __e8
-  local __i19 = string.find(s, pattern, __start, true)
-  return __i19 and __i19 - 1
+  local __i17 = string.find(s, pattern, __start, true)
+  return __i17 and __i17 - 1
 end
 function _G.split(s, sep)
   if s == "" or sep == "" then
     return {}
   else
     local __l3 = {}
-    local __n15 = _35(sep)
+    local __n14 = _35(sep)
     while true do
-      local __i20 = search(s, sep)
-      if nil63(__i20) then
+      local __i18 = search(s, sep)
+      if nil63(__i18) then
         break
       else
-        add(__l3, clip(s, 0, __i20))
-        s = clip(s, __i20 + __n15)
+        add(__l3, clip(s, 0, __i18))
+        s = clip(s, __i18 + __n14)
       end
     end
     add(__l3, s)
@@ -488,14 +488,14 @@ function _G._37(n, ...)
   end, {...}, either(n, 1))
 end
 local function pairwise(f, xs)
-  local __i21 = 0
-  while __i21 < edge(xs) do
-    local __a = xs[__i21 + 1]
-    local __b = xs[__i21 + 1 + 1]
+  local __i19 = 0
+  while __i19 < edge(xs) do
+    local __a = xs[__i19 + 1]
+    local __b = xs[__i19 + 1 + 1]
     if not f(__a, __b) then
       return false
     end
-    __i21 = __i21 + 1
+    __i19 = __i19 + 1
   end
   return true
 end
@@ -536,13 +536,13 @@ function _G.number_code63(n)
   return n > 47 and n < 58
 end
 function _G.numeric63(s)
-  local __n16 = _35(s)
-  local __i22 = 0
-  while __i22 < __n16 do
-    if not number_code63(code(s, __i22)) then
+  local __n15 = _35(s)
+  local __i20 = 0
+  while __i20 < __n15 do
+    if not number_code63(code(s, __i20)) then
       return false
     end
-    __i22 = __i22 + 1
+    __i20 = __i20 + 1
   end
   return some63(s)
 end
@@ -551,24 +551,24 @@ function _G.lowercase_code63(n)
 end
 function _G.camel_case(str)
   local __s = ""
-  local __n17 = _35(str)
-  local __i23 = 0
-  while __i23 < __n17 do
-    local __c = code(str, __i23)
-    if __c == 45 and lowercase_code63(code(str, __i23 - 1) or 0) and lowercase_code63(code(str, __i23 + 1) or 0) then
-      __i23 = __i23 + 1
-      __c = code(str, __i23) - 32
+  local __n16 = _35(str)
+  local __i21 = 0
+  while __i21 < __n16 do
+    local __c = code(str, __i21)
+    if __c == 45 and lowercase_code63(code(str, __i21 - 1) or 0) and lowercase_code63(code(str, __i21 + 1) or 0) then
+      __i21 = __i21 + 1
+      __c = code(str, __i21) - 32
     end
     __s = __s .. from_code(__c)
-    __i23 = __i23 + 1
+    __i21 = __i21 + 1
   end
   return __s
 end
 function _G.escape(s)
   local __s1 = "\""
-  local __i24 = 0
-  while __i24 < _35(s) do
-    local __c1 = char(s, __i24)
+  local __i22 = 0
+  while __i22 < _35(s) do
+    local __c1 = char(s, __i22)
     local __e9 = nil
     if __c1 == "\n" then
       __e9 = "\\n"
@@ -595,7 +595,7 @@ function _G.escape(s)
     end
     local __c11 = __e9
     __s1 = __s1 .. __c11
-    __i24 = __i24 + 1
+    __i22 = __i22 + 1
   end
   return __s1 .. "\""
 end
@@ -624,23 +624,23 @@ function _G.str(x, stack)
             local ____o14 = x
             local __k10 = nil
             for __k10 in pairs(____o14) do
-              local __v14 = ____o14[__k10]
+              local __v13 = ____o14[__k10]
               if number63(__k10) then
-                __xs5[__k10] = str(__v14, __l4)
+                __xs5[__k10] = str(__v13, __l4)
               else
                 if not string63(__k10) then
                   __k10 = str(__k10, __l4)
                 end
                 add(__ks, __k10 .. ":")
-                add(__ks, str(__v14, __l4))
+                add(__ks, str(__v13, __l4))
               end
             end
             drop(__l4)
             local ____o15 = join(__xs5, __ks)
-            local ____i26 = nil
-            for ____i26 in pairs(____o15) do
-              local __v15 = ____o15[____i26]
-              __s11 = __s11 .. __sp .. __v15
+            local ____i24 = nil
+            for ____i24 in pairs(____o15) do
+              local __v14 = ____o15[____i24]
+              __s11 = __s11 .. __sp .. __v14
               __sp = " "
             end
             return __s11 .. ")"
@@ -673,8 +673,8 @@ function _G.setenv(k, ...)
     local ____o16 = __keys
     local __k12 = nil
     for __k12 in pairs(____o16) do
-      local __v16 = ____o16[__k12]
-      __entry[__k12] = __v16
+      local __v15 = ____o16[__k12]
+      __entry[__k12] = __v15
     end
     __frame[__k11] = __entry
     return __frame[__k11]
@@ -921,7 +921,13 @@ setenv("let", {_stash = true, macro = function (bs, ...)
       return join({"%do"}, __body11)
     else
       if brackets63(__bs11) then
-        return join({"let", tl(__bs11)}, __body11)
+        local __e = nil
+        if empty63(__body11) then
+          __e = "var"
+        else
+          __e = "let"
+        end
+        return join({__e, tl(__bs11)}, __body11)
       else
         local ____id13 = __bs11
         local __lh2 = ____id13[1]
@@ -1127,19 +1133,19 @@ setenv("each", {_stash = true, macro = function (x, t, ...)
   local __o1 = unique("o")
   local __n1 = unique("n")
   local __i3 = unique("i")
-  local __e = nil
+  local __e1 = nil
   if atom63(__x187) then
-    __e = {__i3, __x187}
+    __e1 = {__i3, __x187}
   else
-    local __e1 = nil
+    local __e2 = nil
     if _35(__x187) > 1 then
-      __e1 = __x187
+      __e2 = __x187
     else
-      __e1 = {__i3, hd(__x187)}
+      __e2 = {__i3, hd(__x187)}
     end
-    __e = __e1
+    __e1 = __e2
   end
-  local ____id34 = __e
+  local ____id34 = __e1
   local __k1 = ____id34[1]
   local __v4 = ____id34[2]
   return {"let", {__o1, __t}, {"for", {__k1}, {"pairs", __o1}, join({"let", {__v4, {"get", __o1, __k1}}}, __body26)}}
@@ -1201,22 +1207,22 @@ setenv("cat!", {_stash = true, macro = function (a, ...)
   return {"set", __a2, join({"cat", __a2}, __bs4)}
 end})
 setenv("inc", {_stash = true, macro = function (n, by)
-  local __e2 = nil
-  if nil63(by) then
-    __e2 = 1
-  else
-    __e2 = by
-  end
-  return {"set", n, {"+", n, __e2}}
-end})
-setenv("dec", {_stash = true, macro = function (n, by)
   local __e3 = nil
   if nil63(by) then
     __e3 = 1
   else
     __e3 = by
   end
-  return {"set", n, {"-", n, __e3}}
+  return {"set", n, {"+", n, __e3}}
+end})
+setenv("dec", {_stash = true, macro = function (n, by)
+  local __e4 = nil
+  if nil63(by) then
+    __e4 = 1
+  else
+    __e4 = by
+  end
+  return {"set", n, {"-", n, __e4}}
 end})
 setenv("with-indent", {_stash = true, macro = function (form)
   local __x233 = unique("x")

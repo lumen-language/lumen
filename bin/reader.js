@@ -280,7 +280,7 @@ read_table[","] = function(s) {
 };
 read_table[":"] = function(s) {
   read_char(s);
-  return wrap(s, x => ":" + pp_to_string(x));
+  return wrap(s, x => ":" + str(x));
 };
 var __e2 = undefined;
 if (typeof(exports) === "undefined") {
