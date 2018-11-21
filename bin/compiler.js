@@ -239,8 +239,11 @@ var expand_local = function(__x24) {
   var __x25 = ____id2[0];
   var __name = ____id2[1];
   var __value = ____id2[2];
-  setenv(__name, {_stash: true, variable: true});
-  return ["%local", macroexpand(__name), macroexpand(__value)];
+  var __props = cut(____id2, 3);
+  if (string63(__name)) {
+    setenv(__name, {_stash: true, variable: true});
+  }
+  return join(["%local", macroexpand(__name), macroexpand(__value)], __props);
 };
 var expand_function = function(__x27) {
   var ____id3 = __x27;
@@ -1423,35 +1426,59 @@ setenv("throw", {_stash: true, special: function(x) {
   var __e7 = __e47;
   return indentation() + __e7;
 }, stmt: true});
-setenv("%local", {_stash: true, special: function(name, value) {
-  var __id32 = compile(name);
-  var __value1 = compile(value);
+setenv("%local", {_stash: true, special: function(name, value, ..._42args) {
+  var ____r114 = unstash([..._42args]);
+  var __name7 = destash33(name, ____r114);
+  var __value1 = destash33(value, ____r114);
+  var ____id32 = ____r114;
+  var __kw = ____id32.keyword;
+  var __id33 = compile(__name7);
+  var __value11 = compile(__value1);
   var __e48 = undefined;
-  if (is63(value)) {
-    __e48 = " = " + __value1;
+  if (is63(__value1)) {
+    __e48 = " = " + __value11;
   } else {
     __e48 = "";
   }
   var __rh11 = __e48;
   var __e49 = undefined;
-  if (_G.target === "js") {
-    __e49 = "var ";
-  } else {
-    __e49 = "local ";
+  if (!( __kw === undefined)) {
+    __e49 = _eval(__kw);
   }
-  var __keyword1 = __e49;
+  var __kw1 = __e49;
+  var __e50 = undefined;
+  if (function63(__kw1)) {
+    __e50 = __kw1(__name7, __value1);
+  } else {
+    __e50 = __kw1;
+  }
+  var __kw2 = __e50;
+  var __e51 = undefined;
+  if (_G.target === "js") {
+    __e51 = "var";
+  } else {
+    __e51 = "local";
+  }
+  var __kw3 = either(__kw2, __e51);
+  var __e52 = undefined;
+  if (string63(__kw3) && some63(__kw3)) {
+    __e52 = " ";
+  } else {
+    __e52 = "";
+  }
+  var __s5 = __e52;
   var __ind6 = indentation();
-  return __ind6 + __keyword1 + __id32 + __rh11;
+  return __ind6 + __kw3 + __s5 + __id33 + __rh11;
 }, stmt: true});
 setenv("%set", {_stash: true, special: function(lh, rh) {
   var __lh11 = compile(lh);
-  var __e50 = undefined;
+  var __e53 = undefined;
   if (nil63(rh)) {
-    __e50 = "nil";
+    __e53 = "nil";
   } else {
-    __e50 = rh;
+    __e53 = rh;
   }
-  var __rh2 = compile(__e50);
+  var __rh2 = compile(__e53);
   return indentation() + __lh11 + " = " + __rh2;
 }, stmt: true});
 setenv("get", {_stash: true, special: function(t, k) {
@@ -1468,57 +1495,57 @@ setenv("get", {_stash: true, special: function(t, k) {
 }});
 setenv("%array", {_stash: true, special: function(..._42args) {
   var __forms1 = unstash([..._42args]);
-  var __e51 = undefined;
+  var __e54 = undefined;
   if (_G.target === "lua") {
-    __e51 = "{";
+    __e54 = "{";
   } else {
-    __e51 = "[";
+    __e54 = "[";
   }
-  var __open = __e51;
-  var __e52 = undefined;
+  var __open = __e54;
+  var __e55 = undefined;
   if (_G.target === "lua") {
-    __e52 = "}";
+    __e55 = "}";
   } else {
-    __e52 = "]";
+    __e55 = "]";
   }
-  var __close = __e52;
-  var __s5 = "";
+  var __close = __e55;
+  var __s6 = "";
   var __c7 = "";
   var ____o9 = __forms1;
   var __k9 = undefined;
   for (__k9 of pairs(____o9)) {
     var __v8 = ____o9[__k9];
     if (number63(__k9)) {
-      __s5 = __s5 + __c7 + compile(__v8);
+      __s6 = __s6 + __c7 + compile(__v8);
       __c7 = ", ";
     }
   }
-  return __open + __s5 + __close;
+  return __open + __s6 + __close;
 }});
 setenv("%object", {_stash: true, special: function(..._42args) {
   var __forms2 = unstash([..._42args]);
-  var __s6 = "{";
+  var __s7 = "{";
   var __c8 = "";
-  var __e53 = undefined;
+  var __e56 = undefined;
   if (_G.target === "lua") {
-    __e53 = " = ";
+    __e56 = " = ";
   } else {
-    __e53 = ": ";
+    __e56 = ": ";
   }
-  var __sep = __e53;
+  var __sep = __e56;
   var ____o10 = pair(__forms2);
   var __k10 = undefined;
   for (__k10 of pairs(____o10)) {
     var __v9 = ____o10[__k10];
     if (number63(__k10)) {
-      var ____id33 = __v9;
-      var __k111 = ____id33[0];
-      var __v10 = ____id33[1];
-      __s6 = __s6 + __c8 + key(__k111) + __sep + compile(__v10);
+      var ____id34 = __v9;
+      var __k111 = ____id34[0];
+      var __v10 = ____id34[1];
+      __s7 = __s7 + __c8 + key(__k111) + __sep + compile(__v10);
       __c8 = ", ";
     }
   }
-  return __s6 + "}";
+  return __s7 + "}";
 }});
 setenv("%literal", {_stash: true, special: function(..._42args) {
   var __args14 = unstash([..._42args]);
@@ -1531,13 +1558,13 @@ setenv("unpack", {_stash: true, special: function(x) {
     return "..." + compile(x);
   }
 }});
-var __e54 = undefined;
+var __e57 = undefined;
 if (typeof(exports) === "undefined") {
-  __e54 = {};
+  __e57 = {};
 } else {
-  __e54 = exports;
+  __e57 = exports;
 }
-var __exports = __e54;
+var __exports = __e57;
 __exports.run = run;
 __exports.eval = _eval;
 __exports.expand = expand;

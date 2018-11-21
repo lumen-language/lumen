@@ -164,9 +164,10 @@
        (not (atom? x))
        (= (hd x) 'unquote-splicing)))
 
-(define expand-local ((x name value))
-  (setenv name variable: true)
-  `(%local ,(macroexpand name) ,(macroexpand value)))
+(define expand-local ((x name value rest: props))
+  (when (string? name)
+    (setenv name variable: true))
+  `(%local ,(macroexpand name) ,(macroexpand value) ,@props))
 
 (define expand-function ((x args rest: body))
   (with-bindings (args)
@@ -796,13 +797,16 @@
            (cat "error(" (compile x) ")"))
     (cat (indentation) e)))
 
-(define-special %local (name value) stmt: true
+(define-special %local (name value keyword: kw) stmt: true
   (let (id (compile name)
         value1 (compile value)
         rh (if (is? value) (cat " = " value1) "")
-        keyword (if (= target* 'js) "var " "local ")
+        kw (unless (= kw nil) (eval kw))
+        kw (if (function? kw) (kw name value) kw)
+        kw (either kw (if (= target* 'js) "var" "local"))
+        s (if (and (string? kw) (some? kw)) " " "")
         ind (indentation))
-    (cat ind keyword id rh)))
+    (cat ind kw s id rh)))
 
 (define-special %set (lh rh) stmt: true
   (let (lh (compile lh)

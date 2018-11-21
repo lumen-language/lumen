@@ -239,8 +239,11 @@ local function expand_local(__x24)
   local __x25 = ____id2[1]
   local __name = ____id2[2]
   local __value = ____id2[3]
-  setenv(__name, {_stash = true, variable = true})
-  return {"%local", macroexpand(__name), macroexpand(__value)}
+  local __props = cut(____id2, 3)
+  if string63(__name) then
+    setenv(__name, {_stash = true, variable = true})
+  end
+  return join({"%local", macroexpand(__name), macroexpand(__value)}, __props)
 end
 local function expand_function(__x27)
   local ____id3 = __x27
@@ -1435,35 +1438,59 @@ setenv("throw", {_stash = true, special = function (x)
   local __e8 = __e48
   return indentation() .. __e8
 end, stmt = true})
-setenv("%local", {_stash = true, special = function (name, value)
-  local __id33 = compile(name)
-  local __value1 = compile(value)
+setenv("%local", {_stash = true, special = function (name, value, ...)
+  local ____r115 = unstash({...})
+  local __name7 = destash33(name, ____r115)
+  local __value1 = destash33(value, ____r115)
+  local ____id33 = ____r115
+  local __kw = ____id33.keyword
+  local __id34 = compile(__name7)
+  local __value11 = compile(__value1)
   local __e49 = nil
-  if is63(value) then
-    __e49 = " = " .. __value1
+  if is63(__value1) then
+    __e49 = " = " .. __value11
   else
     __e49 = ""
   end
   local __rh11 = __e49
   local __e50 = nil
-  if _G.target == "js" then
-    __e50 = "var "
-  else
-    __e50 = "local "
+  if not( __kw == nil) then
+    __e50 = eval(__kw)
   end
-  local __keyword1 = __e50
+  local __kw1 = __e50
+  local __e51 = nil
+  if function63(__kw1) then
+    __e51 = __kw1(__name7, __value1)
+  else
+    __e51 = __kw1
+  end
+  local __kw2 = __e51
+  local __e52 = nil
+  if _G.target == "js" then
+    __e52 = "var"
+  else
+    __e52 = "local"
+  end
+  local __kw3 = either(__kw2, __e52)
+  local __e53 = nil
+  if string63(__kw3) and some63(__kw3) then
+    __e53 = " "
+  else
+    __e53 = ""
+  end
+  local __s5 = __e53
   local __ind6 = indentation()
-  return __ind6 .. __keyword1 .. __id33 .. __rh11
+  return __ind6 .. __kw3 .. __s5 .. __id34 .. __rh11
 end, stmt = true})
 setenv("%set", {_stash = true, special = function (lh, rh)
   local __lh11 = compile(lh)
-  local __e51 = nil
+  local __e54 = nil
   if nil63(rh) then
-    __e51 = "nil"
+    __e54 = "nil"
   else
-    __e51 = rh
+    __e54 = rh
   end
-  local __rh2 = compile(__e51)
+  local __rh2 = compile(__e54)
   return indentation() .. __lh11 .. " = " .. __rh2
 end, stmt = true})
 setenv("get", {_stash = true, special = function (t, k)
@@ -1480,57 +1507,57 @@ setenv("get", {_stash = true, special = function (t, k)
 end})
 setenv("%array", {_stash = true, special = function (...)
   local __forms1 = unstash({...})
-  local __e52 = nil
+  local __e55 = nil
   if _G.target == "lua" then
-    __e52 = "{"
+    __e55 = "{"
   else
-    __e52 = "["
+    __e55 = "["
   end
-  local __open = __e52
-  local __e53 = nil
+  local __open = __e55
+  local __e56 = nil
   if _G.target == "lua" then
-    __e53 = "}"
+    __e56 = "}"
   else
-    __e53 = "]"
+    __e56 = "]"
   end
-  local __close = __e53
-  local __s5 = ""
+  local __close = __e56
+  local __s6 = ""
   local __c7 = ""
   local ____o9 = __forms1
   local __k9 = nil
   for __k9 in pairs(____o9) do
     local __v8 = ____o9[__k9]
     if number63(__k9) then
-      __s5 = __s5 .. __c7 .. compile(__v8)
+      __s6 = __s6 .. __c7 .. compile(__v8)
       __c7 = ", "
     end
   end
-  return __open .. __s5 .. __close
+  return __open .. __s6 .. __close
 end})
 setenv("%object", {_stash = true, special = function (...)
   local __forms2 = unstash({...})
-  local __s6 = "{"
+  local __s7 = "{"
   local __c8 = ""
-  local __e54 = nil
+  local __e57 = nil
   if _G.target == "lua" then
-    __e54 = " = "
+    __e57 = " = "
   else
-    __e54 = ": "
+    __e57 = ": "
   end
-  local __sep = __e54
+  local __sep = __e57
   local ____o10 = pair(__forms2)
   local __k10 = nil
   for __k10 in pairs(____o10) do
     local __v9 = ____o10[__k10]
     if number63(__k10) then
-      local ____id34 = __v9
-      local __k111 = ____id34[1]
-      local __v10 = ____id34[2]
-      __s6 = __s6 .. __c8 .. key(__k111) .. __sep .. compile(__v10)
+      local ____id35 = __v9
+      local __k111 = ____id35[1]
+      local __v10 = ____id35[2]
+      __s7 = __s7 .. __c8 .. key(__k111) .. __sep .. compile(__v10)
       __c8 = ", "
     end
   end
-  return __s6 .. "}"
+  return __s7 .. "}"
 end})
 setenv("%literal", {_stash = true, special = function (...)
   local __args14 = unstash({...})
@@ -1543,13 +1570,13 @@ setenv("unpack", {_stash = true, special = function (x)
     return "..." .. compile(x)
   end
 end})
-local __e55 = nil
+local __e58 = nil
 if exports == nil then
-  __e55 = {}
+  __e58 = {}
 else
-  __e55 = exports
+  __e58 = exports
 end
-local __exports = __e55
+local __exports = __e58
 __exports.run = run
 __exports.eval = eval
 __exports.expand = expand

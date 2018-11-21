@@ -1,5 +1,6 @@
 (define-macro %brackets body
   `(%array ,@body))
+
 (define-macro %braces body
   `(%object ,@body))
 
@@ -98,10 +99,19 @@
 (define-macro obj body
   `(%object ,@(mapo (fn (x) x) body)))
 
+(define-macro var (bs rest: body)
+  (if (atom? bs) `(var (,bs ,@body))
+      (none? bs) `(%do)
+      (brackets? bs) `(var ,(tl bs) ,@body)
+    (let ((lh rh rest: bs2) bs
+          (id val rest: bs1) (bind lh rh))
+      `(%do (%local ,id ,val)
+            (var ,(join bs1 bs2) ,@body)))))
+
 (define-macro let (bs rest: body)
   (if (atom? bs) `(let (,bs ,(hd body)) ,@(tl body))
       (none? bs) `(%do ,@body)
-      (hd? bs '%brackets) `(let ,(tl bs) ,@body)
+      (brackets? bs) `(let ,(tl bs) ,@body)
     (let ((lh rh rest: bs2) bs
           (id val rest: bs1) (bind lh rh)
           id1 (unique id))
