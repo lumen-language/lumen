@@ -443,7 +443,7 @@ compile_id = function(id, escape_reserved63) {
     if (char(id, 0) === ":" && _35(id) > 1) {
       var s = clip(id, 1);
       if (char(s, 0) !== "\"") {
-        s = "\"" + s + "\"";
+        s = escape(s);
       }
       return s;
     } else {
