@@ -1,3 +1,9 @@
+(define-macro %brackets body
+  `(%array ,@body))
+
+(define-macro %braces body
+  `(%object ,@body))
+
 (define-macro quote (form)
   (quoted form))
 
