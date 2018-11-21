@@ -9,6 +9,7 @@
     "lumen-language": "bin/lumen-language"
   },
   "scripts": {
+    "preinstall": "make bundle",
     "rebuild": "make rebuild",
     "clean": "make clean",
     "test": "make test",
