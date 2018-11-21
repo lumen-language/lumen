@@ -78,6 +78,8 @@ var wrap = function(s, x) {
   var __y = read(s);
   if (__y === s.more) {
     return __y;
+  } else if (function63(x)) {
+    return x(__y);
   } else {
     return [x, __y];
   }
@@ -275,6 +277,10 @@ read_table[","] = function(s) {
   } else {
     return wrap(s, "unquote");
   }
+};
+read_table[":"] = function(s) {
+  read_char(s);
+  return wrap(s, x => ":" + pp_to_string(x));
 };
 var __e2 = undefined;
 if (typeof(exports) === "undefined") {

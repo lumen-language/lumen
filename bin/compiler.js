@@ -441,7 +441,11 @@ compile_id = function(id, escape_reserved63) {
     return "_G." + compile_id(clip(id, 0, edge(id)), escape_reserved63);
   } else {
     if (char(id, 0) === ":" && _35(id) > 1) {
-      return "\"" + clip(id, 1) + "\"";
+      var s = clip(id, 1);
+      if (char(s, 0) !== "\"") {
+        s = "\"" + s + "\"";
+      }
+      return s;
     } else {
       var __e13 = undefined;
       if (number_code63(code(id, 0))) {
