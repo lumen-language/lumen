@@ -269,6 +269,10 @@
               c1 (if (and (= c "-")
                           (not (= id "-")))
                      "_"
+                     (and (= c "/")
+                          (not (= i 0))
+                          (not (= i (edge id))))
+                     "___"
                      (valid-code? n) c
                      (= i 0) (cat "_" n)
                    n))
