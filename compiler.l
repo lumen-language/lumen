@@ -302,7 +302,7 @@
   (if (string-literal? k)
       (let i (inner k)
         (if (valid-id? i) i (cat "[" k "]")))
-    (cat "[" (tostring k) "]")))
+    (cat "[" (compile k) "]")))
 
 (define-global mapo (f t)
   (with o ()

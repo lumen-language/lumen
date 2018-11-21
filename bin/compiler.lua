@@ -475,7 +475,7 @@ function _G.key(k)
       return "[" .. k .. "]"
     end
   else
-    return "[" .. tostring(k) .. "]"
+    return "[" .. compile(k) .. "]"
   end
 end
 function _G.mapo(f, t)

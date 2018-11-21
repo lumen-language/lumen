@@ -475,7 +475,7 @@ key = function (k) {
       return "[" + k + "]";
     }
   } else {
-    return "[" + tostring(k) + "]";
+    return "[" + compile(k) + "]";
   }
 };
 mapo = function (f, t) {
