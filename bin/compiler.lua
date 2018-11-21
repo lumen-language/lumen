@@ -401,49 +401,53 @@ function _G.compile_id(id, escape_reserved63)
   if global_id63(id) then
     return "_G." .. compile_id(clip(id, 0, edge(id)), escape_reserved63)
   else
-    local __e12 = nil
-    if number_code63(code(id, 0)) then
-      __e12 = "_"
+    if char(id, 0) == ":" and _35(id) > 1 then
+      return "\"" .. clip(id, 1) .. "\""
     else
-      __e12 = ""
-    end
-    local __id11 = __e12
-    local __i10 = 0
-    while __i10 < _35(id) do
-      local __c1 = char(id, __i10)
-      local __n8 = code(__c1)
-      local __e13 = nil
-      if __c1 == "-" and not( id == "-") then
-        __e13 = "_"
+      local __e12 = nil
+      if number_code63(code(id, 0)) then
+        __e12 = "_"
       else
-        local __e14 = nil
-        if __c1 == "/" and not( __i10 == 0) and not( __i10 == edge(id)) then
-          __e14 = "___"
-        else
-          local __e15 = nil
-          if valid_code63(__n8) then
-            __e15 = __c1
-          else
-            local __e16 = nil
-            if __i10 == 0 then
-              __e16 = "_" .. __n8
-            else
-              __e16 = __n8
-            end
-            __e15 = __e16
-          end
-          __e14 = __e15
-        end
-        __e13 = __e14
+        __e12 = ""
       end
-      local __c11 = __e13
-      __id11 = __id11 .. __c11
-      __i10 = __i10 + 1
-    end
-    if either(escape_reserved63, true) and reserved63(__id11) then
-      return "_" .. __id11
-    else
-      return __id11
+      local __id11 = __e12
+      local __i10 = 0
+      while __i10 < _35(id) do
+        local __c1 = char(id, __i10)
+        local __n8 = code(__c1)
+        local __e13 = nil
+        if __c1 == "-" and not( id == "-") then
+          __e13 = "_"
+        else
+          local __e14 = nil
+          if __c1 == "/" and not( __i10 == 0) and not( __i10 == edge(id)) then
+            __e14 = "___"
+          else
+            local __e15 = nil
+            if valid_code63(__n8) then
+              __e15 = __c1
+            else
+              local __e16 = nil
+              if __i10 == 0 then
+                __e16 = "_" .. __n8
+              else
+                __e16 = __n8
+              end
+              __e15 = __e16
+            end
+            __e14 = __e15
+          end
+          __e13 = __e14
+        end
+        local __c11 = __e13
+        __id11 = __id11 .. __c11
+        __i10 = __i10 + 1
+      end
+      if either(escape_reserved63, true) and reserved63(__id11) then
+        return "_" .. __id11
+      else
+        return __id11
+      end
     end
   end
 end

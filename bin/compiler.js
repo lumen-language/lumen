@@ -401,49 +401,53 @@ compile_id = function (id, escape_reserved63) {
   if (global_id63(id)) {
     return "_G." + compile_id(clip(id, 0, edge(id)), escape_reserved63);
   } else {
-    var __e11 = undefined;
-    if (number_code63(code(id, 0))) {
-      __e11 = "_";
+    if (char(id, 0) === ":" && _35(id) > 1) {
+      return "\"" + clip(id, 1) + "\"";
     } else {
-      __e11 = "";
-    }
-    var __id11 = __e11;
-    var __i10 = 0;
-    while (__i10 < _35(id)) {
-      var __c1 = char(id, __i10);
-      var __n8 = code(__c1);
-      var __e12 = undefined;
-      if (__c1 === "-" && !( id === "-")) {
-        __e12 = "_";
+      var __e11 = undefined;
+      if (number_code63(code(id, 0))) {
+        __e11 = "_";
       } else {
-        var __e13 = undefined;
-        if (__c1 === "/" && !( __i10 === 0) && !( __i10 === edge(id))) {
-          __e13 = "___";
-        } else {
-          var __e14 = undefined;
-          if (valid_code63(__n8)) {
-            __e14 = __c1;
-          } else {
-            var __e15 = undefined;
-            if (__i10 === 0) {
-              __e15 = "_" + __n8;
-            } else {
-              __e15 = __n8;
-            }
-            __e14 = __e15;
-          }
-          __e13 = __e14;
-        }
-        __e12 = __e13;
+        __e11 = "";
       }
-      var __c11 = __e12;
-      __id11 = __id11 + __c11;
-      __i10 = __i10 + 1;
-    }
-    if (either(escape_reserved63, true) && reserved63(__id11)) {
-      return "_" + __id11;
-    } else {
-      return __id11;
+      var __id11 = __e11;
+      var __i10 = 0;
+      while (__i10 < _35(id)) {
+        var __c1 = char(id, __i10);
+        var __n8 = code(__c1);
+        var __e12 = undefined;
+        if (__c1 === "-" && !( id === "-")) {
+          __e12 = "_";
+        } else {
+          var __e13 = undefined;
+          if (__c1 === "/" && !( __i10 === 0) && !( __i10 === edge(id))) {
+            __e13 = "___";
+          } else {
+            var __e14 = undefined;
+            if (valid_code63(__n8)) {
+              __e14 = __c1;
+            } else {
+              var __e15 = undefined;
+              if (__i10 === 0) {
+                __e15 = "_" + __n8;
+              } else {
+                __e15 = __n8;
+              }
+              __e14 = __e15;
+            }
+            __e13 = __e14;
+          }
+          __e12 = __e13;
+        }
+        var __c11 = __e12;
+        __id11 = __id11 + __c11;
+        __i10 = __i10 + 1;
+      }
+      if (either(escape_reserved63, true) && reserved63(__id11)) {
+        return "_" + __id11;
+      } else {
+        return __id11;
+      }
     }
   }
 };
