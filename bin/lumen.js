@@ -786,15 +786,15 @@ setenv("%braces", {_stash: true, macro: function(..._42args) {
   var __body1 = unstash([..._42args]);
   return join(["%object"], __body1);
 }});
+setenv("do", {_stash: true, macro: function(..._42args) {
+  var __body2 = unstash([..._42args]);
+  return join(["%do"], __body2);
+}});
 setenv("quote", {_stash: true, macro: function(form) {
   return quoted(form);
 }});
 setenv("quasiquote", {_stash: true, macro: function(form) {
   return quasiexpand(form, 1);
-}});
-setenv("do", {_stash: true, macro: function(..._42args) {
-  var __body2 = unstash([..._42args]);
-  return join(["%do"], __body2);
 }});
 setenv("while", {_stash: true, macro: function(test, ..._42args) {
   var ____r2 = unstash([..._42args]);
