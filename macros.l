@@ -20,11 +20,11 @@
   (let place (macroexpand place)
     (if (or (atom? place)
             (and (= (hd place) 'get)
-                 (nil? (getenv 'get 'expander)))
+                 (nil? (getenv 'get 'place-expander)))
             (accessor-literal? (hd (tl place))))
         (setfn place (fn (v) `(%set ,place ,v)))
       (let (head (hd place)
-            gf (getenv head 'expander))
+            gf (getenv head 'place-expander))
         (if gf (apply gf setfn (tl place))
           (error (cat (str place) " is not a valid place expression")))))))
 
@@ -32,7 +32,7 @@
   `(get-place ,place (fn ,vars ,@body)))
 
 (define-macro define-expander (name handler)
-  (with form `(setenv ',name expander: ,handler)
+  (with form `(setenv ',name place-expander: ,handler)
     (eval form)))
 
 (define-global define-setter (name setter setfn args vars)

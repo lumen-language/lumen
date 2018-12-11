@@ -728,13 +728,13 @@ setenv("while", {_stash = true, macro = function (test, ...)
 end})
 function _G.get_place(place, setfn)
   local __place = macroexpand(place)
-  if atom63(__place) or hd(__place) == "get" and nil63(getenv("get", "expander")) or accessor_literal63(hd(tl(__place))) then
+  if atom63(__place) or hd(__place) == "get" and nil63(getenv("get", "place-expander")) or accessor_literal63(hd(tl(__place))) then
     return setfn(__place, function (v)
       return {"%set", __place, v}
     end)
   else
     local __head = hd(__place)
-    local __gf = getenv(__head, "expander")
+    local __gf = getenv(__head, "place-expander")
     if __gf then
       return apply(__gf, join({setfn}, tl(__place)))
     else
@@ -752,7 +752,7 @@ setenv("let-place", {_stash = true, macro = function (vars, place, ...)
 end})
 setenv("define-expander", {_stash = true, macro = function (name, handler)
   local ____x14 = {"setenv", {"quote", name}}
-  ____x14.expander = handler
+  ____x14["place-expander"] = handler
   local __form = ____x14
   eval(__form)
   return __form
@@ -1254,7 +1254,7 @@ setenv("expansion", {_stash = true, transformer = function (__x259)
   local __form4 = ____id39[2]
   return __form4
 end})
-setenv("hd", {_stash = true, expander = function (setfn, ...)
+setenv("hd", {_stash = true, ["place-expander"] = function (setfn, ...)
   local ____r55 = unstash({...})
   local __setfn1 = destash33(setfn, ____r55)
   local ____id42 = ____r55

@@ -805,13 +805,13 @@ setenv("while", {_stash: true, macro: function(test, ..._42args) {
 }});
 get_place = function(place, setfn) {
   var __place = macroexpand(place);
-  if (atom63(__place) || hd(__place) === "get" && nil63(getenv("get", "expander")) || accessor_literal63(hd(tl(__place)))) {
+  if (atom63(__place) || hd(__place) === "get" && nil63(getenv("get", "place-expander")) || accessor_literal63(hd(tl(__place)))) {
     return setfn(__place, function(v) {
       return ["%set", __place, v];
     });
   } else {
     var __head = hd(__place);
-    var __gf = getenv(__head, "expander");
+    var __gf = getenv(__head, "place-expander");
     if (__gf) {
       return apply(__gf, join([setfn], tl(__place)));
     } else {
@@ -829,7 +829,7 @@ setenv("let-place", {_stash: true, macro: function(vars, place, ..._42args) {
 }});
 setenv("define-expander", {_stash: true, macro: function(name, handler) {
   var ____x14 = ["setenv", ["quote", name]];
-  ____x14.expander = handler;
+  ____x14["place-expander"] = handler;
   var __form = ____x14;
   _eval(__form);
   return __form;
