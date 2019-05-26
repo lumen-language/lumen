@@ -373,7 +373,7 @@
 (define-global infix-operator? (x)
   (and (obj? x) (infix? (hd x))))
 
-(define compile-args (args)
+(define-global compile-args (args)
   (let (s "(" c "")
     (step x args
       (cat! s c (compile x))
@@ -388,14 +388,21 @@
                      (= c "\r") ""
                    c))))))
 
+(define-global compile-nil (x)
+  (if (= target 'lua) "nil"
+      (= target 'js) "undefined"
+    "nil"))
+
+(define-global compile-boolean (x)
+  (if x "true" "false"))
+
 (define-global compile-atom (x escape-reserved?)
-  (if (and (= x "nil") (= target* 'lua)) x
-      (= x "nil") "undefined"
+  (if (= x "nil") (compile-nil x)
       (= x "...") (cat "..." (if (= target* 'js) (compile "*args") ""))
       (id-literal? x) (inner x)
       (string-literal? x) (escape-newlines x)
       (string? x) (compile-id x (either escape-reserved? true))
-      (boolean? x) (if x "true" "false")
+      (boolean? x) (compile-boolean x)
       (nan? x) "nan"
       (= x inf) "inf"
       (= x -inf) "-inf"

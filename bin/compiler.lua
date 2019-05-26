@@ -605,7 +605,7 @@ end
 function _G.infix_operator63(x)
   return obj63(x) and infix63(hd(x))
 end
-local function compile_args(args)
+function _G.compile_args(args)
   local __s1 = "("
   local __c2 = ""
   local ____x69 = args
@@ -640,52 +640,62 @@ local function escape_newlines(s)
   end
   return __s11
 end
-function _G.compile_atom(x, escape_reserved63)
-  if x == "nil" and _G.target == "lua" then
-    return x
+function _G.compile_nil(x)
+  if target == "lua" then
+    return "nil"
   else
-    if x == "nil" then
+    if target == "js" then
       return "undefined"
     else
-      if x == "..." then
-        local __e21 = nil
-        if _G.target == "js" then
-          __e21 = compile("*args")
-        else
-          __e21 = ""
-        end
-        return "..." .. __e21
+      return "nil"
+    end
+  end
+end
+function _G.compile_boolean(x)
+  if x then
+    return "true"
+  else
+    return "false"
+  end
+end
+function _G.compile_atom(x, escape_reserved63)
+  if x == "nil" then
+    return compile_nil(x)
+  else
+    if x == "..." then
+      local __e21 = nil
+      if _G.target == "js" then
+        __e21 = compile("*args")
       else
-        if id_literal63(x) then
-          return inner(x)
+        __e21 = ""
+      end
+      return "..." .. __e21
+    else
+      if id_literal63(x) then
+        return inner(x)
+      else
+        if string_literal63(x) then
+          return escape_newlines(x)
         else
-          if string_literal63(x) then
-            return escape_newlines(x)
+          if string63(x) then
+            return compile_id(x, either(escape_reserved63, true))
           else
-            if string63(x) then
-              return compile_id(x, either(escape_reserved63, true))
+            if boolean63(x) then
+              return compile_boolean(x)
             else
-              if boolean63(x) then
-                if x then
-                  return "true"
-                else
-                  return "false"
-                end
+              if nan63(x) then
+                return "nan"
               else
-                if nan63(x) then
-                  return "nan"
+                if x == inf then
+                  return "inf"
                 else
-                  if x == inf then
-                    return "inf"
+                  if x == _inf then
+                    return "-inf"
                   else
-                    if x == _inf then
-                      return "-inf"
+                    if number63(x) then
+                      return x .. ""
                     else
-                      if number63(x) then
-                        return x .. ""
-                      else
-                        return error("Cannot compile atom: " .. str(x))
-                      end
+                      return error("Cannot compile atom: " .. str(x))
                     end
                   end
                 end
@@ -798,10 +808,10 @@ local function compile_infix(form)
   end
 end
 function _G.compile_function(args, body, ...)
-  local ____r74 = unstash({...})
-  local __args6 = destash33(args, ____r74)
-  local __body3 = destash33(body, ____r74)
-  local ____id13 = ____r74
+  local ____r76 = unstash({...})
+  local __args6 = destash33(args, ____r76)
+  local __body3 = destash33(body, ____r76)
+  local ____id13 = ____r76
   local __name3 = ____id13.name
   local __prefix = ____id13.prefix
   local __infix = ____id13.infix
@@ -890,9 +900,9 @@ local function can_return63(form)
   return is63(form) and (atom63(form) or not( hd(form) == "return") and not statement63(hd(form)))
 end
 function _G.compile(form, ...)
-  local ____r76 = unstash({...})
-  local __form = destash33(form, ____r76)
-  local ____id16 = ____r76
+  local ____r78 = unstash({...})
+  local __form = destash33(form, ____r78)
+  local ____id16 = ____r78
   local __stmt1 = ____id16.stmt
   local __esc63 = ____id16["escape-reserved"]
   if nil63(__form) then
@@ -1316,11 +1326,11 @@ setenv("%names", {_stash = true, special = function (...)
   end
 end})
 setenv("%for", {_stash = true, special = function (t, k, form, ...)
-  local ____r104 = unstash({...})
-  local __t1 = destash33(t, ____r104)
-  local __k7 = destash33(k, ____r104)
-  local __form3 = destash33(form, ____r104)
-  local ____id29 = ____r104
+  local ____r106 = unstash({...})
+  local __t1 = destash33(t, ____r106)
+  local __k7 = destash33(k, ____r106)
+  local __form3 = destash33(form, ____r106)
+  local ____id29 = ____r106
   local __await63 = ____id29.await
   local __t2 = compile(__t1)
   local __k8 = compile(__k7)
@@ -1363,9 +1373,9 @@ setenv("break", {_stash = true, special = function ()
   return indentation() .. "break"
 end, stmt = true})
 setenv("%function", {_stash = true, special = function (args, ...)
-  local ____r108 = unstash({...})
-  local __args111 = destash33(args, ____r108)
-  local ____id30 = ____r108
+  local ____r110 = unstash({...})
+  local __args111 = destash33(args, ____r110)
+  local ____id30 = ____r110
   local __arrow63 = ____id30.arrow
   local __body12 = cut(____id30, 0)
   if _G.target == "js" and __arrow63 then
@@ -1378,10 +1388,10 @@ setenv("%function", {_stash = true, special = function (args, ...)
   end
 end})
 setenv("%global-function", {_stash = true, special = function (name, args, ...)
-  local ____r109 = unstash({...})
-  local __name5 = destash33(name, ____r109)
-  local __args121 = destash33(args, ____r109)
-  local ____id31 = ____r109
+  local ____r111 = unstash({...})
+  local __name5 = destash33(name, ____r111)
+  local __args121 = destash33(args, ____r111)
+  local ____id31 = ____r111
   local __body13 = cut(____id31, 0)
   if _G.target == "lua" then
     local ____x148 = {__args121}
@@ -1394,10 +1404,10 @@ setenv("%global-function", {_stash = true, special = function (name, args, ...)
   end
 end, stmt = true, tr = true})
 setenv("%local-function", {_stash = true, special = function (name, args, ...)
-  local ____r110 = unstash({...})
-  local __name6 = destash33(name, ____r110)
-  local __args13 = destash33(args, ____r110)
-  local ____id32 = ____r110
+  local ____r112 = unstash({...})
+  local __name6 = destash33(name, ____r112)
+  local __args13 = destash33(args, ____r112)
+  local ____id32 = ____r112
   local __body14 = cut(____id32, 0)
   if _G.target == "lua" then
     local ____x153 = {__args13}
