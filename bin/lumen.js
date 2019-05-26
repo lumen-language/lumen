@@ -1331,7 +1331,7 @@ setenv("expansion", {_stash: true, transformer: function(__x259) {
   var __form4 = ____id39[1];
   return __form4;
 }});
-setenv("hd", {_stash: true, expander: function(setfn, ..._42args) {
+setenv("hd", {_stash: true, ["place-expander"]: function(setfn, ..._42args) {
   var ____r55 = unstash([..._42args]);
   var __setfn1 = destash33(setfn, ____r55);
   var ____id42 = ____r55;

@@ -2,7 +2,7 @@
 
 LUMEN_LUA  ?= lua
 LUMEN_NODE ?= node
-LUMEN_HOST ?= $(LUMEN_LUA)
+LUMEN_HOST ?= $(LUMEN_NODE)
 
 LUMEN := LUMEN_HOST="$(LUMEN_HOST)" bin/lumen
 
