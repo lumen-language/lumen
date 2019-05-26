@@ -248,6 +248,13 @@
 (define-macro dec (n by)
   `(set ,n (- ,n ,(if (nil? by) 1 by))))
 
+(define-macro with-value (name value rest: body)
+  (let-unique (x r)
+    `(let (,x ,name)
+       (set ,name ,value)
+       (with ,r (do ,@body)
+         (set ,name ,x)))))
+
 (define-macro with-indent (form)
   (let-unique (x)
     `(%do (inc indent-level*)

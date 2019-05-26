@@ -15,8 +15,8 @@ var directory_exists63 = function(path) {
 var path_separator = require("path").sep;
 var path_join = function(a, ..._42args) {
   return reduce(function(x, y) {
-    return x + path_separator + y;
-  }, [..._42args], a);
+  return x + path_separator + y;
+}, [..._42args], a);
 };
 var get_environment_variable = function(name) {
   return process.env[name];

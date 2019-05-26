@@ -10,14 +10,14 @@ local function call_with_file(f, path, mode)
   return __x1
 end
 local function read_file(path)
-  return call_with_file(function (f)
-    return f.read(f, "*a")
-  end, path)
+  return call_with_file(function(f)
+  return f.read(f, "*a")
+end, path)
 end
 local function write_file(path, data)
-  return call_with_file(function (f)
-    return f.write(f, data)
-  end, path, "w")
+  return call_with_file(function(f)
+  return f.write(f, data)
+end, path, "w")
 end
 local function file_exists63(path)
   local __f = io.open(path)
@@ -47,9 +47,9 @@ local function directory_exists63(path)
 end
 local path_separator = char(_G.package.config, 0)
 local function path_join(a, ...)
-  return reduce(function (x, y)
-    return x .. path_separator .. y
-  end, {...}, a)
+  return reduce(function(x, y)
+  return x .. path_separator .. y
+end, {...}, a)
 end
 local function get_environment_variable(name)
   return os.getenv(name)

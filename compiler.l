@@ -49,7 +49,8 @@
     `(list ,@(map quoted form))))
 
 (define-global unquoted (form)
-  (if (string-literal? form)
+  (if (nil? form) form
+      (string-literal? form)
       (if (= (read-string form) form)
           (eval form)
         (error "unquoted: bad string-literal"))
@@ -386,9 +387,10 @@
 
 (define-global compile-args (args)
   (let (s "(" c "")
-    (step x args
-      (cat! s c (compile x))
-      (set c ", "))
+    (with-value indent-level* 0
+      (step x args
+        (cat! s c (compile x))
+        (set c ", ")))
     (cat s ")")))
 
 (define escape-newlines (s)
@@ -400,9 +402,9 @@
                    c))))))
 
 (define-global compile-nil (x)
-  (if (= target 'lua) "nil"
-      (= target 'js) "undefined"
-      (= target 'c) "nullptr"
+  (if (= target* 'lua) "nil"
+      (= target* 'js) "undefined"
+      (= target* 'c) "nullptr"
     "nil"))
 
 (define-global compile-boolean (x)
@@ -423,7 +425,7 @@
 
 (define terminator (stmt?)
   (if (not stmt?) ""
-      (= target* 'js) ";\n"
+      (not (= target* 'lua)) ";\n"
     "\n"))
 
 (define compile-special (form stmt?)
@@ -497,7 +499,7 @@
                                       keyword: keyword
                                       generator: generator?)
   (let (id (if name (compile name) "")
-        id (if global? (cat "_G." id) id)
+        id (if (and global? (not (= target* 'c))) (cat "_G." id) id)
         args1 (if (get args 'rest)
                   `(,@args ,"...")
                 args)
@@ -506,13 +508,18 @@
         ind (indentation)
         p (if prefix (cat prefix " ") "")
         m (if generator? "" (if infix (cat " " infix) ""))
-        tr (if (= target* 'js) "" "end")
+        tr (if (not (= target* 'lua)) "" "end")
         async1 (if async? "async " "")
-        func (if generator? "function*" (either keyword "function")))
+        func (either (unquoted keyword)
+                     (if (and generator?
+                              (= target* 'js))
+                         "function*"
+                       "function"))
+        c (if (some? id) " " ""))
     (if name (cat! tr "\n"))
-    (if (= target* 'js)
-        (cat async1 func id args m " {\n" body ind "}" tr)
-      (cat p "function " id args m "\n" body ind tr))))
+    (if (not (= target* 'lua))
+        (cat async1 func c id args m " {\n" body ind "}" tr)
+      (cat p func c id args m "\n" body ind tr))))
 
 (define can-return? (form)
   (and (is? form)
@@ -791,20 +798,26 @@
 (define-special break () stmt: true
   (cat (indentation) "break"))
 
-(define-special %function (args arrow: arrow? rest: body)
+(define-special %function (args arrow: arrow? type: type rest: body)
   (if (and (= target* 'js) arrow?)
       (apply compile-function args keyword: "" infix: "=>" body)
+      (= target* 'c)
+      (apply compile-function args keyword: type body)
     (apply compile-function args body)))
 
-(define-special %global-function (name args rest: body) stmt: true tr: true
-  (if (= target* 'lua)
-      (let x (apply compile-function args body name: name global: true)
+(define-special %global-function (name args type: type rest: body) stmt: true tr: true
+  (if (not (= target* 'js))
+      (let x (apply compile-function args body name: name
+                    keyword: (if (= target* 'c) type)
+                    global: true)
         (cat (indentation) x))
     (compile `(%set ,name (%function ,args ,@body)) stmt: true)))
 
-(define-special %local-function (name args rest: body) stmt: true tr: true
-  (if (= target* 'lua)
-      (let x (apply compile-function args body name: name prefix: 'local)
+(define-special %local-function (name args type: type rest: body) stmt: true tr: true
+  (if (not (= target* 'js))
+      (let x (apply compile-function args body name: name
+                    keyword: (if (= target* 'c) type)
+                    prefix: (if (= target* 'lua) "local"))
         (cat (indentation) x))
     (compile `(%local ,name (%function ,args ,@body)) stmt: true)))
 
@@ -831,7 +844,9 @@
         value1 (compile value)
         rh (if (is? value) (cat " = " value1) "")
         keyword (if (is? type) (unquoted type)
-                    (= target* 'js) "var" "local")
+                    (= target* 'c) "auto"
+                    (= target* 'lua) "local"
+                  "var")
         ind (indentation))
     (cat ind keyword " " id rh)))
 

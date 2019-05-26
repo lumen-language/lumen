@@ -113,7 +113,7 @@ end
 local function real63(x)
   return number63(x) and not nan63(x) and not inf63(x)
 end
-read_table[""] = function (s)
+read_table[""] = function(s)
   local __str1 = ""
   while true do
     local __c3 = peek_char(s)
@@ -138,7 +138,7 @@ read_table[""] = function (s)
     end
   end
 end
-read_table["("] = function (s)
+read_table["("] = function(s)
   read_char(s)
   local __r15 = nil
   local __l1 = {}
@@ -165,10 +165,10 @@ read_table["("] = function (s)
   end
   return __r15
 end
-read_table[")"] = function (s)
+read_table[")"] = function(s)
   return error("Unexpected ) at " .. s.pos)
 end
-read_table["["] = function (s)
+read_table["["] = function(s)
   read_char(s)
   local __r18 = nil
   local __l2 = {"%brackets"}
@@ -191,10 +191,10 @@ read_table["["] = function (s)
   end
   return __r18
 end
-read_table["]"] = function (s)
+read_table["]"] = function(s)
   return error("Unexpected ] at " .. s.pos)
 end
-read_table["{"] = function (s)
+read_table["{"] = function(s)
   read_char(s)
   local __r21 = nil
   local __l3 = {"%braces"}
@@ -217,10 +217,10 @@ read_table["{"] = function (s)
   end
   return __r21
 end
-read_table["}"] = function (s)
+read_table["}"] = function(s)
   return error("Unexpected } at " .. s.pos)
 end
-read_table["\""] = function (s)
+read_table["\""] = function(s)
   read_char(s)
   local __r24 = nil
   local __str2 = "\""
@@ -241,7 +241,7 @@ read_table["\""] = function (s)
   end
   return __r24
 end
-read_table["|"] = function (s)
+read_table["|"] = function(s)
   read_char(s)
   local __r26 = nil
   local __str3 = "|"
@@ -259,15 +259,15 @@ read_table["|"] = function (s)
   end
   return __r26
 end
-read_table["'"] = function (s)
+read_table["'"] = function(s)
   read_char(s)
   return wrap(s, "quote")
 end
-read_table["`"] = function (s)
+read_table["`"] = function(s)
   read_char(s)
   return wrap(s, "quasiquote")
 end
-read_table[","] = function (s)
+read_table[","] = function(s)
   read_char(s)
   if peek_char(s) == "@" then
     read_char(s)
