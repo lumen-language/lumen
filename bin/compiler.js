@@ -423,9 +423,9 @@ indentation = function() {
   }
   return __s;
 };
-var reserved = {js: {["="]: true, ["=="]: true, ["+"]: true, ["-"]: true, ["%"]: true, ["*"]: true, ["/"]: true, ["<"]: true, [">"]: true, ["<="]: true, [">="]: true, ["break"]: true, ["case"]: true, ["catch"]: true, ["class"]: true, ["const"]: true, ["continue"]: true, ["debugger"]: true, ["default"]: true, ["delete"]: true, ["do"]: true, ["else"]: true, ["eval"]: true, ["finally"]: true, ["for"]: true, ["function"]: true, ["if"]: true, ["import"]: true, ["in"]: true, ["instanceof"]: true, ["let"]: true, ["new"]: true, ["return"]: true, ["switch"]: true, ["throw"]: true, ["try"]: true, ["typeof"]: true, ["var"]: true, ["void"]: true, ["with"]: true}, lua: {["="]: true, ["=="]: true, ["+"]: true, ["-"]: true, ["%"]: true, ["*"]: true, ["/"]: true, ["<"]: true, [">"]: true, ["<="]: true, [">="]: true, and: true, end: true, ["in"]: true, load: true, repeat: true, while: true, ["break"]: true, false: true, local: true, ["return"]: true, ["do"]: true, ["for"]: true, nil: true, then: true, ["else"]: true, ["function"]: true, not: true, true: true, elseif: true, ["if"]: true, or: true, until: true}};
+_G.reserved = {js: {["="]: true, ["=="]: true, ["+"]: true, ["-"]: true, ["%"]: true, ["*"]: true, ["/"]: true, ["<"]: true, [">"]: true, ["<="]: true, [">="]: true, ["break"]: true, ["case"]: true, ["catch"]: true, ["class"]: true, ["const"]: true, ["continue"]: true, ["debugger"]: true, ["default"]: true, ["delete"]: true, ["do"]: true, ["else"]: true, ["eval"]: true, ["finally"]: true, ["for"]: true, ["function"]: true, ["if"]: true, ["import"]: true, ["in"]: true, ["instanceof"]: true, ["let"]: true, ["new"]: true, ["return"]: true, ["switch"]: true, ["throw"]: true, ["try"]: true, ["typeof"]: true, ["var"]: true, ["void"]: true, ["with"]: true}, lua: {["="]: true, ["=="]: true, ["+"]: true, ["-"]: true, ["%"]: true, ["*"]: true, ["/"]: true, ["<"]: true, [">"]: true, ["<="]: true, [">="]: true, and: true, end: true, ["in"]: true, load: true, repeat: true, while: true, ["break"]: true, false: true, local: true, ["return"]: true, ["do"]: true, ["for"]: true, nil: true, then: true, ["else"]: true, ["function"]: true, not: true, true: true, elseif: true, ["if"]: true, or: true, until: true}, c: {auto: true, ["break"]: true, ["case"]: true, char: true, ["const"]: true, ["continue"]: true, ["default"]: true, ["do"]: true, double: true, ["else"]: true, enum: true, extern: true, float: true, ["for"]: true, goto: true, ["if"]: true, inline: true, int: true, long: true, register: true, restrict: true, ["return"]: true, short: true, signed: true, sizeof: true, static: true, struct: true, ["switch"]: true, typedef: true, union: true, unsigned: true, ["void"]: true, volatile: true, while: true, _Alignas: true, _Alignof: true, _Atomic: true, _Bool: true, _Complex: true, _Generic: true, _Imaginary: true, _Noreturn: true, _Static_assert: true, _Thread_local: true}};
 reserved63 = function(x) {
-  return has63(reserved[_G.target] || reserved.js, x);
+  return has63(_G.reserved[_G.target] || _G.reserved.js, x);
 };
 var valid_code63 = function(n) {
   return number_code63(n) || n > 64 && n < 91 || n > 96 && n < 123 || n === 95;
@@ -646,7 +646,11 @@ compile_nil = function(x) {
     if (target === "js") {
       return "undefined";
     } else {
-      return "nil";
+      if (target === "c") {
+        return "nullptr";
+      } else {
+        return "nil";
+      }
     }
   }
 };

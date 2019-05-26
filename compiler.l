@@ -257,7 +257,7 @@
     (for i indent-level*
       (cat! s "  "))))
 
-(define reserved
+(define-global reserved*
   (obj js: (set-of "=" "==" "+" "-" "%" "*" "/" "<" ">" "<=" ">="
                    "break" "case" "catch" "class" "const" "continue"
                    "debugger" "default" "delete" "do" "else" "eval"
@@ -268,11 +268,20 @@
                     "and" "end" "in" "load" "repeat" "while" "break"
                     "false" "local" "return" "do" "for" "nil" "then"
                     "else" "function" "not" "true" "elseif" "if" "or"
-                    "until")))
+                    "until")
+       c: (set-of "auto" "break" "case" "char" "const" "continue"
+                  "default" "do" "double" "else" "enum" "extern"
+                  "float" "for" "goto" "if" "inline" "int" "long"
+                  "register" "restrict" "return" "short" "signed"
+                  "sizeof" "static" "struct" "switch" "typedef"
+                  "union" "unsigned" "void" "volatile" "while"
+                  "_Alignas" "_Alignof" "_Atomic" "_Bool" "_Complex"
+                  "_Generic" "_Imaginary" "_Noreturn" "_Static_assert"
+                  "_Thread_local")))
 
 (define-global reserved? (x)
-  (has? (or (get reserved target*)
-            (get reserved "js"))
+  (has? (or (get reserved* target*)
+            (get reserved* "js"))
         x))
 
 (define valid-code? (n)
@@ -393,6 +402,7 @@
 (define-global compile-nil (x)
   (if (= target 'lua) "nil"
       (= target 'js) "undefined"
+      (= target 'c) "nullptr"
     "nil"))
 
 (define-global compile-boolean (x)
