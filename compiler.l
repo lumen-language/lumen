@@ -532,6 +532,9 @@
 (define lower-body (body tail?)
   (lower-statement `(%do ,@body) tail?))
 
+(define lower-block (body tail?)
+  `(%block ,(lower-body body tail?)))
+
 (define literal? (form)
   (or (atom? form)
       (= (hd form) '%array)
@@ -659,6 +662,7 @@
       (lower-infix? form) (lower (infix-form form) hoist stmt? tail?)
     (let ((x rest: args) form)
       (if (= x '%do) (lower-do args hoist stmt? tail?)
+          (= x '%block) (lower-block args tail?)
           (= x '%call) (lower args hoist stmt? tail?)
           (= x '%set) (lower-set args hoist stmt? tail?)
           (= x '%if) (lower-if args hoist stmt? tail?)
@@ -710,6 +714,13 @@
         (if (or (= (hd x) 'return)
                 (= (hd x) 'break))
             (break))))))
+
+(define-special %block forms stmt: true tr: true
+  (with s (cat (indentation) "{\n")
+    (with-indent
+      (step x forms
+        (cat! s (compile x stmt: true))))
+    (cat! s (indentation) "}\n")))
 
 (define-special %if (cond cons alt) stmt: true tr: true
   (let (cond (compile cond)
@@ -850,6 +861,12 @@
 
 (define-special %literal args
   (apply cat (map unquoted args)))
+
+(define-special %stmt args stmt: true tr: true
+  (with s (indentation)
+    (step x args
+      (cat! s (unquoted x)))
+    (cat! s "\n")))
 
 (define-special unpack (x)
   (if (= target* 'lua)
