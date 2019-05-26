@@ -271,7 +271,9 @@
                     "until")))
 
 (define-global reserved? (x)
-  (has? (get reserved target*) x))
+  (has? (or (get reserved target*)
+            (get reserved "js"))
+        x))
 
 (define valid-code? (n)
   (or (number-code? n)         ; 0-9
