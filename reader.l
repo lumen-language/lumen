@@ -49,7 +49,8 @@
 (define key? (atom)
   (and (string? atom)
        (> (# atom) 1)
-       (= (char atom (edge atom)) ":")))
+       (= (char atom (edge atom)) ":")
+       (not (= atom "::"))))
 
 (define expected (s c)
   (let ((more: more pos: pos) s)
@@ -175,6 +176,14 @@
       (do (read-char s)
           (wrap s 'unquote-splicing))
     (wrap s 'unquote)))
+
+(define-reader ("@" s)
+  (read-char s)
+  (wrap s "%@"))
+
+(define-reader ("~" s)
+  (read-char s)
+  (wrap s "%tilde"))
 
 (export stream
         read

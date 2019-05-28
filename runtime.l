@@ -49,6 +49,11 @@
   (target js: ((get l 'hasOwnProperty) k)
           lua: (is? (get l k))))
 
+(define-global get? (l k default)
+  (if (has? l k)
+      (get l k)
+    default))
+
 (define-global # (x)
   (target js: (or (get x 'length) 0) lua: (%literal "#" x)))
 
@@ -125,18 +130,20 @@
     (get (iterate o f l r) 'result)))
 
 (define-global cut (x from upto)
-  (with l ()
-    (let (j 0
-          i (if (or (nil? from) (< from 0)) 0 from)
-          n (# x)
-          upto (if (or (nil? upto) (> upto n)) n upto))
-      (while (< i upto)
-        (set (at l j) (at x i))
-        (inc i)
-        (inc j))
-      (each (k v) x
-        (unless (number? k)
-          (set (get l k) v))))))
+  (if (string? x)
+      (clip x from upto)
+    (with l ()
+      (let (j 0
+            i (if (or (nil? from) (< from 0)) 0 from)
+            n (# x)
+            upto (if (or (nil? upto) (> upto n)) n upto))
+        (while (< i upto)
+          (set (at l j) (at x i))
+          (inc i)
+          (inc j))
+        (each (k v) x
+          (unless (number? k)
+            (set (get l k) v)))))))
 
 (define-global props (x)
   (with t ()
@@ -180,7 +187,9 @@
           lua: ((get table 'remove) l)))
 
 (define-global last (l)
-  (at l (edge l)))
+  (if (string? l)
+      (char l (edge l))
+    (at l (edge l))))
 
 (define-global almost (l)
   (cut l 0 (edge l)))
@@ -204,14 +213,17 @@
 (define-global testify (x test)
   (if (function? x) x
       test
-      (fn (y) (test y x))
+      (fn (y) (test x y))
     (fn (y) (= x y))))
+
+(define-global testify-of (x)
+  (testify x get?))
 
 (define-global find (x t)
   (let f (testify x)
     (each x t
       (let y (f x)
-        (if y (return y))))))
+        (if (yes y) (return y))))))
 
 (define-global first (x l pos)
   (let (f (testify x)
@@ -230,6 +242,42 @@
 
 (define-global in? (x t)
   (find (testify x) t))
+
+(define-global whitespace*
+  (set-of " " "\n" "\t" "\r"))
+
+(define-global whitec (c)
+  (get? whitespace* c))
+
+(define-global nonwhite (c)
+  (not (whitec c)))
+
+(define-global blank (s)
+  (or (nil? s)
+      (~find ~whitec s)))
+
+(define-global nonblank (s)
+  (unless (blank s)
+    s))
+
+(define-global trim (s (o test whitec) where: (o where 'both))
+  (let (f  (testify test)
+        p1 (first ~f s))
+    (if (is? p1)
+        (cut s 
+             (if (in where 'front 'both) p1 0)
+             (when (in where 'end 'both)
+               (let i (- (# s) 1)
+                 (while (and (> i p1) (f (at s i)))
+                   (dec i))
+                 (+ i 1))))
+        "")))
+
+(define-global ltrim (s (o test whitec))
+  (trim s test where: 'front))
+
+(define-global rtrim (s (o test whitec))
+  (trim s test where: 'end))
 
 (define-global pair (l)
   (with l1 ()
@@ -314,6 +362,9 @@
               (do (add l (clip s 0 i))
                   (set s (clip s (+ i n)))))))
         (add l s)))))
+
+(define-global concat (sep s ...)
+  (reduce (fn (a b) (cat a sep b)) (list ...) (or s "")))
 
 (define-global cat (s ...)
   (reduce (fn (a b) (cat a b)) (list ...) (or s "")))

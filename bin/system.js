@@ -45,7 +45,7 @@ get_argv = function() {
   return argv;
 };
 var opt63 = function(x) {
-  return string63(x) && char(x, 0) === "-" && !( x === "-");
+  return string63(x) && char(x, 0) === "-" && !(x === "-");
 };
 parse_positional = function(args, pos) {
   return cut(args, either(pos, 0), first(opt63, args, pos));
@@ -62,7 +62,7 @@ parse_arguments = function(aliases, argv) {
   __l = cut(__l, _35(__r17));
   while (true) {
     var __p = parse_option(__l);
-    if (! __p) {
+    if (!__p) {
       break;
     }
     var ____y = __p;
@@ -103,7 +103,7 @@ arguments = function(aliases, argv) {
   var __r19 = parse_arguments(__argv, aliases);
   set_argv(__r19.rest);
   delete __r19.rest;
-  if (! empty63(__r19)) {
+  if (!empty63(__r19)) {
     return __r19;
   }
 };

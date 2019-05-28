@@ -1,7 +1,7 @@
-var delimiters = {["("]: true, [")"]: true, ["["]: true, ["]"]: true, ["{"]: true, ["}"]: true, [";"]: true, ["\r"]: true, ["\n"]: true};
-var whitespace = {[" "]: true, ["\t"]: true, ["\r"]: true, ["\n"]: true};
+var delimiters = {["\r"]: true, [";"]: true, ["{"]: true, ["("]: true, [")"]: true, ["}"]: true, ["]"]: true, ["\n"]: true, ["["]: true};
+var whitespace = {["\r"]: true, [" "]: true, ["\n"]: true, ["\t"]: true};
 var stream = function(str, more) {
-  return {pos: 0, string: str, len: _35(str), more: more};
+  return {more: more, pos: 0, len: _35(str), string: str};
 };
 var peek_char = function(s) {
   var ____id = s;
@@ -29,7 +29,7 @@ var skip_non_code = function(s) {
         read_char(s);
       } else {
         if (__c1 === ";") {
-          while (__c1 && !( __c1 === "\n")) {
+          while (__c1 && !(__c1 === "\n")) {
             __c1 = read_char(s);
           }
           skip_non_code(s);
@@ -66,7 +66,7 @@ read_string = function(str, more) {
   return read(stream(str, more));
 };
 var key63 = function(atom) {
-  return string63(atom) && _35(atom) > 1 && char(atom, edge(atom)) === ":";
+  return string63(atom) && _35(atom) > 1 && char(atom, edge(atom)) === ":" && !(atom === "::");
 };
 var expected = function(s, c) {
   var ____id1 = s;
@@ -111,13 +111,13 @@ var maybe_number = function(str) {
   }
 };
 var real63 = function(x) {
-  return number63(x) && ! nan63(x) && ! inf63(x);
+  return number63(x) && !nan63(x) && !inf63(x);
 };
 read_table[""] = function(s) {
   var __str1 = "";
   while (true) {
     var __c3 = peek_char(s);
-    if (__c3 && (! whitespace[__c3] && ! delimiters[__c3])) {
+    if (__c3 && (!whitespace[__c3] && !delimiters[__c3])) {
       __str1 = __str1 + read_char(s);
     } else {
       break;
@@ -275,6 +275,14 @@ read_table[","] = function(s) {
   } else {
     return wrap(s, "unquote");
   }
+};
+read_table["@"] = function(s) {
+  read_char(s);
+  return wrap(s, "%@");
+};
+read_table["~"] = function(s) {
+  read_char(s);
+  return wrap(s, "%tilde");
 };
 var __e2 = undefined;
 if (typeof(exports) === "undefined") {

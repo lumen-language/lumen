@@ -1,7 +1,7 @@
-local delimiters = {["("] = true, [")"] = true, ["["] = true, ["]"] = true, ["{"] = true, ["}"] = true, [";"] = true, ["\r"] = true, ["\n"] = true}
-local whitespace = {[" "] = true, ["\t"] = true, ["\r"] = true, ["\n"] = true}
+local delimiters = {["\r"] = true, [";"] = true, ["{"] = true, ["("] = true, [")"] = true, ["}"] = true, ["]"] = true, ["\n"] = true, ["["] = true}
+local whitespace = {["\r"] = true, [" "] = true, ["\n"] = true, ["\t"] = true}
 local function stream(str, more)
-  return {pos = 0, string = str, len = _35(str), more = more}
+  return {more = more, pos = 0, len = _35(str), string = str}
 end
 local function peek_char(s)
   local ____id = s
@@ -66,7 +66,7 @@ function _G.read_string(str, more)
   return read(stream(str, more))
 end
 local function key63(atom)
-  return string63(atom) and _35(atom) > 1 and char(atom, edge(atom)) == ":"
+  return string63(atom) and _35(atom) > 1 and char(atom, edge(atom)) == ":" and not( atom == "::")
 end
 local function expected(s, c)
   local ____id1 = s
@@ -275,6 +275,14 @@ read_table[","] = function(s)
   else
     return wrap(s, "unquote")
   end
+end
+read_table["@"] = function(s)
+  read_char(s)
+  return wrap(s, "%@")
+end
+read_table["~"] = function(s)
+  read_char(s)
+  return wrap(s, "%tilde")
 end
 local __e2 = nil
 if exports == nil then

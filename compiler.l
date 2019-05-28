@@ -56,12 +56,18 @@
         (error "unquoted: bad string-literal"))
       (hd? form 'quote)
       (at form 1)
-    (compile form)))
+    (compile form escape-reserved: false)))
+
+(define-global dequoted (x)
+  (if (nil? x) x
+      (string-literal? x) (unquoted x)
+      (not (string? x)) (compile x)
+     x))
 
 (define literal (s)
   (if (string-literal? s) s (quoted s)))
 
-(define stash-function (args)
+(define-global stash-function (args)
   (if (keys? args)
       (let l '(%object "_stash" true)
         (each (k v) args
@@ -74,7 +80,7 @@
 (define bias (k)
   (when (and (number? k)
              (not (= target* (language))))
-    (if (= target* 'js)
+    (if (not (= target* 'lua))
         (dec k)
       (inc k)))
   k)
@@ -165,13 +171,39 @@
        (not (atom? x))
        (= (hd x) 'unquote-splicing)))
 
-(define expand-local ((x name value rest: args))
-  (setenv name variable: true)
-  `(%local ,(macroexpand name) ,(macroexpand value) ,@(map macroexpand args)))
+(define-global auto-type ()
+  (getenv '%%type 'type))
+
+(define-global auto-value ()
+  (if (or (= target* 'js)
+          (= target* 'lua))
+      'nil))
+
+(define-global auto-local (name value)
+  (let (v (if (is? value) value (auto-value))
+        t (auto-type))
+    (if (is? t) 
+        `(%local ,name type: ,t ,v)
+      `(%local ,name ,v))))
+
+(define expand-local ((x name value type: type rest: args))
+  (let (name (macroexpand name)
+        type (macroexpand type)
+        prev (do (setenv name variable: true type: type) type)
+        value (with-frame
+                (when (is? type)
+                  (setenv '%%type type: type))
+                (macroexpand value))
+        args (map macroexpand args))
+    `(,x ,name ,value ,@args)))
+
+(define expand-block ((x rest: body))
+  (with-frame
+    `(,x ,@(map macroexpand body))))
 
 (define expand-function ((x args rest: body))
   (with-bindings (args)
-    `(%function ,args ,@(map macroexpand body))))
+    `(,x ,args ,@(map macroexpand body))))
 
 (define expand-definition ((x name args rest: body))
   (with-bindings (args)
@@ -192,6 +224,7 @@
       (atom? form) form
     (let x (hd form)
       (if (= x '%local) (expand-local form)
+          (= x '%block) (expand-block form)
           (= x '%function) (expand-function form)
           (= x '%global-function) (expand-definition form)
           (= x '%local-function) (expand-definition form)
@@ -285,11 +318,16 @@
             (get reserved* "js"))
         x))
 
-(define valid-code? (n)
+(define-global valid-code? (n)
   (or (number-code? n)         ; 0-9
       (and (> n 64) (< n 91))  ; A-Z
       (and (> n 96) (< n 123)) ; a-z
-      (= n 95)))               ; _
+      (= n 95)                 ; _
+      (and (= target* 'c)
+           (or (= n 60)        ; <
+               (= n 62)        ; >
+               ))
+      ))
 
 (define-global global-id? (id)
   (let n (# id)
@@ -299,10 +337,13 @@
 
 (define-global compile-id (id escape-reserved?)
   (if (global-id? id)
-      (cat "_G." (compile-id (clip id 0 (edge id)) escape-reserved?))
+      (cat (if (= target* 'c) "" "_G.")
+           (compile-id (clip id 0 (edge id)) escape-reserved?))
       (and (= (char id 0) ":")
            (> (# id) 1))
-      (cat "\"" (clip id 1) "\"")
+      (if (= target* 'c)
+          (cat (camel-case (clip id 1)) ":")
+        (cat "\"" (clip id 1) "\""))
     (let id1 (if (number-code? (code id 0)) "_" "")
       (for i (# id)
         (let (c (char id i)
@@ -350,48 +391,78 @@
           (add o (literal k))
           (add o x))))))
 
-(define infix
-  `((not: (js: ! lua: not))
+(define-global infix
+  `((not: ((value: ! space: ,"") lua: not))
+    (.: ((value: . space: ,"")) ->: ((value: -> space: ,"")))
     (*: * /: / %: %)
-    (cat: (js: + lua: ..))
+    (cat: (+ lua: ..))
     (+: + -: -)
     (<: < >: > <=: <= >=: >=)
-    (=: (js: === lua: ==))
-    (and: (js: && lua: and))
-    (or: (js: || lua: or))))
+    (=: (== js: ===))
+    (and: (&& lua: and))
+    (or: (|| lua: or))))
 
-(define unary? (form)
-  (and (two? form) (in? (hd form) '(not -))))
+(define-global unary*
+  `((-: ((value: - space: ," "))
+     *: (c: (lh: ,"(" value: * rh: ,")"))
+     not: ((value: ! space: ,"")
+           lua: (value: not space: ," ")))))
 
 (define index (k)
   (target js: k lua: (when (number? k) (- k 1))))
 
-(define precedence (form)
+(define-global precedence (form)
   (unless (or (atom? form) (unary? form))
     (each (k v) infix
       (if (get v (hd form)) (return (index k)))))
   0)
 
-(define getop (op)
-  (find (fn (level)
-          (let x (get level op)
-            (if (obj? x) (get x target*)
-                (string? x) x)))
-        infix))
+(define-global levelop (level op k)
+  (let x (get level op)
+    (if (obj? x)
+        (let r (if (has? x target*)
+                   (get x target*)
+                 (hd x))
+          (if (nil? k) r
+              (and (obj? r) (has? r k))
+              (get r k)
+              (and (string? r) (= k 'value))
+              r))
+        (and (string? x) (= k 'value))
+        x)))
 
-(define infix? (x)
-  (is? (getop x)))
+(define-global getop (ops op k default)
+  (either (find (fn (level)
+                  (levelop level op k))
+                ops)
+          default))
+
+(define-global inop (op k default)
+  (getop infix op k default))
+
+(define-global unop (op k default)
+  (getop unary* op k default))
+
+(define-global infix? (x)
+  (is? (inop x 'value)))
+
+(define-global unary? (form)
+  (and (two? form) (unop (hd form) 'value)))
 
 (define-global infix-operator? (x)
   (and (obj? x) (infix? (hd x))))
 
-(define-global compile-args (args)
-  (let (s "(" c "")
-    (with-value indent-level* 0
-      (step x args
-        (cat! s c (compile x))
-        (set c ", ")))
-    (cat s ")")))
+(define-global compile-args (args sep open close)
+  (let (close (either close ")") ; (
+        open (either open "(") ; )
+        sep (either sep ", ")
+        c "")
+    (let s open
+      (with-value indent-level* 0
+        (step x args
+          (cat! s c (compile x))
+          (set c sep)))
+      (cat s close))))
 
 (define escape-newlines (s)
   (with s1 ""
@@ -404,7 +475,6 @@
 (define-global compile-nil (x)
   (if (= target* 'lua) "nil"
       (= target* 'js) "undefined"
-      (= target* 'c) "nullptr"
     "nil"))
 
 (define-global compile-boolean (x)
@@ -431,30 +501,48 @@
 (define compile-special (form stmt?)
   (let ((x rest: args) form
         (special: special stmt: stmt tr: self-tr?) (getenv x)
-        tr (terminator (and stmt? (not self-tr?))))
-    (cat (apply special args) tr)))
+        tr (terminator (and stmt? (not self-tr?)))
+        ind (if (and stmt? (not self-tr?)) (indentation) ""))
+    (if (get form 'ephemeral) ""
+      (cat ind (apply special args) tr))))
 
 (define-global accessor-literal? (x)
   (and (string? x)
-       (= (char x 0) ".")
-       (not (= (char x 1) "."))
-       (some? (char x 1))))
+       (or (and (= (char x 0) ".")
+                (not (= (char x 1) "."))
+                (some? (char x 1)))
+           (and (= (char x 0) "-")
+                (= (char x 1) ">")
+                (some? (char x 2))))))
 
 (define-global accessor-form? (x)
   (and (obj? x) (accessor-literal? (last x))))
 
+(define-global accessor-prefix (x dot)
+  (if (and (= target* 'c) 
+           (= (char x 0) "-"))
+      "->"
+    dot))
+
+(define-global accessor-suffix (x)
+  (clip x (if (= (char x 0) ".") 1 2)))
+
 (define-global accessor-literal (x)
-  (compile (camel-case (clip x 1)) escape-reserved: false))
+  (compile (camel-case (accessor-suffix x)) escape-reserved: false))
 
 (define-global compile-method (f args chain?)
   (if (and chain? (none? args)) f
     (let x (hd args)
       (if (accessor-literal? x)
-          (compile-method (cat f "." (accessor-literal x)) (tl args) true)
+          (compile-method (cat f (accessor-prefix x ".")
+                                 (accessor-literal x))
+                          (tl args)
+                          true)
           (hd? x accessor-literal?)
           (compile-method (cat f
-                               (if (= target* 'lua) ":" ".")
-                               (accessor-literal (hd x)) (compile-args (tl x)))
+                               (accessor-prefix (hd x) (if (= target* 'lua) ":" "."))
+                               (accessor-literal (hd x))
+                               (compile-args (tl x)))
                           (tl args)
                           true)
         (cat f (compile-args args))))))
@@ -464,13 +552,14 @@
            (= (hd x) '%function))
       (> (precedence x) 0)))
 
-(define compile-call (form)
+(define-global compile-call (form no-stash: no-stash?)
   (let (f (hd form)
         f1 (compile f)
-        args (compile-method "" (stash-function (tl form))))
+        args (tl form)
+        args1 (compile-method "" (if no-stash? args (stash-function args))))
     (if (parenthesize-call? f)
-        (cat "(" f1 ")" args)
-      (cat f1 args))))
+        (cat "(" f1 ")" args1)
+      (cat f1 args1))))
 
 (define op-delims (parent child right?)
   (if ((if right? >= >)
@@ -485,10 +574,15 @@
         (bo bc) (op-delims form b true)
         a (compile a)
         b (compile b)
-        op (getop op))
-    (if (unary? form)
-        (cat op ao " " a ac)
-      (cat ao a ac " " op " " bo b bc))))
+        ops (if (unary? form) unary* infix)
+        x (hd form)
+        op (getop ops x 'value)
+        lh (getop ops x 'lh "")
+        rh (getop ops x 'rh "")
+        sp (getop ops x 'space (if (= ops unary*) "" " ")))
+    (if (= ops unary*)
+        (cat lh op ao sp a ac rh)
+      (cat lh ao a ac sp op sp bo b bc rh))))
 
 (define-global compile-function (args body
                                       name: name
@@ -538,7 +632,7 @@
                  (compile-call form)))
       (cat ind form tr))))
 
-(define lower-statement (form tail?)
+(define-global lower-statement (form tail?)
   (either
     (let (hoist () e (lower form hoist true tail?))
       (if (and (some? hoist) (is? e))
@@ -548,11 +642,12 @@
         (hd hoist)))
     '(%do)))
 
-(define lower-body (body tail?)
-  (lower-statement `(%do ,@body) tail?))
+(define-global lower-body (body tail?)
+  (with-frame
+    (lower-statement `(%do ,@body) tail?)))
 
-(define lower-block (body tail?)
-  `(%block ,(lower-body body tail?)))
+(define-global lower-block (body tail?)
+  `(%block ,(lower-body body) ,@(props body)))
 
 (define literal? (form)
   (or (atom? form)
@@ -593,7 +688,7 @@
                    ,(lower-body (list then) tail?)
                    ,@(if (is? else) (list (lower-body (list else) tail?)))))
       (let-unique (e)
-        (add hoist `(%local ,e nil))
+        (add hoist (auto-local e 'nil))
         (add hoist
              `(%if ,(lower cond hoist)
                    ,(lower `(%set ,e ,then))
@@ -601,18 +696,20 @@
                          (list (lower `(%set ,e ,else))))))
         e))))
 
-(define lower-short (x args hoist)
-  (let ((a b) args
-        hoist1 ()
-        b1 (lower b hoist1))
-    (if (some? hoist1)
-        (let-unique (id)
-          (lower `(%do (%local ,id ,a)
-                       ,(if (= x 'and)
-                            `(%if ,id ,b ,id)
-                          `(%if ,id ,id ,b)))
-                 hoist))
-      `(,x ,(lower a hoist) ,b1))))
+(define lower-short (x args hoist stmt? tail?)
+  (if (none? args) (if (= x 'and) `true `false)
+      (one? args) (hd args)
+    (let ((a b) args
+          hoist1 ()
+          b1 (lower b hoist1))
+      (if (some? hoist1)
+          (let-unique (id)
+            (lower `(%do ,(auto-local id a)
+                         ,(if (= x 'and)
+                              `(%if ,id ,b ,id)
+                            `(%if ,id ,id ,b)))
+                   hoist))
+        `(,x ,(lower a hoist) ,b1)))))
 
 (define lower-try (args hoist tail?)
   (add hoist `(%try ,(lower-body args tail?))))
@@ -648,7 +745,24 @@
     (unless (and stmt? (not tail?))
       name1)))
 
-(define lower-call (form hoist)
+(define-global lower-local (form hoist stmt? tail?)
+  (let ((kind name value ephemeral: ephemeral? type: type rest: args) form
+        name1 (lower name hoist)
+        type1 (lower type hoist)
+        form1 `(,kind ,name1 ,value ,@args))
+    (with r (with-frame
+              (when (is? type1)
+                (set (get form1 'type) type1)
+                (setenv '%%type type: type1))
+              (if ephemeral?
+                  (lower value hoist stmt? tail?)
+                  (do (lower-special form1 hoist stmt? tail?)
+                    (unless (and stmt? (not tail?))
+                      name1))))
+      (unless ephemeral?
+        (setenv name1 variable: true type: type1)))))
+
+(define-global lower-call (form hoist)
   (let form (map (fn (x) (lower x hoist)) form)
     (if (some? form) form)))
 
@@ -669,7 +783,7 @@
       (add e (list x a b))
       (set a b))))
 
-(define lower-special (form hoist)
+(define-global lower-special (form hoist stmt? tail?)
   (let e (lower-call form hoist)
     (if e (add hoist e))))
 
@@ -692,9 +806,10 @@
           (or (= x '%local-function)
               (= x '%global-function))
           (lower-definition x args hoist stmt? tail?)
+          (= x '%local) (lower-local form hoist stmt? tail?)
           (in? x '(and or))
-          (lower-short x args hoist)
-          (statement? x) (lower-special form hoist)
+          (lower-short x args hoist stmt? tail?)
+          (statement? x) (lower-special form hoist stmt? tail?)
         (lower-call form hoist)))))
 
 (define-global expand (form)
@@ -734,12 +849,21 @@
                 (= (hd x) 'break))
             (break))))))
 
-(define-special %block forms stmt: true tr: true
-  (with s (cat (indentation) "{\n")
-    (with-indent
-      (step x forms
-        (cat! s (compile x stmt: true))))
-    (cat! s (indentation) "}\n")))
+(define-special %brackets forms
+  (if (= target* 'c)
+      (compile-args forms " " "[" "]")
+    (compile `(%array ,@forms))))
+
+(define-special %braces forms
+  (compile `(%object ,@forms)))
+
+(define-special %block (prefix: prefix rest: forms) stmt: true tr: true
+  (let p (if (is? prefix) (cat (trim (compile prefix stmt: true) (any-of ";" " " "\n")) " ") "")
+    (with s (cat (indentation) p "{\n")
+      (with-indent
+        (step x forms
+          (cat! s (compile x stmt: true))))
+      (cat! s (indentation) "}\n"))))
 
 (define-special %if (cond cons alt) stmt: true tr: true
   (let (cond (compile cond)
@@ -747,10 +871,10 @@
         alt (if alt (with-indent (compile alt stmt: true)))
         ind (indentation)
         s "")
-    (if (= target* 'js)
+    (if (not (= target* 'lua))
         (cat! s ind "if (" cond ") {\n" cons ind "}")
       (cat! s ind "if " cond " then\n" cons))
-    (if (and alt (= target* 'js))
+    (if (and alt (not (= target* 'lua)))
         (cat! s " else {\n" alt ind "}")
         alt (cat! s ind "else\n" alt))
     (if (= target* 'lua)
@@ -761,17 +885,17 @@
   (let (cond (compile cond)
         body (with-indent (compile form stmt: true))
         ind (indentation))
-    (if (= target* 'js)
+    (if (not (= target* 'lua))
         (cat ind "while (" cond ") {\n" body ind "}\n")
       (cat ind "while " cond " do\n" body ind "end\n"))))
 
 (define-special %names args
   (if (one? args) (compile (hd args))
-    (let (s (if (= target* 'js) "[" "") c "")
+    (let (s (if (not (= target* 'lua)) "[" "") c "")
       (step x args
         (cat! s c (compile x))
         (set c ", "))
-      (cat s (if (= target* 'js) "]" "")))))
+      (cat s (if (not (= target* 'lua)) "]" "")))))
 
 (define-special %for (t k form await: await?) stmt: true tr: true
   (let (t (compile t)
@@ -793,10 +917,10 @@
            ind "catch (" e ") {\n" h ind "}\n"))))
 
 (define-special %delete (place) stmt: true
-  (cat (indentation) "delete " (compile place)))
+  (cat "delete " (compile place)))
 
 (define-special break () stmt: true
-  (cat (indentation) "break"))
+  "break")
 
 (define-special %function (args arrow: arrow? type: type rest: body)
   (if (and (= target* 'js) arrow?)
@@ -822,38 +946,44 @@
     (compile `(%local ,name (%function ,args ,@body)) stmt: true)))
 
 (define-special return (x) stmt: true
-  (let x (if (nil? x)
-             "return"
-           (cat "return " (compile x)))
-    (cat (indentation) x)))
+  (if (nil? x)
+      "return"
+    (cat "return " (compile x))))
 
-(define-special new (x)
-  (cat "new " (compile x)))
+(define-special new (x count)
+  (let ((type rest: args) (if (obj? x) x (list x)))
+    (let t (dequoted type)
+      (if (nil? count)
+          (cat "new " t (compile-args args))
+          (cat "new " t "[" (compile count) "]")))))
 
 (define-special typeof (x)
   (cat "typeof(" (compile x) ")"))
 
 (define-special throw (x) stmt: true
-  (let e (if (= target* 'js)
-             (cat "throw " (compile x))
-           (cat "error(" (compile x) ")"))
-    (cat (indentation) e)))
+  (if (= target* 'js)
+      (cat "throw " (compile x))
+    (cat "error(" (compile x) ")")))
+
+(define-global default-value? (value type)
+  (and (= target* 'c)
+       (= value "nil")))
 
 (define-special %local (name value type: type) stmt: true
   (let (id (compile name)
+        type1 (dequoted type)
+        value (if (default-value? value type1) nil value)
         value1 (compile value)
         rh (if (is? value) (cat " = " value1) "")
-        keyword (if (is? type) (unquoted type)
-                    (= target* 'c) "auto"
+        keyword (if (= target* 'c) (either type1 "auto")
                     (= target* 'lua) "local"
-                  "var")
-        ind (indentation))
-    (cat ind keyword " " id rh)))
+                  "var"))
+    (cat keyword " " id rh)))
 
 (define-special %set (lh rh) stmt: true
   (let (lh (compile lh)
         rh (compile (if (nil? rh) 'nil rh)))
-    (cat (indentation) lh " = " rh)))
+    (cat lh " = " rh)))
 
 (define-special get (t k)
   (let (t1 (compile t)
@@ -900,6 +1030,12 @@
   (if (= target* 'lua)
       (cat "(unpack or table.unpack)(" (compile x) ")")
     (cat "..." (compile x))))
+
+(define-special %@ (x)
+  (cat "@" (compile x)))
+
+(define-special %newline () stmt: true tr: true
+  "\n")
 
 (export run
         eval

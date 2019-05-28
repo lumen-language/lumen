@@ -1,9 +1,3 @@
-(define-macro %brackets body
-  `(%array ,@body))
-
-(define-macro %braces body
-  `(%object ,@body))
-
 (define-macro do body
   `(%do ,@body))
 
@@ -78,6 +72,11 @@
 
 (define-macro if branches
   (hd (expand-if branches)))
+
+(define-macro in (x test: (o test '=) rest: choices)
+  (let-unique (g)
+    `(let ,g ,x
+       (or ,@(map (fn (c) `(,test ,g ,c)) choices)))))
 
 (define-macro case (expr rest: clauses)
   (let-unique (x)
@@ -231,6 +230,9 @@
       (set (get l x) true))
     `(obj ,@l)))
 
+(define-macro any-of xs
+  `(testify-of (set-of ,@xs)))
+
 (define-macro language () `',target*)
 
 (define-macro target clauses
@@ -278,6 +280,12 @@
 (define-macro during-compilation body
   (with form `(%do ,@body (%do))
     (eval form)))
+
+(define-macro %tilde args
+  `(complement ,@args))
+
+(define-macro complement (f)
+  `(fn (...) (not (,f ...))))
 
 (define-transformer compose ((compose rest: fns) rest: body)
   (if (none? fns) (macroexpand `(do ,@body))
