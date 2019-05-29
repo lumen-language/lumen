@@ -498,7 +498,7 @@ reserved63 = function(x) {
   return has63(_G.reserved[_G.target] || _G.reserved.js, x);
 };
 valid_code63 = function(n) {
-  return number_code63(n) || n > 64 && n < 91 || n > 96 && n < 123 || n === 95 || _G.target === "c" && (n === 60 || n === 62);
+  return number_code63(n) || uppercase_code63(n) || lowercase_code63(n) || n === 95 || _G.target === "c" && (n === 60 || n === 62 || n === 42 || n === 32) || _G.target === "js" && n === 36;
 };
 global_id63 = function(id) {
   var __n7 = _35(id);

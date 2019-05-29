@@ -1,7 +1,7 @@
-local delimiters = {["\r"] = true, [";"] = true, ["{"] = true, ["("] = true, [")"] = true, ["}"] = true, ["]"] = true, ["\n"] = true, ["["] = true}
-local whitespace = {["\r"] = true, [" "] = true, ["\n"] = true, ["\t"] = true}
+local delimiters = {["("] = true, [")"] = true, ["["] = true, ["]"] = true, ["{"] = true, ["}"] = true, [";"] = true, ["\r"] = true, ["\n"] = true}
+local whitespace = {[" "] = true, ["\t"] = true, ["\r"] = true, ["\n"] = true}
 local function stream(str, more)
-  return {more = more, pos = 0, len = _35(str), string = str}
+  return {pos = 0, string = str, len = _35(str), more = more}
 end
 local function peek_char(s)
   local ____id = s

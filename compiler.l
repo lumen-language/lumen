@@ -319,15 +319,17 @@
         x))
 
 (define-global valid-code? (n)
-  (or (number-code? n)         ; 0-9
-      (and (> n 64) (< n 91))  ; A-Z
-      (and (> n 96) (< n 123)) ; a-z
-      (= n 95)                 ; _
+  (or (number-code? n)    ; 0-9
+      (uppercase-code? n) ; A-Z
+      (lowercase-code? n) ; a-z
+      (= n (%code "_"))   ; _
       (and (= target* 'c)
-           (or (= n 60)        ; <
-               (= n 62)        ; >
-               ))
-      ))
+           (or (= n (%code "<"))
+               (= n (%code ">"))
+               (= n (%code "*"))
+               (= n (%code " "))))
+      (and (= target* 'js)
+           (= n (%code "$")))))
 
 (define-global global-id? (id)
   (let n (# id)

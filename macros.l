@@ -74,9 +74,7 @@
   (hd (expand-if branches)))
 
 (define-macro in (x test: (o test '=) rest: choices)
-  (let-unique (g)
-    `(let ,g ,x
-       (or ,@(map (fn (c) `(,test ,g ,c)) choices)))))
+  `(or ,@(map (fn (c) `(,test ,x ,c)) choices)))
 
 (define-macro case (expr rest: clauses)
   (let-unique (x)
@@ -283,6 +281,9 @@
 
 (define-macro %tilde args
   `(complement ,@args))
+
+(define-macro %code (c)
+  `(when-compiling (code ,c)))
 
 (define-macro complement (f)
   `(fn (...) (not (,f ...))))

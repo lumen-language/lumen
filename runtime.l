@@ -415,7 +415,10 @@
   (some? s))
 
 (define-global lowercase-code? (n)
-  (and (> n 96) (< n 123))) ; a-z
+  (and (>= n (%code "a")) (<= n (%code "z"))))
+
+(define-global uppercase-code? (n)
+  (and (>= n (%code "A")) (<= n (%code "Z"))))
 
 (define-global camel-case (str)
   (with s ""

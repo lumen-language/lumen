@@ -498,7 +498,7 @@ function _G.reserved63(x)
   return has63(_G.reserved[_G.target] or _G.reserved.js, x)
 end
 function _G.valid_code63(n)
-  return number_code63(n) or n > 64 and n < 91 or n > 96 and n < 123 or n == 95 or _G.target == "c" and (n == 60 or n == 62)
+  return number_code63(n) or uppercase_code63(n) or lowercase_code63(n) or n == 95 or _G.target == "c" and (n == 60 or n == 62 or n == 42 or n == 32) or _G.target == "js" and n == 36
 end
 function _G.global_id63(id)
   local __n7 = _35(id)
