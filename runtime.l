@@ -279,6 +279,20 @@
 (define-global rtrim (s (o test whitec))
   (trim s test where: 'end))
 
+(define-global str-replace (s before after rest: more)
+  (let ((a rest: bs) (split s before))
+    (step x bs
+      (cat! a (or after "") x))
+    (if (some? more)
+        (apply str-replace a more)
+       a)))
+
+(define-global str-starts? (str s)
+  (= (clip str 0 (# s)) s))
+
+(define-global str-ends? (str s)
+  (= (clip str (- (# str) (# s))) s))
+
 (define-global pair (l)
   (with l1 ()
     (for i (# l)

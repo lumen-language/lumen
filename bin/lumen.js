@@ -111,9 +111,9 @@ atom63 = function(x) {
   return nil63(x) || string63(x) || number63(x) || boolean63(x);
 };
 hd63 = function(l, x) {
-  var __id3 = obj63(l);
+  var __id5 = obj63(l);
   var __e2 = undefined;
-  if (__id3) {
+  if (__id5) {
     var __e3 = undefined;
     if (function63(x)) {
       __e3 = x(hd(l));
@@ -128,7 +128,7 @@ hd63 = function(l, x) {
     }
     __e2 = __e3;
   } else {
-    __e2 = __id3;
+    __e2 = __id5;
   }
   return __e2;
 };
@@ -445,13 +445,42 @@ rtrim = function(s, __x10) {
   var __test2 = __e12;
   return trim(s, __test2, {_stash: true, where: "end"});
 };
+str_replace = function(s, before, after, ..._42args) {
+  var ____r69 = unstash([..._42args]);
+  var __s1 = destash33(s, ____r69);
+  var __before = destash33(before, ____r69);
+  var __after = destash33(after, ____r69);
+  var ____id2 = ____r69;
+  var __more = cut(____id2, 0);
+  var ____id3 = split(__s1, __before);
+  var __a = ____id3[0];
+  var __bs = cut(____id3, 1);
+  var ____x12 = __bs;
+  var ____i12 = 0;
+  while (____i12 < _35(____x12)) {
+    var __x13 = ____x12[____i12];
+    __a = __a + (__after || "") + __x13;
+    ____i12 = ____i12 + 1;
+  }
+  if (some63(__more)) {
+    return apply(str_replace, join([__a], __more));
+  } else {
+    return __a;
+  }
+};
+str_starts63 = function(str, s) {
+  return clip(str, 0, _35(s)) === s;
+};
+str_ends63 = function(str, s) {
+  return clip(str, _35(str) - _35(s)) === s;
+};
 pair = function(l) {
   var __l12 = [];
-  var __i12 = 0;
-  while (__i12 < _35(l)) {
-    add(__l12, [l[__i12], l[__i12 + 1]]);
-    __i12 = __i12 + 1;
-    __i12 = __i12 + 1;
+  var __i13 = 0;
+  while (__i13 < _35(l)) {
+    add(__l12, [l[__i13], l[__i13 + 1]]);
+    __i13 = __i13 + 1;
+    __i13 = __i13 + 1;
   }
   return __l12;
 };
@@ -470,15 +499,15 @@ sort = function(l, f) {
 };
 map = function(f, x) {
   var __t1 = [];
-  var ____x12 = x;
-  var ____i13 = 0;
-  while (____i13 < _35(____x12)) {
-    var __v9 = ____x12[____i13];
+  var ____x16 = x;
+  var ____i14 = 0;
+  while (____i14 < _35(____x16)) {
+    var __v9 = ____x16[____i14];
     var __y3 = f(__v9);
     if (is63(__y3)) {
       add(__t1, __y3);
     }
-    ____i13 = ____i13 + 1;
+    ____i14 = ____i14 + 1;
   }
   var ____o8 = x;
   var __k5 = undefined;
@@ -514,9 +543,9 @@ keys63 = function(t) {
 };
 empty63 = function(t) {
   var ____o10 = t;
-  var ____i16 = undefined;
-  for (____i16 of pairs(____o10)) {
-    var __x13 = ____o10[____i16];
+  var ____i17 = undefined;
+  for (____i17 of pairs(____o10)) {
+    var __x17 = ____o10[____i17];
     return false;
   }
   return true;
@@ -573,9 +602,9 @@ destash33 = function(l, args1) {
   }
 };
 search = function(s, pattern, start) {
-  var __i20 = s.indexOf(pattern, start);
-  if (__i20 >= 0) {
-    return __i20;
+  var __i21 = s.indexOf(pattern, start);
+  if (__i21 >= 0) {
+    return __i21;
   }
 };
 split = function(s, sep) {
@@ -585,12 +614,12 @@ split = function(s, sep) {
     var __l3 = [];
     var __n15 = _35(sep);
     while (true) {
-      var __i21 = search(s, sep);
-      if (nil63(__i21)) {
+      var __i22 = search(s, sep);
+      if (nil63(__i22)) {
         break;
       } else {
-        add(__l3, clip(s, 0, __i21));
-        s = clip(s, __i21 + __n15);
+        add(__l3, clip(s, 0, __i22));
+        s = clip(s, __i22 + __n15);
       }
     }
     add(__l3, s);
@@ -633,14 +662,14 @@ _37 = function(n, ..._42args) {
 }, [..._42args], either(n, 1));
 };
 var pairwise = function(f, xs) {
-  var __i22 = 0;
-  while (__i22 < edge(xs)) {
-    var __a = xs[__i22];
-    var __b = xs[__i22 + 1];
-    if (!f(__a, __b)) {
+  var __i23 = 0;
+  while (__i23 < edge(xs)) {
+    var __a1 = xs[__i23];
+    var __b = xs[__i23 + 1];
+    if (!f(__a1, __b)) {
       return false;
     }
-    __i22 = __i22 + 1;
+    __i23 = __i23 + 1;
   }
   return true;
 };
@@ -685,12 +714,12 @@ number_code63 = function(n) {
 };
 numeric63 = function(s) {
   var __n17 = _35(s);
-  var __i23 = 0;
-  while (__i23 < __n17) {
-    if (!number_code63(code(s, __i23))) {
+  var __i24 = 0;
+  while (__i24 < __n17) {
+    if (!number_code63(code(s, __i24))) {
       return false;
     }
-    __i23 = __i23 + 1;
+    __i24 = __i24 + 1;
   }
   return some63(s);
 };
@@ -701,19 +730,19 @@ uppercase_code63 = function(n) {
   return n >= 65 && n <= 90;
 };
 camel_case = function(str) {
-  var __s1 = "";
+  var __s2 = "";
   var __n18 = _35(str);
-  var __i24 = 0;
-  while (__i24 < __n18) {
-    var __c = code(str, __i24);
-    if (__c === 45 && (lowercase_code63(code(str, __i24 - 1) || 0) || uppercase_code63(code(str, __i24 - 1) || 0)) && lowercase_code63(code(str, __i24 + 1) || 0)) {
-      __i24 = __i24 + 1;
-      __c = code(str, __i24) - 32;
+  var __i25 = 0;
+  while (__i25 < __n18) {
+    var __c = code(str, __i25);
+    if (__c === 45 && (lowercase_code63(code(str, __i25 - 1) || 0) || uppercase_code63(code(str, __i25 - 1) || 0)) && lowercase_code63(code(str, __i25 + 1) || 0)) {
+      __i25 = __i25 + 1;
+      __c = code(str, __i25) - 32;
     }
-    __s1 = __s1 + from_code(__c);
-    __i24 = __i24 + 1;
+    __s2 = __s2 + from_code(__c);
+    __i25 = __i25 + 1;
   }
-  return __s1;
+  return __s2;
 };
 tostring = function(x) {
   if (string63(x)) {
@@ -748,9 +777,9 @@ tostring = function(x) {
 };
 escape = function(s) {
   var __s11 = "\"";
-  var __i25 = 0;
-  while (__i25 < _35(s)) {
-    var __c1 = char(s, __i25);
+  var __i26 = 0;
+  while (__i26 < _35(s)) {
+    var __c1 = char(s, __i26);
     var __e14 = undefined;
     if (__c1 === "\n") {
       __e14 = "\\n";
@@ -777,7 +806,7 @@ escape = function(s) {
     }
     var __c11 = __e14;
     __s11 = __s11 + __c11;
-    __i25 = __i25 + 1;
+    __i26 = __i26 + 1;
   }
   return __s11 + "\"";
 };
@@ -797,7 +826,7 @@ str = function(x, stack) {
           if (false) {
             return escape(tostring(x));
           } else {
-            var __s2 = "(";
+            var __s3 = "(";
             var __sp = "";
             var __xs5 = [];
             var __ks = [];
@@ -816,13 +845,13 @@ str = function(x, stack) {
             }
             drop(__l4);
             var ____o15 = join(__xs5, __ks);
-            var ____i27 = undefined;
-            for (____i27 of pairs(____o15)) {
-              var __v16 = ____o15[____i27];
-              __s2 = __s2 + __sp + __v16;
+            var ____i28 = undefined;
+            for (____i28 of pairs(____o15)) {
+              var __v16 = ____o15[____i28];
+              __s3 = __s3 + __sp + __v16;
               __sp = " ";
             }
-            return __s2 + ")";
+            return __s3 + ")";
           }
         }
       }
@@ -836,10 +865,10 @@ call = function(f, ..._42args) {
   return f(..._42args);
 };
 setenv = function(k, ..._42args) {
-  var ____r113 = unstash([..._42args]);
-  var __k11 = destash33(k, ____r113);
-  var ____id2 = ____r113;
-  var __keys = cut(____id2, 0);
+  var ____r116 = unstash([..._42args]);
+  var __k11 = destash33(k, ____r116);
+  var ____id4 = ____r116;
+  var __keys = cut(____id4, 0);
   if (string63(__k11)) {
     var __e18 = undefined;
     if (__keys.toplevel) {
