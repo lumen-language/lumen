@@ -663,7 +663,7 @@ function _G.camel_case(str)
   local __i24 = 0
   while __i24 < __n17 do
     local __c = code(str, __i24)
-    if __c == 45 and lowercase_code63(code(str, __i24 - 1) or 0) and lowercase_code63(code(str, __i24 + 1) or 0) then
+    if __c == 45 and (lowercase_code63(code(str, __i24 - 1) or 0) or uppercase_code63(code(str, __i24 - 1) or 0)) and lowercase_code63(code(str, __i24 + 1) or 0) then
       __i24 = __i24 + 1
       __c = code(str, __i24) - 32
     end

@@ -706,7 +706,7 @@ camel_case = function(str) {
   var __i24 = 0;
   while (__i24 < __n18) {
     var __c = code(str, __i24);
-    if (__c === 45 && lowercase_code63(code(str, __i24 - 1) || 0) && lowercase_code63(code(str, __i24 + 1) || 0)) {
+    if (__c === 45 && (lowercase_code63(code(str, __i24 - 1) || 0) || uppercase_code63(code(str, __i24 - 1) || 0)) && lowercase_code63(code(str, __i24 + 1) || 0)) {
       __i24 = __i24 + 1;
       __c = code(str, __i24) - 32;
     }

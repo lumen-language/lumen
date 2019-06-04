@@ -426,7 +426,8 @@
       (for i n
         (let c (code str i)
           (when (and (= c 45) ; "-"
-                     (lowercase-code? (or (code str (- i 1)) 0))
+                     (or (lowercase-code? (or (code str (- i 1)) 0))
+                         (uppercase-code? (or (code str (- i 1)) 0)))
                      (lowercase-code? (or (code str (+ i 1)) 0)))
             (set c (- (code str (inc i)) 32)))
           (cat! s (from-code c)))))))
