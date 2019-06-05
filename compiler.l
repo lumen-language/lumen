@@ -303,10 +303,9 @@
                     "false" "local" "return" "do" "for" "nil" "then"
                     "else" "function" "not" "true" "elseif" "if" "or"
                     "until")
-       c: (set-of "auto" "break" "case" "char" "const" "continue"
-                  "default" "do" "double" "else" "enum" "extern"
-                  "float" "for" "goto" "if" "inline" "int" "long"
-                  "register" "restrict" "return" "short" "signed"
+       c: (set-of "auto" "break" "case" "const" "continue" "default"
+                  "do" "else" "enum" "extern" "for" "goto" "if"
+                  "inline" "register" "restrict" "return" "signed"
                   "sizeof" "static" "struct" "switch" "typedef"
                   "union" "unsigned" "void" "volatile" "while"
                   "_Alignas" "_Alignof" "_Atomic" "_Bool" "_Complex"
