@@ -1917,6 +1917,12 @@ setenv("%@", {_stash: true, special: function(x) {
 setenv("%newline", {_stash: true, special: function() {
   return "\n";
 }, stmt: true, tr: true});
+setenv("%indent", {_stash: true, special: function(x) {
+  _G.indent_level = _G.indent_level + 1;
+  var ____x198 = compile(x, {_stash: true, stmt: true});
+  _G.indent_level = _G.indent_level - 1;
+  return ____x198;
+}, stmt: true, tr: true});
 var __e71 = undefined;
 if (typeof(exports) === "undefined") {
   __e71 = {};

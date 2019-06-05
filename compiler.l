@@ -1038,6 +1038,9 @@
 (define-special %newline () stmt: true tr: true
   "\n")
 
+(define-special %indent (x) stmt: true tr: true
+  (with-indent (compile x stmt: true)))
+
 (export run
         eval
         expand

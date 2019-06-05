@@ -1929,6 +1929,12 @@ end})
 setenv("%newline", {_stash = true, special = function()
   return "\n"
 end, stmt = true, tr = true})
+setenv("%indent", {_stash = true, special = function(x)
+  _G.indent_level = _G.indent_level + 1
+  local ____x199 = compile(x, {_stash = true, stmt = true})
+  _G.indent_level = _G.indent_level - 1
+  return ____x199
+end, stmt = true, tr = true})
 local __e72 = nil
 if exports == nil then
   __e72 = {}
