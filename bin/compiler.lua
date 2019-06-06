@@ -493,7 +493,7 @@ function _G.indentation()
   end
   return __s
 end
-_G.reserved = {js = {["="] = true, ["=="] = true, ["+"] = true, ["-"] = true, ["%"] = true, ["*"] = true, ["/"] = true, ["<"] = true, [">"] = true, ["<="] = true, [">="] = true, ["break"] = true, case = true, catch = true, class = true, const = true, continue = true, debugger = true, default = true, delete = true, ["do"] = true, ["else"] = true, eval = true, finally = true, ["for"] = true, ["function"] = true, ["if"] = true, import = true, ["in"] = true, instanceof = true, let = true, new = true, ["return"] = true, switch = true, throw = true, try = true, typeof = true, var = true, void = true, with = true}, lua = {["="] = true, ["=="] = true, ["+"] = true, ["-"] = true, ["%"] = true, ["*"] = true, ["/"] = true, ["<"] = true, [">"] = true, ["<="] = true, [">="] = true, ["and"] = true, ["end"] = true, ["in"] = true, ["load"] = true, ["repeat"] = true, ["while"] = true, ["break"] = true, ["false"] = true, ["local"] = true, ["return"] = true, ["do"] = true, ["for"] = true, ["nil"] = true, ["then"] = true, ["else"] = true, ["function"] = true, ["not"] = true, ["true"] = true, ["elseif"] = true, ["if"] = true, ["or"] = true, ["until"] = true}, c = {auto = true, ["break"] = true, case = true, const = true, continue = true, default = true, ["do"] = true, ["else"] = true, enum = true, extern = true, ["for"] = true, goto = true, ["if"] = true, inline = true, register = true, restrict = true, ["return"] = true, signed = true, sizeof = true, static = true, struct = true, switch = true, typedef = true, union = true, unsigned = true, void = true, volatile = true, ["while"] = true, _Alignas = true, _Alignof = true, _Atomic = true, _Bool = true, _Complex = true, _Generic = true, _Imaginary = true, _Noreturn = true, _Static_assert = true, _Thread_local = true}}
+_G.reserved = {js = {["="] = true, ["=="] = true, ["+"] = true, ["-"] = true, ["%"] = true, ["*"] = true, ["/"] = true, ["<"] = true, [">"] = true, ["<="] = true, [">="] = true, ["break"] = true, case = true, catch = true, class = true, const = true, continue = true, debugger = true, default = true, delete = true, ["do"] = true, ["else"] = true, eval = true, finally = true, ["for"] = true, ["function"] = true, ["if"] = true, import = true, ["in"] = true, instanceof = true, let = true, new = true, ["return"] = true, switch = true, throw = true, try = true, typeof = true, var = true, void = true, with = true}, lua = {["="] = true, ["=="] = true, ["+"] = true, ["-"] = true, ["%"] = true, ["*"] = true, ["/"] = true, ["<"] = true, [">"] = true, ["<="] = true, [">="] = true, ["and"] = true, ["end"] = true, ["in"] = true, ["load"] = true, ["repeat"] = true, ["while"] = true, ["break"] = true, ["false"] = true, ["local"] = true, ["return"] = true, ["do"] = true, ["for"] = true, ["nil"] = true, ["then"] = true, ["else"] = true, ["function"] = true, ["not"] = true, ["true"] = true, ["elseif"] = true, ["if"] = true, ["or"] = true, ["until"] = true, ["goto"] = true}, c = {auto = true, ["break"] = true, case = true, const = true, continue = true, default = true, ["do"] = true, ["else"] = true, enum = true, extern = true, ["for"] = true, ["goto"] = true, ["if"] = true, inline = true, register = true, restrict = true, ["return"] = true, signed = true, sizeof = true, static = true, struct = true, switch = true, typedef = true, union = true, unsigned = true, void = true, volatile = true, ["while"] = true, _Alignas = true, _Alignof = true, _Atomic = true, _Bool = true, _Complex = true, _Generic = true, _Imaginary = true, _Noreturn = true, _Static_assert = true, _Thread_local = true}}
 function _G.reserved63(x)
   return has63(_G.reserved[_G.target] or _G.reserved.js, x)
 end
@@ -1102,7 +1102,7 @@ function _G.compile_function(args, body, ...)
   end
 end
 local function can_return63(form)
-  return is63(form) and (atom63(form) or not( hd(form) == "return") and not statement63(hd(form)))
+  return is63(form) and (atom63(form) or not( hd(form) == "%return") and not statement63(hd(form)))
 end
 function _G.compile(form, ...)
   local ____r90 = unstash({...})
@@ -1144,31 +1144,16 @@ end
 function _G.lower_statement(form, tail63)
   local __hoist = {}
   local __e = lower(form, __hoist, true, tail63)
-  local __e45 = nil
-  if some63(__hoist) and is63(__e) then
-    __e45 = join({"%do"}, __hoist, {__e})
-  else
-    local __e46 = nil
-    if is63(__e) then
-      __e46 = __e
-    else
-      local __e47 = nil
-      if _35(__hoist) > 1 then
-        __e47 = join({"%do"}, __hoist)
-      else
-        __e47 = hd(__hoist)
-      end
-      __e46 = __e47
-    end
-    __e45 = __e46
+  if is63(__e) then
+    add(__hoist, __e)
   end
-  return either(__e45, {"%do"})
+  return join({"%do"}, __hoist)
 end
 function _G.lower_body(body, tail63)
   add(_G.environment, {})
-  local ____x107 = lower_statement(join({"%do"}, body), tail63)
+  local ____x104 = lower_statement(join({"%do"}, body), tail63)
   drop(_G.environment)
-  return ____x107
+  return ____x104
 end
 function _G.lower_block(body, tail63)
   return join({"%block", lower_body(body)}, props(body))
@@ -1180,11 +1165,11 @@ local function standalone63(form)
   return not atom63(form) and not infix63(hd(form)) and not literal63(form) and not( "get" == hd(form)) and not accessor_form63(form) or id_literal63(form)
 end
 local function lower_do(args, hoist, stmt63, tail63)
-  local ____x110 = almost(args)
+  local ____x107 = almost(args)
   local ____i17 = 0
-  while ____i17 < _35(____x110) do
-    local __x111 = ____x110[____i17 + 1]
-    local ____y = lower(__x111, hoist, stmt63)
+  while ____i17 < _35(____x107) do
+    local __x108 = ____x107[____i17 + 1]
+    local ____y = lower(__x108, hoist, stmt63)
     if yes(____y) then
       local __e1 = ____y
       if standalone63(__e1) then
@@ -1195,7 +1180,7 @@ local function lower_do(args, hoist, stmt63, tail63)
   end
   local __e2 = lower(last(args), hoist, stmt63, tail63)
   if tail63 and can_return63(__e2) then
-    return {"return", __e2}
+    return {"%return", __e2}
   else
     return __e2
   end
@@ -1217,19 +1202,19 @@ local function lower_if(args, hoist, stmt63, tail63)
   local ___then = ____id20[2]
   local ___else = ____id20[3]
   if stmt63 then
-    local __e49 = nil
+    local __e46 = nil
     if is63(___else) then
-      __e49 = {lower_body({___else}, tail63)}
+      __e46 = {lower_body({___else}, tail63)}
     end
-    return add(hoist, join({"%if", lower(__cond, hoist), lower_body({___then}, tail63)}, __e49))
+    return add(hoist, join({"%if", lower(__cond, hoist), lower_body({___then}, tail63)}, __e46))
   else
     local __e3 = unique("e")
     add(hoist, auto_local(__e3, "nil"))
-    local __e48 = nil
+    local __e45 = nil
     if is63(___else) then
-      __e48 = {lower({"%set", __e3, ___else})}
+      __e45 = {lower({"%set", __e3, ___else})}
     end
-    add(hoist, join({"%if", lower(__cond, hoist), lower({"%set", __e3, ___then})}, __e48))
+    add(hoist, join({"%if", lower(__cond, hoist), lower({"%set", __e3, ___then})}, __e45))
     return __e3
   end
 end
@@ -1251,13 +1236,13 @@ local function lower_short(x, args, hoist, stmt63, tail63)
       local __b11 = lower(__b4, __hoist1)
       if some63(__hoist1) then
         local __id22 = unique("id")
-        local __e50 = nil
+        local __e47 = nil
         if x == "and" then
-          __e50 = {"%if", __id22, __b4, __id22}
+          __e47 = {"%if", __id22, __b4, __id22}
         else
-          __e50 = {"%if", __id22, __id22, __b4}
+          __e47 = {"%if", __id22, __id22, __b4}
         end
-        return lower({"%do", auto_local(__id22, __a3), __e50}, hoist)
+        return lower({"%do", auto_local(__id22, __a3), __e47}, hoist)
       else
         return {x, lower(__a3, hoist), __b11}
       end
@@ -1273,13 +1258,13 @@ local function lower_while(args, hoist)
   local __body6 = cut(____id23, 1)
   local __pre = {}
   local __c6 = lower(__c5, __pre)
-  local __e51 = nil
+  local __e48 = nil
   if none63(__pre) then
-    __e51 = {"%while", __c6, lower_body(__body6)}
+    __e48 = {"%while", __c6, lower_body(__body6)}
   else
-    __e51 = {"%while", true, join({"%do"}, __pre, {{"%if", {"not", __c6}, {"break"}}, lower_body(__body6)})}
+    __e48 = {"%while", true, join({"%do"}, __pre, {{"%if", {"not", __c6}, {"break"}}, lower_body(__body6)})}
   end
-  return add(hoist, __e51)
+  return add(hoist, __e48)
 end
 local function lower_for(args, hoist)
   local ____id24 = args
@@ -1317,25 +1302,25 @@ function _G.lower_local(form, hoist, stmt63, tail63)
   local __type11 = lower(__type2, hoist)
   local __form11 = join({__kind, __name12, __value2}, __args111)
   add(_G.environment, {})
-  local __e52 = nil
+  local __e49 = nil
   if is63(__type11) then
     __form11.type = __type11
-    __e52 = setenv("%%type", {_stash = true, type = __type11})
+    __e49 = setenv("%%type", {_stash = true, type = __type11})
   end
-  local __e53 = nil
+  local __e50 = nil
   if __ephemeral63 then
-    __e53 = lower(__value2, hoist, stmt63, tail63)
+    __e50 = lower(__value2, hoist, stmt63, tail63)
   else
     lower_special(__form11, hoist, stmt63, tail63)
-    local __e54 = nil
+    local __e51 = nil
     if not( stmt63 and not tail63) then
-      __e54 = __name12
+      __e51 = __name12
     end
-    __e53 = __e54
+    __e50 = __e51
   end
-  local ____x138 = __e53
+  local ____x135 = __e50
   drop(_G.environment)
-  local __r106 = ____x138
+  local __r106 = ____x135
   if not __ephemeral63 then
     setenv(__name12, {_stash = true, variable = true, type = __type11})
   end
@@ -1352,16 +1337,16 @@ end
 local function lower_infix63(form)
   return _35(form) > 3 and infix63(hd(form))
 end
-local function infix_form(__x139)
-  local ____id28 = __x139
-  local __x140 = ____id28[1]
+local function infix_form(__x136)
+  local ____id28 = __x136
+  local __x137 = ____id28[1]
   local __a5 = ____id28[2]
   local __bs2 = cut(____id28, 2)
-  local ____x141 = __bs2
+  local ____x138 = __bs2
   local ____i18 = 0
-  while ____i18 < _35(____x141) do
-    local __b5 = ____x141[____i18 + 1]
-    __a5 = {__x140, __a5, __b5}
+  while ____i18 < _35(____x138) do
+    local __b5 = ____x138[____i18 + 1]
+    __a5 = {__x137, __a5, __b5}
     ____i18 = ____i18 + 1
   end
   return __a5
@@ -1369,17 +1354,17 @@ end
 local function lower_pairwise63(form)
   return _35(form) > 3 and in63(hd(form), {"<", "<=", "=", ">=", ">"})
 end
-local function pairwise_form(__x144)
-  local ____id29 = __x144
-  local __x145 = ____id29[1]
+local function pairwise_form(__x141)
+  local ____id29 = __x141
+  local __x142 = ____id29[1]
   local __a6 = ____id29[2]
   local __bs3 = cut(____id29, 2)
   local __e4 = {"and"}
-  local ____x147 = __bs3
+  local ____x144 = __bs3
   local ____i19 = 0
-  while ____i19 < _35(____x147) do
-    local __b6 = ____x147[____i19 + 1]
-    add(__e4, {__x145, __a6, __b6})
+  while ____i19 < _35(____x144) do
+    local __b6 = ____x144[____i19 + 1]
+    add(__e4, {__x142, __a6, __b6})
     __a6 = __b6
     ____i19 = ____i19 + 1
   end
@@ -1408,45 +1393,45 @@ function _G.lower(form, hoist, stmt63, tail63)
             return lower(infix_form(form), hoist, stmt63, tail63)
           else
             local ____id30 = form
-            local __x150 = ____id30[1]
+            local __x147 = ____id30[1]
             local __args121 = cut(____id30, 1)
-            if __x150 == "%do" then
+            if __x147 == "%do" then
               return lower_do(__args121, hoist, stmt63, tail63)
             else
-              if __x150 == "%block" then
+              if __x147 == "%block" then
                 return lower_block(__args121, tail63)
               else
-                if __x150 == "%call" then
+                if __x147 == "%call" then
                   return lower(__args121, hoist, stmt63, tail63)
                 else
-                  if __x150 == "%set" then
+                  if __x147 == "%set" then
                     return lower_set(__args121, hoist, stmt63, tail63)
                   else
-                    if __x150 == "%if" then
+                    if __x147 == "%if" then
                       return lower_if(__args121, hoist, stmt63, tail63)
                     else
-                      if __x150 == "%try" then
+                      if __x147 == "%try" then
                         return lower_try(__args121, hoist, tail63)
                       else
-                        if __x150 == "%while" then
+                        if __x147 == "%while" then
                           return lower_while(__args121, hoist)
                         else
-                          if __x150 == "%for" then
+                          if __x147 == "%for" then
                             return lower_for(__args121, hoist)
                           else
-                            if __x150 == "%function" then
+                            if __x147 == "%function" then
                               return lower_function(__args121)
                             else
-                              if __x150 == "%local-function" or __x150 == "%global-function" then
-                                return lower_definition(__x150, __args121, hoist, stmt63, tail63)
+                              if __x147 == "%local-function" or __x147 == "%global-function" then
+                                return lower_definition(__x147, __args121, hoist, stmt63, tail63)
                               else
-                                if __x150 == "%local" then
+                                if __x147 == "%local" then
                                   return lower_local(form, hoist, stmt63, tail63)
                                 else
-                                  if in63(__x150, {"and", "or"}) then
-                                    return lower_short(__x150, __args121, hoist, stmt63, tail63)
+                                  if in63(__x147, {"and", "or"}) then
+                                    return lower_short(__x147, __args121, hoist, stmt63, tail63)
                                   else
-                                    if statement63(__x150) then
+                                    if statement63(__x147) then
                                       return lower_special(form, hoist, stmt63, tail63)
                                     else
                                       return lower_call(form, hoist)
@@ -1498,16 +1483,16 @@ end
 setenv("%do", {_stash = true, special = function(...)
   local __forms = unstash({...})
   local __s2 = ""
-  local ____x155 = __forms
+  local ____x152 = __forms
   local ____i20 = 0
-  while ____i20 < _35(____x155) do
-    local __x156 = ____x155[____i20 + 1]
-    if _G.target == "lua" and immediate_call63(__x156) and "\n" == char(__s2, edge(__s2)) then
+  while ____i20 < _35(____x152) do
+    local __x153 = ____x152[____i20 + 1]
+    if _G.target == "lua" and immediate_call63(__x153) and "\n" == char(__s2, edge(__s2)) then
       __s2 = clip(__s2, 0, edge(__s2)) .. ";\n"
     end
-    __s2 = __s2 .. compile(__x156, {_stash = true, stmt = true})
-    if not atom63(__x156) then
-      if hd(__x156) == "return" or hd(__x156) == "break" then
+    __s2 = __s2 .. compile(__x153, {_stash = true, stmt = true})
+    if not atom63(__x153) then
+      if hd(__x153) == "%return" or hd(__x153) == "%break" or hd(__x153) == "%continue" then
         break
       end
     end
@@ -1532,23 +1517,23 @@ setenv("%block", {_stash = true, special = function(...)
   local ____id32 = ____r119
   local __prefix1 = ____id32.prefix
   local __forms3 = cut(____id32, 0)
-  local __e55 = nil
+  local __e52 = nil
   if is63(__prefix1) then
-    __e55 = trim(compile(__prefix1, {_stash = true, stmt = true}), testify_of({[";"] = true, [" "] = true, ["\n"] = true})) .. " "
+    __e52 = trim(compile(__prefix1, {_stash = true, stmt = true}), testify_of({[";"] = true, [" "] = true, ["\n"] = true})) .. " "
   else
-    __e55 = ""
+    __e52 = ""
   end
-  local __p1 = __e55
+  local __p1 = __e52
   local __s3 = indentation() .. __p1 .. "{\n"
   _G.indent_level = _G.indent_level + 1
-  local ____x163 = __forms3
+  local ____x160 = __forms3
   local ____i21 = 0
-  while ____i21 < _35(____x163) do
-    local __x164 = ____x163[____i21 + 1]
-    __s3 = __s3 .. compile(__x164, {_stash = true, stmt = true})
+  while ____i21 < _35(____x160) do
+    local __x161 = ____x160[____i21 + 1]
+    __s3 = __s3 .. compile(__x161, {_stash = true, stmt = true})
     ____i21 = ____i21 + 1
   end
-  local ____x162
+  local ____x159
   _G.indent_level = _G.indent_level - 1
   __s3 = __s3 .. indentation() .. "}\n"
   return __s3
@@ -1556,17 +1541,17 @@ end, stmt = true, tr = true})
 setenv("%if", {_stash = true, special = function(cond, cons, alt)
   local __cond1 = compile(cond)
   _G.indent_level = _G.indent_level + 1
-  local ____x165 = compile(cons, {_stash = true, stmt = true})
+  local ____x162 = compile(cons, {_stash = true, stmt = true})
   _G.indent_level = _G.indent_level - 1
-  local __cons = ____x165
-  local __e56 = nil
+  local __cons = ____x162
+  local __e53 = nil
   if alt then
     _G.indent_level = _G.indent_level + 1
-    local ____x166 = compile(alt, {_stash = true, stmt = true})
+    local ____x163 = compile(alt, {_stash = true, stmt = true})
     _G.indent_level = _G.indent_level - 1
-    __e56 = ____x166
+    __e53 = ____x163
   end
-  local __alt = __e56
+  local __alt = __e53
   local __ind3 = indentation()
   local __s4 = ""
   if not( _G.target == "lua") then
@@ -1590,9 +1575,9 @@ end, stmt = true, tr = true})
 setenv("%while", {_stash = true, special = function(cond, form)
   local __cond2 = compile(cond)
   _G.indent_level = _G.indent_level + 1
-  local ____x167 = compile(form, {_stash = true, stmt = true})
+  local ____x164 = compile(form, {_stash = true, stmt = true})
   _G.indent_level = _G.indent_level - 1
-  local __body10 = ____x167
+  local __body10 = ____x164
   local __ind4 = indentation()
   if not( _G.target == "lua") then
     return __ind4 .. "while (" .. __cond2 .. ") {\n" .. __body10 .. __ind4 .. "}\n"
@@ -1605,29 +1590,29 @@ setenv("%names", {_stash = true, special = function(...)
   if one63(__args131) then
     return compile(hd(__args131))
   else
-    local __e57 = nil
+    local __e54 = nil
     if not( _G.target == "lua") then
-      __e57 = "["
+      __e54 = "["
     else
-      __e57 = ""
+      __e54 = ""
     end
-    local __s5 = __e57
+    local __s5 = __e54
     local __c7 = ""
-    local ____x169 = __args131
+    local ____x166 = __args131
     local ____i22 = 0
-    while ____i22 < _35(____x169) do
-      local __x170 = ____x169[____i22 + 1]
-      __s5 = __s5 .. __c7 .. compile(__x170)
+    while ____i22 < _35(____x166) do
+      local __x167 = ____x166[____i22 + 1]
+      __s5 = __s5 .. __c7 .. compile(__x167)
       __c7 = ", "
       ____i22 = ____i22 + 1
     end
-    local __e58 = nil
+    local __e55 = nil
     if not( _G.target == "lua") then
-      __e58 = "]"
+      __e55 = "]"
     else
-      __e58 = ""
+      __e55 = ""
     end
-    return __s5 .. __e58
+    return __s5 .. __e55
   end
 end})
 setenv("%for", {_stash = true, special = function(t, k, form, ...)
@@ -1641,16 +1626,16 @@ setenv("%for", {_stash = true, special = function(t, k, form, ...)
   local __k8 = compile(__k7)
   local __ind5 = indentation()
   _G.indent_level = _G.indent_level + 1
-  local ____x172 = compile(__form4, {_stash = true, stmt = true})
+  local ____x169 = compile(__form4, {_stash = true, stmt = true})
   _G.indent_level = _G.indent_level - 1
-  local __body11 = ____x172
-  local __e59 = nil
+  local __body11 = ____x169
+  local __e56 = nil
   if __await63 then
-    __e59 = "await "
+    __e56 = "await "
   else
-    __e59 = ""
+    __e56 = ""
   end
-  local __a7 = __e59
+  local __a7 = __e56
   if _G.target == "lua" then
     return __ind5 .. "for " .. __k8 .. " in " .. __t3 .. " do\n" .. __body11 .. __ind5 .. "end\n"
   else
@@ -1661,93 +1646,96 @@ setenv("%try", {_stash = true, special = function(form)
   local __e7 = unique("e")
   local __ind6 = indentation()
   _G.indent_level = _G.indent_level + 1
-  local ____x173 = compile(form, {_stash = true, stmt = true})
+  local ____x170 = compile(form, {_stash = true, stmt = true})
   _G.indent_level = _G.indent_level - 1
-  local __body12 = ____x173
-  local __hf = {"return", {"%array", false, __e7}}
+  local __body12 = ____x170
+  local __hf = {"%return", {"%array", false, __e7}}
   _G.indent_level = _G.indent_level + 1
-  local ____x176 = compile(__hf, {_stash = true, stmt = true})
+  local ____x173 = compile(__hf, {_stash = true, stmt = true})
   _G.indent_level = _G.indent_level - 1
-  local __h = ____x176
+  local __h = ____x173
   return __ind6 .. "try {\n" .. __body12 .. __ind6 .. "}\n" .. __ind6 .. "catch (" .. __e7 .. ") {\n" .. __h .. __ind6 .. "}\n"
 end, stmt = true, tr = true})
 setenv("%delete", {_stash = true, special = function(place)
   return "delete " .. compile(place)
 end, stmt = true})
-setenv("break", {_stash = true, special = function()
+setenv("%break", {_stash = true, special = function()
   return "break"
 end, stmt = true})
+setenv("%continue", {_stash = true, special = function()
+  return "continue"
+end, stmt = true})
 setenv("%function", {_stash = true, special = function(args, ...)
-  local ____r126 = unstash({...})
-  local __args14 = destash33(args, ____r126)
-  local ____id34 = ____r126
+  local ____r127 = unstash({...})
+  local __args14 = destash33(args, ____r127)
+  local ____id34 = ____r127
   local __arrow63 = ____id34.arrow
   local __type3 = ____id34.type
   local __body13 = cut(____id34, 0)
   if _G.target == "js" and __arrow63 then
-    local ____x178 = {__args14}
-    ____x178.keyword = ""
-    ____x178.infix = "=>"
-    return apply(compile_function, join(____x178, __body13))
+    local ____x175 = {__args14}
+    ____x175.keyword = ""
+    ____x175.infix = "=>"
+    return apply(compile_function, join(____x175, __body13))
   else
     if _G.target == "c" then
-      local ____x179 = {__args14}
-      ____x179.keyword = __type3
-      return apply(compile_function, join(____x179, __body13))
+      local ____x176 = {__args14}
+      ____x176.keyword = __type3
+      return apply(compile_function, join(____x176, __body13))
     else
       return apply(compile_function, join({__args14}, __body13))
     end
   end
 end})
 setenv("%global-function", {_stash = true, special = function(name, args, ...)
-  local ____r127 = unstash({...})
-  local __name7 = destash33(name, ____r127)
-  local __args15 = destash33(args, ____r127)
-  local ____id35 = ____r127
+  local ____r128 = unstash({...})
+  local __name7 = destash33(name, ____r128)
+  local __args15 = destash33(args, ____r128)
+  local ____id35 = ____r128
   local __type4 = ____id35.type
   local __body14 = cut(____id35, 0)
   if not( _G.target == "js") then
-    local ____x183 = {__args15}
-    ____x183.name = __name7
-    local __e60 = nil
+    local ____x180 = {__args15}
+    ____x180.name = __name7
+    local __e57 = nil
     if _G.target == "c" then
-      __e60 = __type4
+      __e57 = __type4
     end
-    ____x183.keyword = __e60
-    ____x183.global = true
-    local __x182 = apply(compile_function, join(____x183, __body14))
-    return indentation() .. __x182
+    ____x180.keyword = __e57
+    ____x180.global = true
+    local __x179 = apply(compile_function, join(____x180, __body14))
+    return indentation() .. __x179
   else
     return compile({"%set", __name7, join({"%function", __args15}, __body14)}, {_stash = true, stmt = true})
   end
 end, stmt = true, tr = true})
 setenv("%local-function", {_stash = true, special = function(name, args, ...)
-  local ____r128 = unstash({...})
-  local __name8 = destash33(name, ____r128)
-  local __args16 = destash33(args, ____r128)
-  local ____id36 = ____r128
+  local ____r129 = unstash({...})
+  local __name8 = destash33(name, ____r129)
+  local __args16 = destash33(args, ____r129)
+  local ____id36 = ____r129
   local __type5 = ____id36.type
   local __body15 = cut(____id36, 0)
   if not( _G.target == "js") then
-    local ____x188 = {__args16}
-    ____x188.name = __name8
-    local __e61 = nil
+    local ____x185 = {__args16}
+    ____x185.name = __name8
+    local __e58 = nil
     if _G.target == "c" then
-      __e61 = __type5
+      __e58 = __type5
     end
-    ____x188.keyword = __e61
-    local __e62 = nil
+    ____x185.keyword = __e58
+    local __e59 = nil
     if _G.target == "lua" then
-      __e62 = "local"
+      __e59 = "local"
     end
-    ____x188.prefix = __e62
-    local __x187 = apply(compile_function, join(____x188, __body15))
-    return indentation() .. __x187
+    ____x185.prefix = __e59
+    local __x184 = apply(compile_function, join(____x185, __body15))
+    return indentation() .. __x184
   else
     return compile({"%local", __name8, join({"%function", __args16}, __body15)}, {_stash = true, stmt = true})
   end
 end, stmt = true, tr = true})
-setenv("return", {_stash = true, special = function(x)
+setenv("%return", {_stash = true, special = function(x)
   if nil63(x) then
     return "return"
   else
@@ -1755,13 +1743,13 @@ setenv("return", {_stash = true, special = function(x)
   end
 end, stmt = true})
 setenv("new", {_stash = true, special = function(x, count)
-  local __e63 = nil
+  local __e60 = nil
   if obj63(x) then
-    __e63 = x
+    __e60 = x
   else
-    __e63 = {x}
+    __e60 = {x}
   end
-  local ____id37 = __e63
+  local ____id37 = __e60
   local __type6 = ____id37[1]
   local __args17 = cut(____id37, 1)
   local __t4 = dequoted(__type6)
@@ -1785,52 +1773,52 @@ function _G.default_value63(value, type)
   return _G.target == "c" and value == "nil"
 end
 setenv("%local", {_stash = true, special = function(name, value, ...)
-  local ____r134 = unstash({...})
-  local __name9 = destash33(name, ____r134)
-  local __value3 = destash33(value, ____r134)
-  local ____id38 = ____r134
+  local ____r135 = unstash({...})
+  local __name9 = destash33(name, ____r135)
+  local __value3 = destash33(value, ____r135)
+  local ____id38 = ____r135
   local __type7 = ____id38.type
   local __id39 = compile(__name9)
   local __type12 = dequoted(__type7)
-  local __e64 = nil
+  local __e61 = nil
   if default_value63(__value3, __type12) then
-    __e64 = nil
+    __e61 = nil
   else
-    __e64 = __value3
+    __e61 = __value3
   end
-  local __value4 = __e64
+  local __value4 = __e61
   local __value11 = compile(__value4)
-  local __e65 = nil
+  local __e62 = nil
   if is63(__value4) then
-    __e65 = " = " .. __value11
+    __e62 = " = " .. __value11
   else
-    __e65 = ""
+    __e62 = ""
   end
-  local __rh2 = __e65
-  local __e66 = nil
+  local __rh2 = __e62
+  local __e63 = nil
   if _G.target == "c" then
-    __e66 = either(__type12, "auto")
+    __e63 = either(__type12, "auto")
   else
-    local __e67 = nil
+    local __e64 = nil
     if _G.target == "lua" then
-      __e67 = "local"
+      __e64 = "local"
     else
-      __e67 = "var"
+      __e64 = "var"
     end
-    __e66 = __e67
+    __e63 = __e64
   end
-  local __keyword1 = __e66
+  local __keyword1 = __e63
   return __keyword1 .. " " .. __id39 .. __rh2
 end, stmt = true})
 setenv("%set", {_stash = true, special = function(lh, rh)
   local __lh2 = compile(lh)
-  local __e68 = nil
+  local __e65 = nil
   if nil63(rh) then
-    __e68 = "nil"
+    __e65 = "nil"
   else
-    __e68 = rh
+    __e65 = rh
   end
-  local __rh3 = compile(__e68)
+  local __rh3 = compile(__e65)
   return __lh2 .. " = " .. __rh3
 end, stmt = true})
 setenv("get", {_stash = true, special = function(t, k)
@@ -1847,20 +1835,20 @@ setenv("get", {_stash = true, special = function(t, k)
 end})
 setenv("%array", {_stash = true, special = function(...)
   local __forms4 = unstash({...})
-  local __e69 = nil
+  local __e66 = nil
   if _G.target == "lua" then
-    __e69 = "{"
+    __e66 = "{"
   else
-    __e69 = "["
+    __e66 = "["
   end
-  local __open1 = __e69
-  local __e70 = nil
+  local __open1 = __e66
+  local __e67 = nil
   if _G.target == "lua" then
-    __e70 = "}"
+    __e67 = "}"
   else
-    __e70 = "]"
+    __e67 = "]"
   end
-  local __close1 = __e70
+  local __close1 = __e67
   local __s6 = ""
   local __c8 = ""
   local ____o9 = __forms4
@@ -1878,13 +1866,13 @@ setenv("%object", {_stash = true, special = function(...)
   local __forms5 = unstash({...})
   local __s7 = "{"
   local __c9 = ""
-  local __e71 = nil
+  local __e68 = nil
   if _G.target == "lua" then
-    __e71 = " = "
+    __e68 = " = "
   else
-    __e71 = ": "
+    __e68 = ": "
   end
-  local __sep1 = __e71
+  local __sep1 = __e68
   local ____o10 = pair(__forms5)
   local __k10 = nil
   for __k10 in pairs(____o10) do
@@ -1906,11 +1894,11 @@ end})
 setenv("%stmt", {_stash = true, special = function(...)
   local __args19 = unstash({...})
   local __s8 = indentation()
-  local ____x197 = __args19
+  local ____x194 = __args19
   local ____i25 = 0
-  while ____i25 < _35(____x197) do
-    local __x198 = ____x197[____i25 + 1]
-    __s8 = __s8 .. unquoted(__x198)
+  while ____i25 < _35(____x194) do
+    local __x195 = ____x194[____i25 + 1]
+    __s8 = __s8 .. unquoted(__x195)
     ____i25 = ____i25 + 1
   end
   __s8 = __s8 .. "\n"
@@ -1931,17 +1919,17 @@ setenv("%newline", {_stash = true, special = function()
 end, stmt = true, tr = true})
 setenv("%indent", {_stash = true, special = function(x)
   _G.indent_level = _G.indent_level + 1
-  local ____x199 = compile(x, {_stash = true, stmt = true})
+  local ____x196 = compile(x, {_stash = true, stmt = true})
   _G.indent_level = _G.indent_level - 1
-  return ____x199
+  return ____x196
 end, stmt = true, tr = true})
-local __e72 = nil
+local __e69 = nil
 if exports == nil then
-  __e72 = {}
+  __e69 = {}
 else
-  __e72 = exports
+  __e69 = exports
 end
-local __exports = __e72
+local __exports = __e69
 __exports.run = run
 __exports.eval = eval
 __exports.expand = expand

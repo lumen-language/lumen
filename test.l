@@ -487,7 +487,10 @@ c"
 (define-test while
   (let i 0
     (while (< i 5)
-      (if (= i 3) (break) (inc i)))
+      (if (= i 3) (break) (inc i))
+      (target lua: (do)
+        (continue)
+        (inc i)))
     (test= 3 i)
     (while (< i 10)
       (inc i))
@@ -739,7 +742,7 @@ c"
     (test= 'yy try)
     (test= '99 return))
   (define var (if end return)
-    (return (+ if end return)))
+    (%return (+ if end return)))
   (test= 6 (var 1 2 3))
   (define 1+ (x)
     (+ x 1))
@@ -1164,7 +1167,8 @@ c"
     (test= ns (map # strs))))
 
 (define-test compose
-  (test= "print(1)" ((compose compile lower macroexpand) '(print 1)))
+  (test= (compile (lower (macroexpand '(print 1))))
+         ((compose compile lower macroexpand) '(print 1)))
   (test= "6" ((compose tostring +) 1 2 3)))
 
 (define-test complement

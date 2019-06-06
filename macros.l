@@ -1,6 +1,15 @@
 (define-macro do body
   `(%do ,@body))
 
+(define-macro break body
+  `(%break ,@body))
+
+(define-macro return body
+  `(%return ,@body))
+
+(define-macro continue body
+  `(%continue ,@body))
+
 (define-macro quote (form)
   (quoted form))
 
@@ -234,7 +243,8 @@
 (define-macro language () `',target*)
 
 (define-macro target clauses
-  (get clauses target*))
+  (either (get clauses target*)
+          `(%do ,@clauses)))
 
 (define-macro join! (a rest: bs)
   `(set ,a (join ,a ,@bs)))

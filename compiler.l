@@ -302,7 +302,7 @@
                     "and" "end" "in" "load" "repeat" "while" "break"
                     "false" "local" "return" "do" "for" "nil" "then"
                     "else" "function" "not" "true" "elseif" "if" "or"
-                    "until")
+                    "until" "goto")
        c: (set-of "auto" "break" "case" "const" "continue" "default"
                   "do" "else" "enum" "extern" "for" "goto" "if"
                   "inline" "register" "restrict" "return" "signed"
@@ -619,7 +619,7 @@
 (define can-return? (form)
   (and (is? form)
        (or (atom? form)
-           (and (not (= (hd form) 'return))
+           (and (not (= (hd form) '%return))
                 (not (statement? (hd form)))))))
 
 (define-global compile (form stmt: stmt escape-reserved: esc?)
@@ -634,14 +634,10 @@
       (cat ind form tr))))
 
 (define-global lower-statement (form tail?)
-  (either
-    (let (hoist () e (lower form hoist true tail?))
-      (if (and (some? hoist) (is? e))
-          `(%do ,@hoist ,e)
-          (is? e) e
-          (> (# hoist) 1) `(%do ,@hoist)
-        (hd hoist)))
-    '(%do)))
+  (let (hoist () e (lower form hoist true tail?))
+    (when (is? e)
+      (add hoist e))
+    `(%do ,@hoist)))
 
 (define-global lower-body (body tail?)
   (with-frame
@@ -670,7 +666,7 @@
         (add hoist e))))
   (let e (lower (last args) hoist stmt? tail?)
     (if (and tail? (can-return? e))
-        `(return ,e)
+        `(%return ,e)
       e)))
 
 (define lower-set (args hoist stmt? tail?)
@@ -846,8 +842,7 @@
         (set s (cat (clip s 0 (edge s)) ";\n")))
       (cat! s (compile x stmt: true))
       (unless (atom? x)
-        (if (or (= (hd x) 'return)
-                (= (hd x) 'break))
+        (if (in (hd x) '%return '%break '%continue)
             (break))))))
 
 (define-special %brackets forms
@@ -912,7 +907,7 @@
   (let-unique (e)
     (let (ind (indentation)
           body (with-indent (compile form stmt: true))
-          hf `(return (%array false ,e))
+          hf `(%return (%array false ,e))
           h (with-indent (compile hf stmt: true)))
       (cat ind "try {\n" body ind "}\n"
            ind "catch (" e ") {\n" h ind "}\n"))))
@@ -920,8 +915,11 @@
 (define-special %delete (place) stmt: true
   (cat "delete " (compile place)))
 
-(define-special break () stmt: true
+(define-special %break () stmt: true
   "break")
+
+(define-special %continue () stmt: true
+  "continue")
 
 (define-special %function (args arrow: arrow? type: type rest: body)
   (if (and (= target* 'js) arrow?)
@@ -946,7 +944,7 @@
         (cat (indentation) x))
     (compile `(%local ,name (%function ,args ,@body)) stmt: true)))
 
-(define-special return (x) stmt: true
+(define-special %return (x) stmt: true
   (if (nil? x)
       "return"
     (cat "return " (compile x))))
