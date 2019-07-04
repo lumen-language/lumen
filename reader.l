@@ -1,4 +1,6 @@
 (define delimiters (set-of "(" ")" "[" "]" "{" "}" ";" "\r" "\n"))
+(define opening    (set-of     "("     "["     "{" "<"))
+(define closing    (set-of     ")"     "]"     "}" ">"))
 (define whitespace (set-of " " "\t" "\r" "\n"))
 
 (define stream (str more)
@@ -25,6 +27,14 @@
         (break)))))
 
 (define read-table (obj))
+
+(define read-closing? (s)
+  (let ((pos: pos) s)
+    (skip-non-code s)
+    (let c (peek-char s)
+      (set (get s 'pos) pos)
+      (or (nil? c)
+          (get closing c)))))
 
 (define read (s eof)
   (skip-non-code s)
@@ -99,7 +109,8 @@
           (if (= c ")") (do (read-char s) (set r l))
               (nil? c) (set r (expected s ")"))
             (let x (read s)
-              (if (key? x)
+              (if (and (key? x)
+                       (not (read-closing? s)))
                   (let (k (clip x 0 (edge x))
                         v (read s))
                     (set (get l k) v))

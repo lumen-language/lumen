@@ -393,25 +393,22 @@
           (add o (literal k))
           (add o x))))))
 
-(define-global infix*
-  `((%not: ((value: ! space: ,"") lua: not)
-     %unm: ((value: - space: ," ")))
-    (.: ((value: . space: ,"")) ->: ((value: -> space: ,"")))
-    (%mul: * %div: / %mod: %)
-    (%cat: (+ lua: ..))
-    (%add: + %sub: -)
-    (%lt: < %gt: > %le: <= %ge: >=)
-    (%eq: (== js: ===) =: (== js: ===))
-    (%and: (&& lua: and))
-    (%or: (|| lua: or))))
-
-(define-global pairwise*
-  '(%lt %le %eq %ge %gt))
-
 (define-global unary*
   `((%unm: ((value: - space: ," "))
      %deref: (c: (lh: ,"(" value: * rh: ,")"))
      %not: ((value: ! space: ,"") lua: (value: not space: ," ")))))
+
+(define-global infix*
+  `(,@unary*
+    (%dot: ((value: . space: ,""))
+     %arrow: ((value: -> space: ,"")))
+    (%mul: * %div: / %mod: %)
+    (%cat: (+ lua: ..))
+    (%add: + %sub: -)
+    (%lt: < %gt: > %le: <= %ge: >=)
+    (%eq: (== js: ===))
+    (%and: (&& lua: and))
+    (%or: (|| lua: or))))
 
 (define index (k)
   (target js: k lua: (when (number? k) (- k 1))))
@@ -511,26 +508,30 @@
     (if (get form 'ephemeral) ""
       (cat ind (apply special args) tr))))
 
-(define-global accessor-literal? (x)
-  (and (string? x)
-       (or (and (= (char x 0) ".")
-                (not (= (char x 1) "."))
-                (some? (char x 1)))
-           (and (= (char x 0) "-")
-                (= (char x 1) ">")
-                (some? (char x 2))))))
+(define-global accessor-prefixes*
+  (list "." "->"))
+
+(define-global accessor-literal? (token)
+  (some? (accessor-prefix token)))
+
+(define-global accessor-prefix (token (o otherwise ""))
+  (when (string? token)
+    (step x accessor-prefixes*
+      (unless (= token x)
+        (when (str-starts? token x)
+          (let c (code token (# x))
+            (when (and c (or (uppercase-code? c)
+                             (lowercase-code? c)
+                             (= c (%code "_"))))
+              (return x)))))))
+  otherwise)
 
 (define-global accessor-form? (x)
   (and (obj? x) (accessor-literal? (last x))))
 
-(define-global accessor-prefix (x dot)
-  (if (and (= target* 'c) 
-           (= (char x 0) "-"))
-      "->"
-    dot))
-
 (define-global accessor-suffix (x)
-  (clip x (if (= (char x 0) ".") 1 2)))
+  (let prefix (accessor-prefix x)
+    (clip x (# prefix))))
 
 (define-global accessor-literal (x)
   (compile (camel-case (accessor-suffix x)) escape-reserved: false))
@@ -641,7 +642,9 @@
   (let (hoist () e (lower form hoist true tail?))
     (when (is? e)
       (add hoist e))
-    `(%do ,@hoist)))
+    (if (one? hoist)
+        (hd hoist)
+      `(%do ,@hoist))))
 
 (define-global lower-body (body tail?)
   (with-frame
@@ -725,7 +728,7 @@
              ,(lower-body body))
         `(%while true
             (%do ,@pre
-                 (%if (%not ,c) (break))
+                 (%if (%not ,c) (%break))
                  ,(lower-body body)))))))
 
 (define lower-for (args hoist)
@@ -775,8 +778,11 @@
     (set a (list x a b)))
   a)
 
+(define-global pairwise-forms*
+  '(%lt %le %eq %ge %gt))
+
 (define lower-pairwise? (form)
-  (and (> (# form) 3) (in? (hd form) pairwise*)))
+  (and (> (# form) 3) (in? (hd form) pairwise-forms*)))
 
 (define pairwise-form ((x a rest: bs))
   (with e '(%and)

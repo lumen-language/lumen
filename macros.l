@@ -57,6 +57,12 @@
 (define-macro % args
   `(%mod ,@args))
 
+(define-macro . args
+  `(%dot ,@args))
+
+(define-macro -> args
+  `(%arrow ,@args))
+
 (define-macro quote (form)
   (quoted form))
 
