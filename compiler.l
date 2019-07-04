@@ -92,6 +92,7 @@
 (define-global bind-optional (lh rh)
   (when (or (hd? lh 'o)
             (hd? lh 'or)
+            (hd? lh '%or)
             (hd? lh '&optional))
     (let ((_ var val) lh)
       (bind var `(%if (= ,rh nil) ,(or val 'nil) ,rh)))))
@@ -392,29 +393,32 @@
           (add o (literal k))
           (add o x))))))
 
-(define-global infix
-  `((not: ((value: ! space: ,"") lua: not))
+(define-global infix*
+  `((%not: ((value: ! space: ,"") lua: not)
+     %unm: ((value: - space: ," ")))
     (.: ((value: . space: ,"")) ->: ((value: -> space: ,"")))
-    (*: * /: / %: %)
-    (cat: (+ lua: ..))
-    (+: + -: -)
-    (<: < >: > <=: <= >=: >=)
-    (=: (== js: ===))
-    (and: (&& lua: and))
-    (or: (|| lua: or))))
+    (%mul: * %div: / %mod: %)
+    (%cat: (+ lua: ..))
+    (%add: + %sub: -)
+    (%lt: < %gt: > %le: <= %ge: >=)
+    (%eq: (== js: ===) =: (== js: ===))
+    (%and: (&& lua: and))
+    (%or: (|| lua: or))))
+
+(define-global pairwise*
+  '(%lt %le %eq %ge %gt))
 
 (define-global unary*
-  `((-: ((value: - space: ," "))
-     *: (c: (lh: ,"(" value: * rh: ,")"))
-     not: ((value: ! space: ,"")
-           lua: (value: not space: ," ")))))
+  `((%unm: ((value: - space: ," "))
+     %deref: (c: (lh: ,"(" value: * rh: ,")"))
+     %not: ((value: ! space: ,"") lua: (value: not space: ," ")))))
 
 (define index (k)
   (target js: k lua: (when (number? k) (- k 1))))
 
 (define-global precedence (form)
   (unless (or (atom? form) (unary? form))
-    (each (k v) infix
+    (each (k v) infix*
       (if (get v (hd form)) (return (index k)))))
   0)
 
@@ -439,7 +443,7 @@
           default))
 
 (define-global inop (op k default)
-  (getop infix op k default))
+  (getop infix* op k default))
 
 (define-global unop (op k default)
   (getop unary* op k default))
@@ -575,7 +579,7 @@
         (bo bc) (op-delims form b true)
         a (compile a)
         b (compile b)
-        ops (if (unary? form) unary* infix)
+        ops (if (unary? form) unary* infix*)
         x (hd form)
         op (getop ops x 'value)
         lh (getop ops x 'lh "")
@@ -694,7 +698,7 @@
         e))))
 
 (define lower-short (x args hoist stmt? tail?)
-  (if (none? args) (if (= x 'and) `true `false)
+  (if (none? args) (if (= x '%and) `true `false)
       (one? args) (hd args)
     (let ((a b) args
           hoist1 ()
@@ -702,7 +706,7 @@
       (if (some? hoist1)
           (let-unique (id)
             (lower `(%do ,(auto-local id a)
-                         ,(if (= x 'and)
+                         ,(if (= x '%and)
                               `(%if ,id ,b ,id)
                             `(%if ,id ,id ,b)))
                    hoist))
@@ -721,7 +725,7 @@
              ,(lower-body body))
         `(%while true
             (%do ,@pre
-                 (%if (not ,c) (break))
+                 (%if (%not ,c) (break))
                  ,(lower-body body)))))))
 
 (define lower-for (args hoist)
@@ -772,10 +776,10 @@
   a)
 
 (define lower-pairwise? (form)
-  (and (> (# form) 3) (in? (hd form) '(< <= = >= >))))
+  (and (> (# form) 3) (in? (hd form) pairwise*)))
 
 (define pairwise-form ((x a rest: bs))
-  (with e '(and)
+  (with e '(%and)
     (step b bs
       (add e (list x a b))
       (set a b))))
@@ -804,7 +808,7 @@
               (= x '%global-function))
           (lower-definition x args hoist stmt? tail?)
           (= x '%local) (lower-local form hoist stmt? tail?)
-          (in? x '(and or))
+          (in? x '(%and %or))
           (lower-short x args hoist stmt? tail?)
           (statement? x) (lower-special form hoist stmt? tail?)
         (lower-call form hoist)))))

@@ -24,7 +24,8 @@
          (when verbose?
            (print (cat "  " (pp-to-string '(test= ,a ,b)))))
          (test (equal? ,x ,y)
-               (cat "failed: expected " (str ,x) ", was " (str ,y))))))
+               (cat "failed: expected " (str ,x) ", was " (str ,y) "\n"
+                    (str '(test= ,a ,b)))))))
 
   (define-macro define-test (name rest: body)
     `(add tests (list ',name (fn (verbose?) ,@body)))))

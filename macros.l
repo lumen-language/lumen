@@ -10,6 +10,53 @@
 (define-macro continue body
   `(%continue ,@body))
 
+(define-macro and args
+  `(%and ,@args))
+
+(define-macro or args
+  `(%or ,@args))
+
+(define-macro not args
+  `(%not ,@args))
+
+(define-macro cat args
+  `(%cat ,@args))
+
+(define-macro = args
+  `(%eq ,@args))
+
+(define-macro < args
+  `(%lt ,@args))
+
+(define-macro <= args
+  `(%le ,@args))
+
+(define-macro > args
+  `(%gt ,@args))
+
+(define-macro >= args
+  `(%ge ,@args))
+
+(define-macro + args
+  `(%add ,@args))
+
+(define-macro - args
+  (if (one? args)
+      `(%unm ,@args)
+    `(%sub ,@args)))
+
+(define-macro * args
+  (if (and (one? args)
+           (= target* 'c))
+      `(%deref ,@args)
+      `(%mul ,@args)))
+
+(define-macro / args
+  `(%div ,@args))
+
+(define-macro % args
+  `(%mod ,@args))
+
 (define-macro quote (form)
   (quoted form))
 

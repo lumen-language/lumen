@@ -58,8 +58,8 @@ parse_option = function(args) {
 parse_arguments = function(aliases, argv) {
   var __l = argv || get_argv();
   var __a = aliases || {};
-  var __r17 = parse_positional(__l);
-  __l = cut(__l, _35(__r17));
+  var __r18 = parse_positional(__l);
+  __l = cut(__l, _35(__r18));
   while (true) {
     var __p = parse_option(__l);
     if (!__p) {
@@ -67,44 +67,44 @@ parse_arguments = function(aliases, argv) {
     }
     var ____y = __p;
     if (yes(____y)) {
-      var ____id = ____y;
-      var __op = ____id[0];
-      var __args = ____id[1];
+      var ____id1 = ____y;
+      var __op = ____id1[0];
+      var __args = ____id1[1];
       if (__op === "--") {
         __l = cut(__l, 1);
         break;
       }
       __l = cut(__l, 1 + _35(__args));
-      var __e = undefined;
-      if (clip(__op, 0, 2) === "--") {
-        __e = clip(__op, 2);
-      } else {
-        __e = clip(__op, 1);
-      }
-      var __k = __e;
-      var __k1 = __a[__k] || __k;
       var __e1 = undefined;
-      if (none63(__args)) {
-        __e1 = true;
+      if (clip(__op, 0, 2) === "--") {
+        __e1 = clip(__op, 2);
       } else {
-        __e1 = __args;
+        __e1 = clip(__op, 1);
       }
-      var __v = __e1;
-      __r17[__k1] = __v;
-      add(__r17, [__k1, __v]);
+      var __k = __e1;
+      var __k1 = __a[__k] || __k;
+      var __e2 = undefined;
+      if (none63(__args)) {
+        __e2 = true;
+      } else {
+        __e2 = __args;
+      }
+      var __v = __e2;
+      __r18[__k1] = __v;
+      add(__r18, [__k1, __v]);
     }
   }
-  __r17.rest = __l;
-  set_argv(__r17.rest);
-  return __r17;
+  __r18.rest = __l;
+  set_argv(__r18.rest);
+  return __r18;
 };
 arguments = function(aliases, argv) {
   var __argv = argv || get_argv();
-  var __r19 = parse_arguments(__argv, aliases);
-  set_argv(__r19.rest);
-  delete __r19.rest;
-  if (!empty63(__r19)) {
-    return __r19;
+  var __r20 = parse_arguments(__argv, aliases);
+  set_argv(__r20.rest);
+  delete __r20.rest;
+  if (!empty63(__r20)) {
+    return __r20;
   }
 };
 var reload = function(module) {
@@ -114,13 +114,13 @@ var reload = function(module) {
 var run = function(command) {
   return child_process.execSync(command).toString();
 };
-var __e2 = undefined;
+var __e3 = undefined;
 if (typeof(exports) === "undefined") {
-  __e2 = {};
+  __e3 = {};
 } else {
-  __e2 = exports;
+  __e3 = exports;
 }
-var __exports = __e2;
+var __exports = __e3;
 __exports.readFile = read_file;
 __exports.writeFile = write_file;
 __exports.fileExists63 = file_exists63;
