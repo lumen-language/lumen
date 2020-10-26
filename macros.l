@@ -162,10 +162,12 @@
     `(%do ,@(macroexpand body))))
 
 (define-macro let-symbol (expansions rest: body)
-  (with-frame
-    (step (name exp) (pair expansions)
-      (eval `(define-symbol ,name ,exp)))
-    `(%do ,@(macroexpand body))))
+  (if (atom? expansions)
+      `(let-symbol (,expansions ,(hd body)) ,@(tl body))
+    (with-frame
+      (step (name exp) (pair expansions)
+        (eval `(define-symbol ,name ,exp)))
+      `(%do ,@(macroexpand body)))))
 
 (define-macro let-unique (names rest: body)
   (let bs (map (fn (n)
