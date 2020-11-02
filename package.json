@@ -25,7 +25,9 @@
   },
   "homepage": "https://github.com/sctb/lumen",
   "dependencies": {
+    "express": "^4.17.1",
     "react": "^16.6.0",
-    "react-dom": "^16.6.0"
+    "react-dom": "^16.6.0",
+    "websocket": "^1.0.32"
   }
 }
