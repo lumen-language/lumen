@@ -50,16 +50,19 @@ var opt63 = function (x) {
 parse_positional = function (args, pos) {
   return cut(args, either(pos, 0), first(opt63, args, pos));
 };
+parse_value = function (x) {
+  return either(number(x), x);
+};
 parse_option = function (args) {
   if (opt63(hd(args))) {
-    return [hd(args), parse_positional(args, 1)];
+    return [hd(args), map(parse_value, parse_positional(args, 1))];
   }
 };
 parse_arguments = function (aliases, argv) {
   var __l = argv || get_argv();
   var __a = aliases || {};
-  var __r17 = parse_positional(__l);
-  __l = cut(__l, _35(__r17));
+  var __r18 = parse_positional(__l);
+  __l = cut(__l, _35(__r18));
   while (true) {
     var __p = parse_option(__l);
     if (! __p) {
@@ -90,28 +93,28 @@ parse_arguments = function (aliases, argv) {
         __e1 = __args;
       }
       var __v = __e1;
-      __r17[__k1] = __v;
-      add(__r17, [__k1, __v]);
+      __r18[__k1] = __v;
+      add(__r18, [__k1, __v]);
     }
   }
-  __r17.rest = __l;
-  set_argv(__r17.rest);
-  return __r17;
+  __r18.rest = __l;
+  set_argv(__r18.rest);
+  return __r18;
 };
 arguments = function (aliases, argv) {
   var __argv = argv || get_argv();
-  var __r19 = parse_arguments(__argv, aliases);
-  set_argv(__r19.rest);
-  delete __r19.rest;
-  if (! empty63(__r19)) {
-    return __r19;
+  var __r20 = parse_arguments(__argv, aliases);
+  set_argv(__r20.rest);
+  delete __r20.rest;
+  if (! empty63(__r20)) {
+    return __r20;
   }
 };
 var reload = function (module) {
   delete require.cache[require.resolve(module)];
   return require(module);
 };
-var run = function (command) {
+shell = function (command) {
   return child_process.execSync(command).toString();
 };
 var __e2 = undefined;
@@ -136,5 +139,5 @@ __exports.getArgv = get_argv;
 __exports.setArgv = set_argv;
 __exports.arguments = arguments;
 __exports.reload = reload;
-__exports.run = run;
+__exports.shell = shell;
 __exports;

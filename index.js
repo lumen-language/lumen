@@ -17,6 +17,15 @@ _G.require = require;
 _G.ustring = (_G.ustring || {})
 _G.ustring.new = x => [...x]
 
+_G.require.extensions['.l'] = function (module, filename) {
+  const source = _G.compile_file(filename)
+  // const filename2 = filename.replace(/[.]l$/, '') + '.js'
+  // _G.fs.writeFileSync(filename2, source)
+  // module.exports = _G.require(filename2)
+  // return module
+  return module._compile(source, filename);
+}
+
 Object.assign(exports, require("./bin/lumen.js"));
 if (require.main === module) {
   exports.main(process.argv.slice(2));

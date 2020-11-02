@@ -86,9 +86,12 @@
 (define-global parse-positional (args pos)
   (cut args (either pos 0) (first opt? args pos)))
 
+(define-global parse-value (x)
+  (either (number x) x))
+
 (define-global parse-option (args)
   (when (opt? (hd args))
-    `(,(hd args) ,(parse-positional args 1))))
+    `(,(hd args) ,(map parse-value (parse-positional args 1)))))
 
 (define-global parse-arguments (aliases argv)
   (let (l (or argv (get-argv))
@@ -124,7 +127,7 @@
           js: (get (get require 'cache) ((get require 'resolve) module))))
   (require module))
 
-(define run (command)
+(define-global shell (command)
   (target
     js: ((get ((get child_process 'execSync) command) 'toString))
     lua: (let f ((get io 'popen) command)
@@ -146,4 +149,4 @@
         set-argv
         arguments
         reload
-        run)
+        shell)

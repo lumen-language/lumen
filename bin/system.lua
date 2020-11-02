@@ -83,16 +83,19 @@ end
 function _G.parse_positional(args, pos)
   return cut(args, either(pos, 0), first(opt63, args, pos))
 end
+function _G.parse_value(x)
+  return either(number(x), x)
+end
 function _G.parse_option(args)
   if opt63(hd(args)) then
-    return {hd(args), parse_positional(args, 1)}
+    return {hd(args), map(parse_value, parse_positional(args, 1))}
   end
 end
 function _G.parse_arguments(aliases, argv)
   local __l = argv or get_argv()
   local __a = aliases or {}
-  local __r22 = parse_positional(__l)
-  __l = cut(__l, _35(__r22))
+  local __r23 = parse_positional(__l)
+  __l = cut(__l, _35(__r23))
   while true do
     local __p = parse_option(__l)
     if not __p then
@@ -123,28 +126,28 @@ function _G.parse_arguments(aliases, argv)
         __e4 = __args
       end
       local __v = __e4
-      __r22[__k1] = __v
-      add(__r22, {__k1, __v})
+      __r23[__k1] = __v
+      add(__r23, {__k1, __v})
     end
   end
-  __r22.rest = __l
-  set_argv(__r22.rest)
-  return __r22
+  __r23.rest = __l
+  set_argv(__r23.rest)
+  return __r23
 end
 function _G.arguments(aliases, argv)
   local __argv = argv or get_argv()
-  local __r24 = parse_arguments(__argv, aliases)
-  set_argv(__r24.rest)
-  __r24.rest = nil
-  if not empty63(__r24) then
-    return __r24
+  local __r25 = parse_arguments(__argv, aliases)
+  set_argv(__r25.rest)
+  __r25.rest = nil
+  if not empty63(__r25) then
+    return __r25
   end
 end
 local function reload(module)
   package.loaded[module] = nil
   return require(module)
 end
-local function run(command)
+function _G.shell(command)
   local __f2 = io.popen(command)
   local __x5 = __f2.read(__f2, "*all")
   __f2.close(__f2)
@@ -172,5 +175,5 @@ __exports.getArgv = get_argv
 __exports.setArgv = set_argv
 __exports.arguments = arguments
 __exports.reload = reload
-__exports.run = run
+__exports.shell = shell
 return __exports

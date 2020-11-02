@@ -54,12 +54,14 @@
 (app (.get "/" app-index))
 
 (define-global main (argv)
-  (let ((port: (o port 8090)
-         wsport: (o wsport 3001))
-        (parse-arguments (obj p: 'port ws: 'wsport)))
+  (let ((port: (o port '(8090))
+         wsport: (o wsport '(3001)))
+        (parse-arguments (obj p: 'port ws: 'wsport))
+        port (number (hd port))
+        wsport (number (hd wsport)))
     ((app .listen)
      port
-     [do (print (cat "Server is running on " (str port)))
+     [do (print (cat "Server is running on HTTP port " (str port) " websocket port " (str wsport)))
          (let srv (http (.create-server))
            (srv (.listen wsport))
            (set server* (new ((websocket .server) (obj httpServer: srv))))
@@ -76,11 +78,12 @@
                  (print (str `(data ,data from ,(request .httpRequest .headers .host))))])
               ])
            )
+         (shell (cat "open http://localhost:" port))
          ])
     app))
       
 (export main)
 
 
-
+; (client* (.sendBytes ((Buffer .from) (new (ArrayBuffer 42)))))
 
