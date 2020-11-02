@@ -229,11 +229,25 @@
                 (step k (map expand-atom (map read-string (tl parts)))
                   (set x `(ref ,x ,(quoted k))))))))))))
 
+(define-global jsx? (form)
+  (and (identifier? form)
+       (== (char form 0) "<")
+       (== (char form (edge form)) ">")))
+
+(define-global uppercase-code? (c)
+  (and (>= c 65) ; A
+       (<= c 90))) ; Z
+
+(define-global compile-jsx (form)
+  (if (= form "")
+      `(jsx (React .Fragment))
+      (and (identifier? form)
+           (uppercase-code? (or (code form 0) 0)))
+      `(jsx ,form)
+    `(jsx ,(quoted form))))
+
 (define-global expand-jsx (form)
-  (when (and (identifier? form)
-             (== (char form 0) "<")
-             (== (char form (edge form)) ">"))
-    `(jsx ,(inner form))))
+  (if (jsx? form) (compile-jsx (inner form))))
 
 (define-global expand-atom-functions* ())
 ; (add expand-atom-functions* expand-compose)

@@ -7,6 +7,9 @@
 (define-macro do body
   `(%do ,@body))
 
+(define-macro void body
+  `(do ,@body nil))
+
 (define-macro = args `(== ,@args))
 
 (define-macro while (test rest: body)
@@ -75,10 +78,20 @@
 (define-macro if branches
   (hd (expand-if branches)))
 
+; (define-macro case (x rest: clauses)
+;   (let-unique (e)
+;     (let bs (map (fn ((a b))
+;                    (if (nil? b)
+;                        (list a)
+;                      `((== ,a ,e) ,b)))
+;                  (pair clauses))
+;       `(let (,e ,x) (if ,@(apply join bs))))))
+
 (define-macro case (expr rest: clauses)
   (let-unique (x)
-    (let (eq (fn (_) `(== ',_ ,x))
+    (let (eq (fn (_) `(== ,_ ,x))
           cl (fn ((a b))
+               (set a (macroexpand a))
                (if (nil? b) (list a)
                    (or (string? a) (number? a)) (list (eq a) b)
                    (one? a) (list (eq (hd a)) b)
@@ -142,6 +155,10 @@
       `(set ,name ,x)
     `(set (get _G ',(compile name)) ,x)))
 
+(define-macro define-variable (name x rest: body)
+  `(when (undefined? ,name)
+     (define-global ,name ,x ,@body)))
+
 (define-macro with-frame body
   (let-unique (x)
     `(%do (add environment* (obj))
@@ -177,6 +194,9 @@
        ,@body)))
 
 (define-macro fn (args rest: body)
+  (when (none? body)
+    (set body `(,args ,@body))
+    (set args '()))
   `(%function ,@(bind-function args body) ,@(props body)))
 
 (define-macro apply (f rest: args)
@@ -289,7 +309,7 @@
   (macroexpand `(%object ,@body)))
 
 (define-transformer jsx ((jsx spec) rest: body)
-  (macroexpand `((React .createElement) ',(unquoted spec)
+  (macroexpand `((React .createElement) ,spec
                                         (%object ,@(mapo (fn (x) x) (props body)))
                                         ,@(vals body))))
 

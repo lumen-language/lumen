@@ -1,0 +1,17 @@
+#!/bin/sh
+
+dir="$(pwd)"
+bin="$0"
+while [ -L "${bin}" ]
+do
+    x="$(readlink "${bin}")"
+    cd "$(dirname "${bin}")"
+    bin="${x}"
+done
+cd "$(dirname "${bin}")"/..
+home="$(pwd)"
+cd "${dir}"
+
+code=main.lua
+
+exec luvit "${home}/${code}" "$@"

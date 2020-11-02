@@ -4,25 +4,27 @@
 (define stream (str more)
   (obj pos: 0 string: str len: (# str) more: more))
 
-(define peek-char (s)
+(define peek-char (s (o i 0))
   (let ((pos: pos len: len string: str) s)
-    (when (< pos len)
-      (char str pos))))
+    (when (< (+ pos i) len)
+      (char str (+ pos i)))))
 
 (define read-char (s)
   (let c (peek-char s)
     (if c (do (inc (get s 'pos)) c))))
 
 (define skip-non-code (s)
-  (while true
-    (let c (peek-char s)
-      (if (nil? c) (break)
-          (get whitespace c) (read-char s)
-          (= c ";")
-          (do (while (and c (not (= c "\n")))
-                (set c (read-char s)))
-              (skip-non-code s))
-        (break)))))
+  (with any? nil
+    (while true
+      (let c (peek-char s)
+        (if (nil? c) (break)
+            (get whitespace c) (read-char s)
+            (= c ";")
+            (do (while (and c (not (= c "\n")))
+                  (set c (read-char s)))
+                (skip-non-code s))
+          (break)))
+      (set any? true))))
 
 (define read-table (obj))
 
@@ -75,8 +77,31 @@
 (define real? (x)
   (and (number? x) (not (nan? x)) (not (inf? x))))
 
-(define-reader ("" s) ; atom
-  (let (str "")
+(define valid-access? (str)
+  (and (> (# str) 2)
+       (not (= "." (char str 0)))
+       (not (= "." (char str (edge str))))
+       (nil? (search str ".."))))
+
+(define parse-index (a b)
+  (print (str `(parse-index ,a ,b)))
+  (if (nil? a)
+      (cat "." b)
+    (let n (number a)
+      (if (nil? n)
+          `(get ,b ,(quoted a))
+        `(at ,b ,n)))))
+
+(define parse-access (x prev)
+  (print (str `(parse-access ,x ,prev)))
+  (parse-index x prev))
+  ; (let (parts (if prev (list prev) ())
+  ;       splits (split x "."))
+  ;   (print (str `(parse-access ,x ,prev parts: ,parts splits: ,splits)))
+  ;   (reduce parse-index (reverse (join parts (split x "."))))))
+
+(define read-atom (s (o basic? false))
+  (let str ""
     (while true
       (let c (peek-char s)
         (if (= c "\\") (cat! str (read-char s) (read-char s))
@@ -86,24 +111,50 @@
           (break))))
   (if (= str "true") true
       (= str "false") false
+      basic? s
     (let n (maybe-number str)
       (if (real? n) n str)))))
 
-(define-reader ("(" s)
+
+(define read-list (s ending) 
   (read-char s)
   (with r nil
     (let l ()
       (while (nil? r)
         (skip-non-code s)
         (let c (peek-char s)
-          (if (= c ")") (do (read-char s) (set r l))
-              (nil? c) (set r (expected s ")"))
+          (if (= c ending) (do (read-char s) (set r l))
+              (nil? c) (set r (expected s ending))
             (let x (read s)
               (if (key? x)
                   (let (k (clip x 0 (edge x))
                         v (read s))
                     (set (get l k) v))
                 (add l x)))))))))
+
+(define read-next (s prev ws? eof)
+  (return prev)
+  (case (peek-char s)
+    "." (do (read-char s)
+            (skip-non-code s)
+            (if (nil? (peek-char s))
+                (or (get s 'more) eof)
+                ; when reading e.g. "(list '(a b) 'c).0.1", the t
+                ; parameter avoids parsing "0.1" as a number.
+              (let x (read-atom s true)
+                (if (or (= x eof) (= x (get s 'more))) x
+                  (read-next s (parse-access x prev) nil eof)))))
+    "(" (if ws? prev
+          (let x (read-list s ")")
+            (if (= x (get s 'more)) x
+              (read-next s `(,prev ,@x) (skip-non-code s) eof))))
+    prev))
+
+(define-reader ("" s) ; atom
+  (read-next s (read-atom s)))
+
+(define-reader ("(" s)
+  (read-next s (read-list s ")")))
 
 (define-reader (")" s)
   (error (cat "Unexpected ) at " (get s 'pos))))

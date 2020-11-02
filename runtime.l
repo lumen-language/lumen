@@ -34,12 +34,10 @@
     (let ((ok v) (guard (results (f ...))))
       (values ok (unpack v)))))
 
-(target lua: (define-global null ()))
+(target lua: (define-global null (if JSON (get JSON 'null) ())))
 
 (define-global nil? (x)
-  (target
-    js: (or (== x nil) (== x null))
-    lua: (== x nil)))
+  (or (== x nil) (== x null)))
 
 (define-global is? (x) (not (nil? x)))
 
@@ -52,7 +50,8 @@
           lua: (is? (get l k))))
 
 (define-global # (x)
-  (target js: (or (get x 'length) 0) lua: (%literal "#" x)))
+  (if (nil? x) 0
+    (target js: (or (get x 'length) 0) lua: (%literal "#" x))))
 
 (define-global none? (x) (= (# x) 0))
 (define-global some? (x) (> (# x) 0))
@@ -421,8 +420,14 @@
         (cat! s1 c1)))
     (cat s1 "\"")))
 
+(define-global simple-id? (x)
+  (and (string? x)
+       (let ((ok v) (guard (read-string x)))
+         (and ok (= v x)))))
+
 (define-global str (x stack)
-  (if (string? x) (escape x)
+  (if (simple-id? x) x
+      (string? x) (escape x)
       (atom? x) (tostring x)
       (function? x) "function"
       (and stack (in? x stack)) "circular"
