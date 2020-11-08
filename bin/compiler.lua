@@ -121,7 +121,7 @@ function _G.bind_optional(lh, rh)
     local ___ = ____id[1]
     local __var = ____id[2]
     local __val = ____id[3]
-    return bind(__var, {"%if", {"=", rh, "nil"}, __val or "nil", rh})
+    return bind(__var, {"%if", {"=", rh, "nil"}, either(__val, "nil"), rh})
   end
 end
 function _G.bind_destructuring(lh, rh)

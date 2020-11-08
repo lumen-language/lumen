@@ -87,7 +87,7 @@
             (hd? lh 'or)
             (hd? lh '&optional))
     (let ((_ var val) lh)
-      (bind var `(%if (= ,rh nil) ,(or val 'nil) ,rh)))))
+      (bind var `(%if (= ,rh nil) ,(either val 'nil) ,rh)))))
 
 (define-global bind-destructuring (lh rh)
   (let-unique (id)

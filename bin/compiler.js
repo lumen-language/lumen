@@ -121,7 +121,7 @@ bind_optional = function(lh, rh) {
     var ___ = ____id[0];
     var ___var = ____id[1];
     var __val = ____id[2];
-    return bind(___var, ["%if", ["=", rh, "nil"], __val || "nil", rh]);
+    return bind(___var, ["%if", ["=", rh, "nil"], either(__val, "nil"), rh]);
   }
 };
 bind_destructuring = function(lh, rh) {
