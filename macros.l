@@ -102,7 +102,7 @@
 (define-macro let (bs rest: body)
   (if (atom? bs) `(let (,bs ,(hd body)) ,@(tl body))
       (none? bs) `(%do ,@body)
-      (hd? bs '%brackets) `(let ,(tl bs) ,@body)
+      (brackets? bs) `(let (,bs ,(hd body)) ,@(tl body))
     (let ((lh rh rest: bs2) bs
           (id val rest: bs1) (bind lh rh)
           id1 (unique id))
