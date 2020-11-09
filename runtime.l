@@ -34,10 +34,11 @@
     (let ((ok v) (guard (results (f ...))))
       (values ok (unpack v)))))
 
+(target lua:
+  (define-global null (if JSON (JSON .null) ())))
+
 (define-global nil? (x)
-  (target
-    js: (or (= x nil) (= x null))
-    lua: (= x nil)))
+  (or (= x nil) (= x null)))
 
 (define-global is? (x) (not (nil? x)))
 

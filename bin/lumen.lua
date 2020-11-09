@@ -7,8 +7,15 @@ end
 function _G.results(x, ...)
   return {x, ...}
 end
+local __e = nil
+if JSON then
+  __e = JSON.null
+else
+  __e = {}
+end
+_G.null = __e
 function _G.nil63(x)
-  return x == nil
+  return x == nil or x == null
 end
 function _G.is63(x)
   return not nil63(x)
@@ -67,25 +74,25 @@ function _G.atom63(x)
 end
 function _G.hd63(l, x)
   local __id1 = obj63(l)
-  local __e2 = nil
+  local __e3 = nil
   if __id1 then
-    local __e3 = nil
+    local __e4 = nil
     if function63(x) then
-      __e3 = x(hd(l))
+      __e4 = x(hd(l))
     else
-      local __e4 = nil
+      local __e5 = nil
       if nil63(x) then
-        __e4 = hd(l)
+        __e5 = hd(l)
       else
-        __e4 = hd(l) == x
+        __e5 = hd(l) == x
       end
-      __e3 = __e4
+      __e4 = __e5
     end
-    __e2 = __e3
+    __e3 = __e4
   else
-    __e2 = __id1
+    __e3 = __id1
   end
-  return __e2
+  return __e3
 end
 _G.nan = 0 / 0
 _G.inf = 1 / 0
@@ -143,21 +150,21 @@ end
 function _G.cut(x, from, upto)
   local __l = {}
   local __j = 0
-  local __e5 = nil
-  if nil63(from) or from < 0 then
-    __e5 = 0
-  else
-    __e5 = from
-  end
-  local __i2 = __e5
-  local __n1 = _35(x)
   local __e6 = nil
-  if nil63(upto) or upto > __n1 then
-    __e6 = __n1
+  if nil63(from) or from < 0 then
+    __e6 = 0
   else
-    __e6 = upto
+    __e6 = from
   end
-  local __upto1 = __e6
+  local __i2 = __e6
+  local __n1 = _35(x)
+  local __e7 = nil
+  if nil63(upto) or upto > __n1 then
+    __e7 = __n1
+  else
+    __e7 = upto
+  end
+  local __upto1 = __e7
   while __i2 < __upto1 do
     __l[__j + 1] = x[__i2 + 1]
     __i2 = __i2 + 1
@@ -198,11 +205,11 @@ function _G.char(s, n)
   return clip(s, n, n + 1)
 end
 function _G.code(s, n)
-  local __e7 = nil
+  local __e8 = nil
   if n then
-    __e7 = n + 1
+    __e8 = n + 1
   end
-  return string.byte(s, __e7)
+  return string.byte(s, __e8)
 end
 function _G.from_code(n)
   return string.char(n)
@@ -430,11 +437,11 @@ function _G.destash33(l, args1)
   end
 end
 function _G.search(s, pattern, start)
-  local __e8 = nil
+  local __e9 = nil
   if start then
-    __e8 = start + 1
+    __e9 = start + 1
   end
-  local __start = __e8
+  local __start = __e9
   local __i19 = string.find(s, pattern, __start, true)
   return __i19 and __i19 - 1
 end
@@ -569,31 +576,31 @@ function _G.escape(s)
   local __i24 = 0
   while __i24 < _35(s) do
     local __c1 = char(s, __i24)
-    local __e9 = nil
+    local __e10 = nil
     if __c1 == "\n" then
-      __e9 = "\\n"
+      __e10 = "\\n"
     else
-      local __e10 = nil
+      local __e11 = nil
       if __c1 == "\r" then
-        __e10 = "\\r"
+        __e11 = "\\r"
       else
-        local __e11 = nil
+        local __e12 = nil
         if __c1 == "\"" then
-          __e11 = "\\\""
+          __e12 = "\\\""
         else
-          local __e12 = nil
+          local __e13 = nil
           if __c1 == "\\" then
-            __e12 = "\\\\"
+            __e13 = "\\\\"
           else
-            __e12 = __c1
+            __e13 = __c1
           end
-          __e11 = __e12
+          __e12 = __e13
         end
-        __e10 = __e11
+        __e11 = __e12
       end
-      __e9 = __e10
+      __e10 = __e11
     end
-    local __c11 = __e9
+    local __c11 = __e10
     __s1 = __s1 .. __c11
     __i24 = __i24 + 1
   end
@@ -662,13 +669,13 @@ function _G.setenv(k, ...)
   local ____id = ____r89
   local __keys = cut(____id, 0)
   if string63(__k11) then
-    local __e13 = nil
+    local __e14 = nil
     if __keys.toplevel then
-      __e13 = hd(_G.environment)
+      __e14 = hd(_G.environment)
     else
-      __e13 = last(_G.environment)
+      __e14 = last(_G.environment)
     end
-    local __frame = __e13
+    local __frame = __e14
     local __entry = __frame[__k11] or {}
     local ____o16 = __keys
     local __k12 = nil
